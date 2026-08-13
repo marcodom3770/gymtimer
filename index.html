@@ -497,92 +497,93 @@ let audioCtx        = null;
 let wakeLock        = null;
 
 // ══════════════════════════════════════════════════════════════════════
-//  SISTEMA DE VOZ — Android WebView otimizado
+//  SISTEMA DE VOZ ADAPTATIVO
 //  ─────────────────────────────────────────────────────────────────────
-//  Estratégia: speechSynthesis nativo com forçamento de inicialização
-//  O Android WebView precisa de um "warm-up" silencioso para ativar
-//  o TTS engine. Fazemos isso automaticamente ao carregar o app.
-//  Sem CDN externo — funciona 100% offline e online.
+//  VOZ_MODO: "rv"     → ResponsiveVoice (Google TTS via CDN, Wi-Fi)
+//            "native" → speechSynthesis nativo do Android (offline)
+//            "beep"   → sem voz, só beeps Web Audio API
 // ══════════════════════════════════════════════════════════════════════
 
-const VOZ_MODOS = { NATIVE: 'native', BEEP: 'beep' };
-let vozModoAtual = VOZ_MODOS.BEEP;
-let vozNativaObj = null;
-let vozPronta    = false;
-let vozTentativas = 0;
+const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
+let vozModoAtual = VOZ_MODOS.BEEP;   // começa conservador; detectarVoz() ajusta
+let vozNativaObj = null;             // voz selecionada para speechSynthesis
 
-// ── Seleciona a melhor voz pt-BR disponível ──────────────────────────
-function selecionarVoz(vozes) {
-  if (!vozes || !vozes.length) return null;
-  const pt = vozes.filter(v =>
-    v.lang.startsWith('pt-BR') || v.lang.startsWith('pt-PT') ||
-    v.lang.startsWith('pt')
-  );
-  if (pt.length) {
-    return pt.find(v => /masculin|male|masc/i.test(v.name))
-        || pt.find(v => /google/i.test(v.name))
-        || pt.find(v => /brasil/i.test(v.name))
-        || pt[0];
-  }
-  // Fallback: qualquer voz disponível
-  return vozes.find(v => /google/i.test(v.name)) || vozes[0];
-}
-
-// ── Warm-up: utterance silenciosa para acordar o TTS do Android ──────
-function warmUpTTS() {
-  if (!('speechSynthesis' in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(' ');
-    u.volume = 0;
-    u.rate   = 1;
-    u.lang   = 'pt-BR';
-    if (vozNativaObj) u.voice = vozNativaObj;
-    u.onend = () => { vozPronta = true; detectarVozModo(); };
-    u.onerror = () => { vozPronta = true; detectarVozModo(); };
-    window.speechSynthesis.speak(u);
-  } catch(e) { vozPronta = true; }
-}
-
-// ── Carrega vozes e inicializa TTS ───────────────────────────────────
-function carregarVozesNativas() {
-  if (!('speechSynthesis' in window)) { detectarVozModo(); return; }
-
-  const vozes = window.speechSynthesis.getVoices();
-  if (vozes.length > 0) {
-    vozNativaObj = selecionarVoz(vozes);
-    if (!vozPronta) warmUpTTS();
-    detectarVozModo();
-  } else if (vozTentativas < 10) {
-    // Android às vezes demora para listar vozes — tenta novamente
-    vozTentativas++;
-    setTimeout(carregarVozesNativas, 400);
-  } else {
-    detectarVozModo(); // desiste, fica em BEEP
-  }
-}
-
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = carregarVozesNativas;
-  carregarVozesNativas();
-}
-
-// ── Detecta modo ativo ───────────────────────────────────────────────
+// ── Detecta modo de voz disponível ──────────────────────────────────
 function detectarVozModo() {
-  if ('speechSynthesis' in window && vozNativaObj) {
-    vozModoAtual = VOZ_MODOS.NATIVE;
+  const online = navigator.onLine;
+
+  if (online && window.RV_LOADED && typeof responsiveVoice !== 'undefined') {
+    vozModoAtual = VOZ_MODOS.RV;
+  } else if ('speechSynthesis' in window) {
+    const vozes = window.speechSynthesis.getVoices();
+    if (vozes.length > 0) {
+      vozModoAtual = VOZ_MODOS.NATIVE;
+    } else {
+      // Sem vozes carregadas ainda; tenta novamente depois
+      vozModoAtual = VOZ_MODOS.BEEP;
+    }
   } else {
     vozModoAtual = VOZ_MODOS.BEEP;
   }
+
   atualizarChipVoz();
   return vozModoAtual;
 }
 
-// ── Sem CDN — remover tentarCarregarRV (não é mais usado) ────────────
-function tentarCarregarRV() { detectarVozModo(); }
+// ── Tenta carregar ResponsiveVoice via CDN (só se online) ────────────
+function tentarCarregarRV() {
+  if (!navigator.onLine) { detectarVozModo(); return; }
+  if (window.RV_LOADED)  { detectarVozModo(); return; }
 
-window.addEventListener('online',  detectarVozModo);
-window.addEventListener('offline', detectarVozModo);
+  const script = document.createElement('script');
+  script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=FREE';
+  script.async = true;
+  script.onload = () => {
+    window.RV_LOADED = true;
+    // Aguarda ResponsiveVoice inicializar
+    setTimeout(() => {
+      detectarVozModo();
+    }, 800);
+  };
+  script.onerror = () => {
+    window.RV_LOADED = false;
+    detectarVozModo();
+  };
+  document.head.appendChild(script);
+}
+
+// ── Carrega vozes nativas (para fallback) ────────────────────────────
+function carregarVozesNativas() {
+  if (!('speechSynthesis' in window)) return;
+  const vozes = window.speechSynthesis.getVoices();
+  if (!vozes.length) return;
+
+  const pt = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt-PT'));
+  vozNativaObj = pt.length
+    ? (pt.find(v => v.name.toLowerCase().includes('masculin') || v.name.toLowerCase().includes('male'))
+      || pt.find(v => v.name.includes('pt-br-x-b'))
+      || pt.find(v => v.name.includes('pt-br-x-d'))
+      || pt.find(v => v.name.includes('pt-br-x-f'))
+      || pt[0])
+    : vozes[0];
+
+  // Se ainda estava em BEEP mas native ficou disponível, atualiza
+  if (vozModoAtual === VOZ_MODOS.BEEP) {
+    detectarVozModo();
+  }
+}
+
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    carregarVozesNativas();
+    detectarVozModo();
+  };
+  carregarVozesNativas();
+}
+
+// ── Reconexão / desconexão de rede ───────────────────────────────────
+window.addEventListener('online',  () => { tentarCarregarRV(); });
+window.addEventListener('offline', () => { window.RV_LOADED = false; detectarVozModo(); });
 
 // ── Atualiza chips visuais de status de voz ──────────────────────────
 function atualizarChipVoz() {
@@ -600,8 +601,9 @@ function atualizarChipVoz() {
   }
 
   const labels = {
-    [VOZ_MODOS.NATIVE]: { dotColor:'var(--green)',  chipTxt:'VOZ ATIVA', tagClass:'tag-online',  tagTxt:'VOZ ANDROID', desc:'Voz do Android ativa — funciona online e offline' },
-    [VOZ_MODOS.BEEP]:   { dotColor:'var(--pink)',   chipTxt:'SÓ BEEP',   tagClass:'tag-beep',    tagTxt:'BEEP',        desc:'Voz não disponível — usando sons do app' }
+    [VOZ_MODOS.RV]:     { dotColor:'var(--green)',  chipTxt:'ONLINE', tagClass:'tag-online',  tagTxt:'GOOGLE TTS', desc:'Wi-Fi detectado — usando Google Text-to-Speech' },
+    [VOZ_MODOS.NATIVE]: { dotColor:'var(--orange)', chipTxt:'NATIVO', tagClass:'tag-offline', tagTxt:'NATIVO',     desc:'Offline — usando voz interna do Android' },
+    [VOZ_MODOS.BEEP]:   { dotColor:'var(--pink)',   chipTxt:'SÓ BEEP',tagClass:'tag-beep',    tagTxt:'BEEP',       desc:'Sem voz disponível — usando sons do app' }
   };
   const l = labels[vozModoAtual] || labels[VOZ_MODOS.BEEP];
 
@@ -618,59 +620,67 @@ function mostrarIndicador(a) {
 
 function falar(texto) {
   if (!vozAtivada) return;
-  detectarVozModo();
 
-  if (vozModoAtual === VOZ_MODOS.NATIVE) {
+  const modo = detectarVozModo(); // reavalia a cada chamada
+
+  // ── MODO 1: ResponsiveVoice (Google TTS) ──
+  if (modo === VOZ_MODOS.RV) {
+    falarComRV(texto);
+    return;
+  }
+
+  // ── MODO 2: speechSynthesis nativo ──
+  if (modo === VOZ_MODOS.NATIVE) {
     falarNativo(texto);
-  } else {
-    // Sem voz: apenas sinal sonoro
-    tocarProcessamento(null);
+    return;
+  }
+
+  // ── MODO 3: sem voz — só sinal sonoro de processamento ──
+  tocarProcessamento(null);
+}
+
+// ── ResponsiveVoice ──────────────────────────────────────────────────
+function falarComRV(texto) {
+  try {
+    if (typeof responsiveVoice === 'undefined') { falarNativo(texto); return; }
+    mostrarIndicador(true);
+
+    // ResponsiveVoice tem boa voz pt-BR: "Brazilian Portuguese Female"
+    const vozRV = 'Brazilian Portuguese Female';
+
+    // Prepend efeito sonoro então fala
+    tocarProcessamento(() => {
+      responsiveVoice.speak(texto, vozRV, {
+        rate:   rateVoz / 100,
+        volume: volVoz  / 100,
+        pitch:  0,
+        onstart: () => mostrarIndicador(true),
+        onend:   () => mostrarIndicador(false),
+        onerror: () => { mostrarIndicador(false); falarNativo(texto); } // fallback
+      });
+    });
+  } catch(e) {
+    mostrarIndicador(false);
+    falarNativo(texto);
   }
 }
 
-// ── speechSynthesis nativo (otimizado para Android WebView) ──────────
+// ── speechSynthesis nativo ───────────────────────────────────────────
 function falarNativo(texto) {
   if (!('speechSynthesis' in window)) { tocarProcessamento(null); return; }
   try {
-    // Android WebView: cancela qualquer fala pendente antes
     window.speechSynthesis.cancel();
-
     tocarProcessamento(() => {
-      // Segundo cancel após o beep — evita sobreposição no Android
-      window.speechSynthesis.cancel();
-
       const u = new SpeechSynthesisUtterance(texto);
       u.lang   = 'pt-BR';
       u.rate   = rateVoz / 100;
       u.pitch  = 0.1;
       u.volume = volVoz  / 100;
       if (vozNativaObj) u.voice = vozNativaObj;
-
       u.onstart = () => mostrarIndicador(true);
       u.onend   = () => mostrarIndicador(false);
-      u.onerror = (e) => {
-        mostrarIndicador(false);
-        // Android às vezes retorna erro mas falou — ignora erros "canceled"
-        if (e.error !== 'canceled' && e.error !== 'interrupted') {
-          // Tenta uma vez mais sem voz específica
-          try {
-            const u2 = new SpeechSynthesisUtterance(texto);
-            u2.lang = 'pt-BR';
-            u2.rate = rateVoz / 100;
-            u2.volume = volVoz / 100;
-            window.speechSynthesis.speak(u2);
-          } catch(e2) {}
-        }
-      };
-
+      u.onerror = () => mostrarIndicador(false);
       window.speechSynthesis.speak(u);
-
-      // Workaround Android: keepalive — o TTS do Android para se não receber "ping"
-      const keepAlive = setInterval(() => {
-        if (!window.speechSynthesis.speaking) { clearInterval(keepAlive); return; }
-        window.speechSynthesis.pause();
-        window.speechSynthesis.resume();
-      }, 10000);
     });
   } catch(e) {
     mostrarIndicador(false);
@@ -693,11 +703,9 @@ function desbloquearAudio() {
   const ac = getAC();
   if (ac.state === 'suspended') ac.resume().catch(() => {});
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  // Força re-inicialização do TTS a cada toque (crítico no Android WebView)
-  vozPronta = false;
-  vozTentativas = 0;
   carregarVozesNativas();
-  setTimeout(() => falar("Vamos começar, " + nomeUsuario), 600);
+  detectarVozModo();
+  falar("Vamos começar, " + nomeUsuario);
   solicitarWakeLock();
 }
 
