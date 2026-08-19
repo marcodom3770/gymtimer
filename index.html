@@ -5,19 +5,7 @@
   <title>GYM TIMER // CYBER PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!--
-  ══════════════════════════════════════════════════════════════════
-  SISTEMA DE VOZ ADAPTATIVO
-  ──────────────────────────────────────────────────────────────────
-  MODO 1 (Wi-Fi / Online):  ResponsiveVoice.js  →  Google TTS
-  MODO 2 (Offline):         speechSynthesis API nativa do Android
-  MODO 3 (Sem voz alguma):  Só beeps via Web Audio API
-  ══════════════════════════════════════════════════════════════════
-  -->
-
-  <!-- ResponsiveVoice: só carrega se online (defer não bloqueia renderização) -->
   <script>
-    // Flag global – será true se o script de CDN carregar com sucesso
     window.RV_LOADED = false;
   </script>
 
@@ -112,7 +100,6 @@
     .btn-sec.green  { border-color:var(--green);  color:var(--green); }
     #screen-home .btn-row { display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:4px; }
     .home-nome { color:var(--yellow); font-size:clamp(11px,3vw,14px); font-weight:bold; text-align:center; margin-bottom:4px; letter-spacing:1px; }
-    /* ── CHIP STATUS DE VOZ (novo) ── */
     #voz-status-chip {
       display:flex; align-items:center; justify-content:center;
       gap:6px; margin:6px 0 2px;
@@ -201,7 +188,6 @@
     #modal-nome.active { display:flex; }
     #screen-config { justify-content:flex-start; padding-top:20px; }
     .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:90vh; padding-bottom:10px; }
-    /* ── CHIP DE MODO DE VOZ NA CONFIG (novo) ── */
     .voz-modo-info {
       background:rgba(0,240,255,.05); border:1px solid rgba(0,240,255,.2);
       padding:8px 10px; margin-bottom:10px; font-size:clamp(9px,2.5vw,11px);
@@ -244,7 +230,6 @@
     <div class="glitch title-main" data-text="GYM TIMER">GYM TIMER</div>
     <div class="title-sub">// SISTEMA DE DESCANSO DE ALTA PERFORMANCE</div>
     <div class="home-nome" id="home-nome-display">// OPERADOR: MARCOS</div>
-    <!-- Chip de status de voz (novo) -->
     <div id="voz-status-chip">
       <span id="voz-status-dot">●</span>
       <span id="voz-status-txt">VERIFICANDO VOZ...</span>
@@ -256,7 +241,7 @@
         <button class="btn-round sz-md c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v3.0 ]</div>
+    <div class="footer-txt">[ GYM TIMER PRO v3.1 ]</div>
   </div>
 </div>
 
@@ -282,20 +267,59 @@
       <div class="corner-bl" style="border-color:var(--pink)"></div>
       <div class="glitch" data-text="CONFIGURAÇÃO" style="font-size:clamp(18px,5.2vw,26px);color:var(--yellow);margin-bottom:14px">CONFIGURAÇÃO</div>
 
-      <!-- DESCANSO -->
+      <!-- ══ TEMPO DE DESCANSO POR MODO ══ -->
       <div class="cfg-section">
-        <div class="cfg-section-title">⏱ TEMPO DE DESCANSO</div>
-        <div class="cfg-row">
-          <button class="btn-round sz-sm c-pink"  onclick="mudarTempo(-5)">−</button>
-          <div class="cfg-time glitch" id="cfg-display" data-text="40s">40s</div>
-          <button class="btn-round sz-sm c-green" onclick="mudarTempo(+5)">+</button>
+        <div class="cfg-section-title">⏱ TEMPO DE DESCANSO POR MODO</div>
+
+        <!-- Musculação -->
+        <div class="meta-modo-block">
+          <div class="meta-modo-label musc">💪 MUSCULAÇÃO</div>
+          <div class="meta-mini-row">
+            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('musculacao',-5)">−</button>
+            <div class="cfg-time-sm glitch" id="cfg-tempo-musculacao" data-text="60s">60s</div>
+            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('musculacao',+5)">+</button>
+          </div>
+          <div class="preset-row-sm">
+            <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',30)">30S</button>
+            <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',45)">45S</button>
+            <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',60)">1M</button>
+            <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',90)">1M30</button>
+            <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',120)">2M</button>
+          </div>
         </div>
-        <div class="preset-row">
-          <button class="btn-preset" onclick="definirPreset(30)">30S</button>
-          <button class="btn-preset" onclick="definirPreset(45)">45S</button>
-          <button class="btn-preset" onclick="definirPreset(60)">1M</button>
-          <button class="btn-preset" onclick="definirPreset(90)">1M30</button>
-          <button class="btn-preset" onclick="definirPreset(120)">2M</button>
+
+        <!-- Cardio -->
+        <div class="meta-modo-block">
+          <div class="meta-modo-label card">🏃 CARDIO</div>
+          <div class="meta-mini-row">
+            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('cardio',-5)">−</button>
+            <div class="cfg-time-sm card glitch" id="cfg-tempo-cardio" data-text="30s">30s</div>
+            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('cardio',+5)">+</button>
+          </div>
+          <div class="preset-row-sm">
+            <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',15)">15S</button>
+            <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',20)">20S</button>
+            <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',30)">30S</button>
+            <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',45)">45S</button>
+            <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',60)">1M</button>
+          </div>
+        </div>
+
+        <!-- HIIT -->
+        <div class="meta-modo-block">
+          <div class="meta-modo-label hiit">⚡ HIIT</div>
+          <div class="meta-mini-row">
+            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('hiit',-5)">−</button>
+            <div class="cfg-time-sm hiit glitch" id="cfg-tempo-hiit" data-text="20s">20s</div>
+            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('hiit',+5)">+</button>
+          </div>
+          <div class="preset-row-sm">
+            <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',10)">10S</button>
+            <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',15)">15S</button>
+            <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',20)">20S</button>
+            <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',30)">30S</button>
+            <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',40)">40S</button>
+          </div>
         </div>
       </div>
 
@@ -374,13 +398,10 @@
       <!-- VOZ -->
       <div class="cfg-section">
         <div class="cfg-section-title">🔊 VOZ ROBÓTICA</div>
-
-        <!-- Chip de modo de voz atual (novo) -->
         <div class="voz-modo-info" id="cfg-voz-modo-info">
           <span id="cfg-voz-tag" class="tag tag-beep">BEEP</span>
           <span id="cfg-voz-desc">Verificando conexão...</span>
         </div>
-
         <div class="toggle-row">
           <span class="toggle-label">VOZ ATIVADA</span>
           <div class="toggle-switch on" id="toggle-voz" onclick="toggleVoz()">
@@ -466,17 +487,24 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
-//  ESTADO — carrega do localStorage
+//  ESTADO
 // ══════════════════════════════════════════════════════════════════════
-let nomeUsuario      = localStorage.getItem('gym_nome')    || 'Marcos';
-let tempoConfigurado = parseInt(localStorage.getItem('gym_tempo'))  || 40;
-let alertaSegundos   = parseInt(localStorage.getItem('gym_alerta')) || 5;
-let autoStartSeg     = parseInt(localStorage.getItem('gym_auto'))   || 0;
-let vozAtivada       = localStorage.getItem('gym_voz')   !== 'false';
-let vibAtivada       = localStorage.getItem('gym_vib')   !== 'false';
-let volVoz           = parseInt(localStorage.getItem('gym_vol'))    || 100;
-let rateVoz          = parseInt(localStorage.getItem('gym_rate'))   || 85;
+let nomeUsuario    = localStorage.getItem('gym_nome')    || 'Marcos';
+let alertaSegundos = parseInt(localStorage.getItem('gym_alerta')) || 5;
+let autoStartSeg   = parseInt(localStorage.getItem('gym_auto'))   || 0;
+let vozAtivada     = localStorage.getItem('gym_voz')   !== 'false';
+let vibAtivada     = localStorage.getItem('gym_vib')   !== 'false';
+let volVoz         = parseInt(localStorage.getItem('gym_vol'))    || 100;
+let rateVoz        = parseInt(localStorage.getItem('gym_rate'))   || 85;
 
+// ── Tempo de descanso por modo (NOVO) ──────────────────────────────
+let tempoPorModo = {
+  musculacao: parseInt(localStorage.getItem('gym_tempo_musculacao')) || 60,
+  cardio:     parseInt(localStorage.getItem('gym_tempo_cardio'))     || 30,
+  hiit:       parseInt(localStorage.getItem('gym_tempo_hiit'))       || 20
+};
+
+// ── Meta de séries por modo ─────────────────────────────────────────
 let metaPorModo = {
   musculacao: parseInt(localStorage.getItem('gym_meta_musculacao')) || 6,
   cardio:     parseInt(localStorage.getItem('gym_meta_cardio'))     || 3,
@@ -485,6 +513,7 @@ let metaPorModo = {
 
 let modoTreino      = "musculacao";
 let metaSeries      = metaPorModo[modoTreino];
+let tempoAtual      = tempoPorModo[modoTreino]; // tempo do modo ativo
 let contador        = 0;
 let tempoRestante   = 0;
 let intervalo       = null;
@@ -498,66 +527,40 @@ let wakeLock        = null;
 
 // ══════════════════════════════════════════════════════════════════════
 //  SISTEMA DE VOZ ADAPTATIVO
-//  ─────────────────────────────────────────────────────────────────────
-//  VOZ_MODO: "rv"     → ResponsiveVoice (Google TTS via CDN, Wi-Fi)
-//            "native" → speechSynthesis nativo do Android (offline)
-//            "beep"   → sem voz, só beeps Web Audio API
 // ══════════════════════════════════════════════════════════════════════
-
 const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
-let vozModoAtual = VOZ_MODOS.BEEP;   // começa conservador; detectarVoz() ajusta
-let vozNativaObj = null;             // voz selecionada para speechSynthesis
+let vozModoAtual = VOZ_MODOS.BEEP;
+let vozNativaObj = null;
 
-// ── Detecta modo de voz disponível ──────────────────────────────────
 function detectarVozModo() {
   const online = navigator.onLine;
-
   if (online && window.RV_LOADED && typeof responsiveVoice !== 'undefined') {
     vozModoAtual = VOZ_MODOS.RV;
   } else if ('speechSynthesis' in window) {
     const vozes = window.speechSynthesis.getVoices();
-    if (vozes.length > 0) {
-      vozModoAtual = VOZ_MODOS.NATIVE;
-    } else {
-      // Sem vozes carregadas ainda; tenta novamente depois
-      vozModoAtual = VOZ_MODOS.BEEP;
-    }
+    vozModoAtual = vozes.length > 0 ? VOZ_MODOS.NATIVE : VOZ_MODOS.BEEP;
   } else {
     vozModoAtual = VOZ_MODOS.BEEP;
   }
-
   atualizarChipVoz();
   return vozModoAtual;
 }
 
-// ── Tenta carregar ResponsiveVoice via CDN (só se online) ────────────
 function tentarCarregarRV() {
   if (!navigator.onLine) { detectarVozModo(); return; }
   if (window.RV_LOADED)  { detectarVozModo(); return; }
-
   const script = document.createElement('script');
   script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=FREE';
   script.async = true;
-  script.onload = () => {
-    window.RV_LOADED = true;
-    // Aguarda ResponsiveVoice inicializar
-    setTimeout(() => {
-      detectarVozModo();
-    }, 800);
-  };
-  script.onerror = () => {
-    window.RV_LOADED = false;
-    detectarVozModo();
-  };
+  script.onload  = () => { window.RV_LOADED = true; setTimeout(() => detectarVozModo(), 800); };
+  script.onerror = () => { window.RV_LOADED = false; detectarVozModo(); };
   document.head.appendChild(script);
 }
 
-// ── Carrega vozes nativas (para fallback) ────────────────────────────
 function carregarVozesNativas() {
   if (!('speechSynthesis' in window)) return;
   const vozes = window.speechSynthesis.getVoices();
   if (!vozes.length) return;
-
   const pt = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt-PT'));
   vozNativaObj = pt.length
     ? (pt.find(v => v.name.toLowerCase().includes('masculin') || v.name.toLowerCase().includes('male'))
@@ -566,139 +569,88 @@ function carregarVozesNativas() {
       || pt.find(v => v.name.includes('pt-br-x-f'))
       || pt[0])
     : vozes[0];
-
-  // Se ainda estava em BEEP mas native ficou disponível, atualiza
-  if (vozModoAtual === VOZ_MODOS.BEEP) {
-    detectarVozModo();
-  }
+  if (vozModoAtual === VOZ_MODOS.BEEP) detectarVozModo();
 }
 
 if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    carregarVozesNativas();
-    detectarVozModo();
-  };
+  window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); detectarVozModo(); };
   carregarVozesNativas();
 }
 
-// ── Reconexão / desconexão de rede ───────────────────────────────────
-window.addEventListener('online',  () => { tentarCarregarRV(); });
+window.addEventListener('online',  () => tentarCarregarRV());
 window.addEventListener('offline', () => { window.RV_LOADED = false; detectarVozModo(); });
 
-// ── Atualiza chips visuais de status de voz ──────────────────────────
 function atualizarChipVoz() {
-  // Chip da home
-  const dot = document.getElementById('voz-status-dot');
-  const txt = document.getElementById('voz-status-txt');
-  // Chip da config
+  const dot  = document.getElementById('voz-status-dot');
+  const txt  = document.getElementById('voz-status-txt');
   const tag  = document.getElementById('cfg-voz-tag');
   const desc = document.getElementById('cfg-voz-desc');
-
   if (!vozAtivada) {
     if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ DESATIVADA'; }
     if (tag) { tag.className = 'tag tag-beep'; tag.textContent = 'OFF'; desc.textContent = 'Reative em Ajustes → Voz Ativada'; }
     return;
   }
-
   const labels = {
     [VOZ_MODOS.RV]:     { dotColor:'var(--green)',  chipTxt:'ONLINE', tagClass:'tag-online',  tagTxt:'GOOGLE TTS', desc:'Wi-Fi detectado — usando Google Text-to-Speech' },
     [VOZ_MODOS.NATIVE]: { dotColor:'var(--orange)', chipTxt:'NATIVO', tagClass:'tag-offline', tagTxt:'NATIVO',     desc:'Offline — usando voz interna do Android' },
     [VOZ_MODOS.BEEP]:   { dotColor:'var(--pink)',   chipTxt:'SÓ BEEP',tagClass:'tag-beep',    tagTxt:'BEEP',       desc:'Sem voz disponível — usando sons do app' }
   };
   const l = labels[vozModoAtual] || labels[VOZ_MODOS.BEEP];
-
   if (dot) { dot.style.color = l.dotColor; txt.textContent = '// VOZ: ' + l.chipTxt; }
   if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  FALAR — despacha para o motor correto
+//  FALAR
 // ══════════════════════════════════════════════════════════════════════
-function mostrarIndicador(a) {
-  document.getElementById("voz-indicator").classList.toggle("ativo", a);
-}
+function mostrarIndicador(a) { document.getElementById("voz-indicator").classList.toggle("ativo", a); }
 
 function falar(texto) {
   if (!vozAtivada) return;
-
-  const modo = detectarVozModo(); // reavalia a cada chamada
-
-  // ── MODO 1: ResponsiveVoice (Google TTS) ──
-  if (modo === VOZ_MODOS.RV) {
-    falarComRV(texto);
-    return;
-  }
-
-  // ── MODO 2: speechSynthesis nativo ──
-  if (modo === VOZ_MODOS.NATIVE) {
-    falarNativo(texto);
-    return;
-  }
-
-  // ── MODO 3: sem voz — só sinal sonoro de processamento ──
+  const modo = detectarVozModo();
+  if (modo === VOZ_MODOS.RV)     { falarComRV(texto); return; }
+  if (modo === VOZ_MODOS.NATIVE) { falarNativo(texto); return; }
   tocarProcessamento(null);
 }
 
-// ── ResponsiveVoice ──────────────────────────────────────────────────
 function falarComRV(texto) {
   try {
     if (typeof responsiveVoice === 'undefined') { falarNativo(texto); return; }
     mostrarIndicador(true);
-
-    // ResponsiveVoice tem boa voz pt-BR: "Brazilian Portuguese Female"
-    const vozRV = 'Brazilian Portuguese Female';
-
-    // Prepend efeito sonoro então fala
     tocarProcessamento(() => {
-      responsiveVoice.speak(texto, vozRV, {
-        rate:   rateVoz / 100,
-        volume: volVoz  / 100,
-        pitch:  0,
+      responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {
+        rate: rateVoz/100, volume: volVoz/100, pitch: 0,
         onstart: () => mostrarIndicador(true),
         onend:   () => mostrarIndicador(false),
-        onerror: () => { mostrarIndicador(false); falarNativo(texto); } // fallback
+        onerror: () => { mostrarIndicador(false); falarNativo(texto); }
       });
     });
-  } catch(e) {
-    mostrarIndicador(false);
-    falarNativo(texto);
-  }
+  } catch(e) { mostrarIndicador(false); falarNativo(texto); }
 }
 
-// ── speechSynthesis nativo ───────────────────────────────────────────
 function falarNativo(texto) {
   if (!('speechSynthesis' in window)) { tocarProcessamento(null); return; }
   try {
     window.speechSynthesis.cancel();
     tocarProcessamento(() => {
       const u = new SpeechSynthesisUtterance(texto);
-      u.lang   = 'pt-BR';
-      u.rate   = rateVoz / 100;
-      u.pitch  = 0.1;
-      u.volume = volVoz  / 100;
+      u.lang = 'pt-BR'; u.rate = rateVoz/100; u.pitch = 0.1; u.volume = volVoz/100;
       if (vozNativaObj) u.voice = vozNativaObj;
       u.onstart = () => mostrarIndicador(true);
       u.onend   = () => mostrarIndicador(false);
       u.onerror = () => mostrarIndicador(false);
       window.speechSynthesis.speak(u);
     });
-  } catch(e) {
-    mostrarIndicador(false);
-  }
+  } catch(e) { mostrarIndicador(false); }
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  WAKE LOCK
+//  WAKE LOCK / ÁUDIO DESBLOQUEIO
 // ══════════════════════════════════════════════════════════════════════
 async function solicitarWakeLock() {
-  try {
-    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-  } catch(e) {}
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  DESBLOQUEIO DE ÁUDIO (toque do usuário obrigatório no Android)
-// ══════════════════════════════════════════════════════════════════════
 function desbloquearAudio() {
   const ac = getAC();
   if (ac.state === 'suspended') ac.resume().catch(() => {});
@@ -730,33 +682,24 @@ const CELL_H = 22, TRAIL = 10, FSIZE = 14;
 let colunas = [], lastTime = 0;
 
 function initMatrix() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  colunas = [];
-  for (let c = 0; c < N_COLS; c++) {
-    colunas.push({
-      x: ((c + 0.5) / N_COLS) * canvas.width,
-      headY: Math.random() * canvas.height * 1.5,
-      vel: 80 + Math.random() * 130,
-      chars: Array.from({ length: TRAIL }, () => rnd(CHARS))
-    });
-  }
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight; colunas = [];
+  for (let c = 0; c < N_COLS; c++) colunas.push({ x:((c+.5)/N_COLS)*canvas.width, headY:Math.random()*canvas.height*1.5, vel:80+Math.random()*130, chars:Array.from({length:TRAIL},()=>rnd(CHARS)) });
 }
-function rnd(s) { return s[Math.floor(Math.random() * s.length)]; }
+function rnd(s) { return s[Math.floor(Math.random()*s.length)]; }
 function animarMatrix(now) {
   requestAnimationFrame(animarMatrix);
-  const dt = Math.min((now - lastTime) / 1000, 0.05); lastTime = now;
-  ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+  const dt = Math.min((now-lastTime)/1000,.05); lastTime = now;
+  ctx2d.clearRect(0,0,canvas.width,canvas.height);
   ctx2d.font = `bold ${FSIZE}px monospace`;
   for (const col of colunas) {
-    col.headY += col.vel * dt;
-    if (col.headY > canvas.height + TRAIL * CELL_H) { col.headY = -Math.random() * 200; col.vel = 80 + Math.random() * 130; }
-    for (let t = 0; t < TRAIL; t++) {
-      const y = col.headY - t * CELL_H;
-      if (y < -CELL_H || y > canvas.height + CELL_H) continue;
-      ctx2d.fillStyle = t === 0 ? 'rgba(200,255,215,0.95)' : `rgba(0,255,64,${Math.max(0.04, 1 - t / TRAIL) * 0.80})`;
-      if (Math.random() < 0.015) col.chars[t] = rnd(CHARS);
-      ctx2d.fillText(col.chars[t], col.x, y);
+    col.headY += col.vel*dt;
+    if (col.headY > canvas.height+TRAIL*CELL_H) { col.headY=-Math.random()*200; col.vel=80+Math.random()*130; }
+    for (let t=0; t<TRAIL; t++) {
+      const y = col.headY-t*CELL_H;
+      if (y<-CELL_H||y>canvas.height+CELL_H) continue;
+      ctx2d.fillStyle = t===0?'rgba(200,255,215,0.95)':`rgba(0,255,64,${Math.max(.04,1-t/TRAIL)*.80})`;
+      if (Math.random()<.015) col.chars[t]=rnd(CHARS);
+      ctx2d.fillText(col.chars[t],col.x,y);
     }
   }
 }
@@ -769,10 +712,15 @@ requestAnimationFrame(animarMatrix);
 // ══════════════════════════════════════════════════════════════════════
 function initUI() {
   atualizarDisplayNome();
-  atualizarDisplayCfg();
+  // Tempo por modo
+  atualizarDisplayTempoModo('musculacao');
+  atualizarDisplayTempoModo('cardio');
+  atualizarDisplayTempoModo('hiit');
+  // Meta por modo
   atualizarDisplayMetaModo('musculacao');
   atualizarDisplayMetaModo('cardio');
   atualizarDisplayMetaModo('hiit');
+  // Sliders / toggles
   document.getElementById('slider-vol').value     = volVoz;
   document.getElementById('val-vol').textContent  = volVoz + '%';
   document.getElementById('slider-rate').value    = rateVoz;
@@ -781,8 +729,6 @@ function initUI() {
   sincToggle('toggle-vib', vibAtivada);
   document.getElementById('cfg-alerta').value    = alertaSegundos;
   document.getElementById('cfg-autostart').value = autoStartSeg;
-
-  // Inicia detecção de voz
   tentarCarregarRV();
   detectarVozModo();
 }
@@ -801,12 +747,7 @@ function abrirModalNome() {
   document.getElementById('modal-nome').classList.add('active');
   setTimeout(() => el.focus(), 200);
 }
-
-function fecharModalNome() {
-  clickBeep();
-  document.getElementById('modal-nome').classList.remove('active');
-}
-
+function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').classList.remove('active'); }
 function salvarNome() {
   const raw = document.getElementById('input-nome-modal').value.trim();
   if (!raw) return;
@@ -816,11 +757,9 @@ function salvarNome() {
   fecharModalNome();
   const ac = getAC();
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  carregarVozesNativas();
-  detectarVozModo();
+  carregarVozesNativas(); detectarVozModo();
   falar("Nome atualizado. Vamos começar, " + nomeUsuario);
 }
-
 document.getElementById('input-nome-modal').addEventListener('keydown', e => {
   if (e.key === 'Enter') salvarNome();
   if (e.key === 'Escape') fecharModalNome();
@@ -836,60 +775,68 @@ function irPara(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
-function irParaSelecao() {
-  desbloquearAudio();
-  irPara('screen-mode');
-}
-
-function irParaConfig() {
-  desbloquearAudio();
-  atualizarChipVoz(); // atualiza chip ao abrir config
-  irPara('screen-config');
-}
+function irParaSelecao() { desbloquearAudio(); irPara('screen-mode'); }
+function irParaConfig()  { desbloquearAudio(); atualizarChipVoz(); irPara('screen-config'); }
 
 function selecionarModo(modo) {
   clickBeep();
   modoTreino = modo;
   metaSeries = metaPorModo[modo];
-  const modoNomes = { musculacao: 'Musculação', cardio: 'Cardio', hiit: 'H I I T' };
+  tempoAtual = tempoPorModo[modo]; // ← carrega o tempo deste modo
+  const modoNomes = { musculacao:'Musculação', cardio:'Cardio', hiit:'H I I T' };
   document.getElementById('timer-modo-label').textContent = modoNomes[modo] || modo.toUpperCase();
-  falar("Modo " + (modoNomes[modo] || modo) + ". Meta: " + metaSeries + " séries. Vamos lá, " + nomeUsuario);
+  const tempoLabel = tempoAtual >= 60
+    ? Math.floor(tempoAtual/60) + 'min' + (tempoAtual%60 ? (tempoAtual%60)+'s' : '')
+    : tempoAtual + 's';
+  falar("Modo " + (modoNomes[modo]||modo) + ". Descanso: " + tempoLabel + ". Meta: " + metaSeries + " séries. Vamos lá, " + nomeUsuario);
   resetTimer(true);
   irPara('screen-timer');
 }
 
 function voltarDoTimer() {
-  pararTimer();
-  pararAutoStart();
-  pararCronTreino();
+  pararTimer(); pararAutoStart(); pararCronTreino();
   irPara('screen-home');
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÃO
+//  CONFIGURAÇÃO — TEMPO POR MODO (NOVO)
 // ══════════════════════════════════════════════════════════════════════
-function mudarTempo(d) { clickBeep(); tempoConfigurado = Math.max(5, tempoConfigurado + d); atualizarDisplayCfg(); }
-function definirPreset(v) { clickBeep(); tempoConfigurado = v; atualizarDisplayCfg(); }
-
-function atualizarDisplayCfg() {
-  const txt = tempoConfigurado + 's';
-  const el  = document.getElementById('cfg-display');
-  el.textContent = txt; el.setAttribute('data-text', txt);
+function mudarTempoModo(modo, d) {
+  clickBeep();
+  tempoPorModo[modo] = Math.max(5, tempoPorModo[modo] + d);
+  atualizarDisplayTempoModo(modo);
 }
 
+function definirTempoModo(modo, v) {
+  clickBeep();
+  tempoPorModo[modo] = v;
+  atualizarDisplayTempoModo(modo);
+}
+
+function atualizarDisplayTempoModo(modo) {
+  const seg = tempoPorModo[modo];
+  const txt = seg >= 60
+    ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : ''))
+    : seg + 's';
+  const el = document.getElementById('cfg-tempo-' + modo);
+  if (!el) return;
+  el.textContent = txt;
+  el.setAttribute('data-text', txt);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  CONFIGURAÇÃO — META DE SÉRIES
+// ══════════════════════════════════════════════════════════════════════
 function mudarMetaModo(modo, d) {
   clickBeep();
   metaPorModo[modo] = Math.max(1, Math.min(20, metaPorModo[modo] + d));
   atualizarDisplayMetaModo(modo);
 }
-
 function definirMetaModo(modo, v) {
   clickBeep();
   metaPorModo[modo] = v;
   atualizarDisplayMetaModo(modo);
 }
-
 function atualizarDisplayMetaModo(modo) {
   const val = String(metaPorModo[modo]);
   const el  = document.getElementById('cfg-meta-' + modo);
@@ -898,31 +845,11 @@ function atualizarDisplayMetaModo(modo) {
   el.setAttribute('data-text', val);
 }
 
-function salvarAlerta() {
-  alertaSegundos = parseInt(document.getElementById('cfg-alerta').value);
-  localStorage.setItem('gym_alerta', alertaSegundos);
-}
-
-function salvarAutoStart() {
-  autoStartSeg = parseInt(document.getElementById('cfg-autostart').value);
-  localStorage.setItem('gym_auto', autoStartSeg);
-}
-
-function atualizarVol(v) {
-  volVoz = parseInt(v);
-  document.getElementById('val-vol').textContent = v + '%';
-  localStorage.setItem('gym_vol', volVoz);
-}
-
-function atualizarRate(v) {
-  rateVoz = parseInt(v);
-  document.getElementById('val-rate').textContent = v + '%';
-  localStorage.setItem('gym_rate', rateVoz);
-}
-
-function sincToggle(id, estado) {
-  document.getElementById(id).classList.toggle('on', estado);
-}
+function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value);    localStorage.setItem('gym_alerta', alertaSegundos); }
+function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
+function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; localStorage.setItem('gym_vol', volVoz); }
+function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; localStorage.setItem('gym_rate', rateVoz); }
+function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
 
 function toggleVoz() {
   vozAtivada = !vozAtivada;
@@ -931,7 +858,6 @@ function toggleVoz() {
   atualizarChipVoz();
   if (vozAtivada) falar("Voz ativada.");
 }
-
 function toggleVib() {
   vibAtivada = !vibAtivada;
   sincToggle('toggle-vib', vibAtivada);
@@ -940,10 +866,17 @@ function toggleVib() {
 }
 
 function salvarConfig() {
-  localStorage.setItem('gym_tempo', tempoConfigurado);
+  // Salva tempos por modo
+  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao);
+  localStorage.setItem('gym_tempo_cardio',     tempoPorModo.cardio);
+  localStorage.setItem('gym_tempo_hiit',       tempoPorModo.hiit);
+  // Salva metas por modo
   localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao);
   localStorage.setItem('gym_meta_cardio',     metaPorModo.cardio);
   localStorage.setItem('gym_meta_hiit',       metaPorModo.hiit);
+  // Atualiza tempoAtual se o modo já estava selecionado
+  tempoAtual = tempoPorModo[modoTreino];
+  metaSeries = metaPorModo[modoTreino];
   falar("Configurações salvas. Pronto, " + nomeUsuario);
   irPara('screen-home');
 }
@@ -961,9 +894,9 @@ function setSeries(n) {
   const el = document.getElementById('lbl-series');
   el.textContent = String(n); el.setAttribute('data-text', String(n));
   const pct = Math.min(100, (n / metaSeries) * 100);
-  document.getElementById('prog-fill').style.width  = pct + '%';
-  document.getElementById('prog-txt-dir').textContent = n + ' / ' + metaSeries;
-  document.getElementById('ib-meta').textContent    = metaSeries;
+  document.getElementById('prog-fill').style.width     = pct + '%';
+  document.getElementById('prog-txt-dir').textContent  = n + ' / ' + metaSeries;
+  document.getElementById('ib-meta').textContent       = metaSeries;
 }
 
 function iniciarTimer() {
@@ -974,7 +907,7 @@ function iniciarTimer() {
 
   if (!intervaloTreino) iniciarCronTreino();
 
-  tempoRestante = tempoConfigurado;
+  tempoRestante = tempoAtual; // usa o tempo do modo selecionado
   document.getElementById('lbl-status').textContent = 'DESCANSANDO...';
   setTimer(String(tempoRestante), 't-white');
   solicitarWakeLock();
@@ -987,18 +920,15 @@ function iniciarTimer() {
       document.getElementById('lbl-status').textContent = 'VAI TREINAR!';
       contador++;
       setSeries(contador);
-      adicionarHistorico(tempoConfigurado);
-      document.getElementById('ib-ultima').textContent = tempoConfigurado + 's';
+      adicionarHistorico(tempoAtual);
+      document.getElementById('ib-ultima').textContent = tempoAtual + 's';
       tocarBeepFim();
       vibrar([200, 100, 200]);
-
       if (contador >= metaSeries)
         falar("Parabéns, " + nomeUsuario + "! Meta de " + metaSeries + " séries atingida. Treino concluído!");
       else
         falar("Treine, " + nomeUsuario);
-
       if (autoStartSeg > 0 && contador < metaSeries) iniciarAutoStart();
-
     } else {
       const emAlerta = alertaSegundos > 0 && tempoRestante <= alertaSegundos;
       setTimer(String(tempoRestante), emAlerta ? 't-pink' : 't-white');
@@ -1016,21 +946,17 @@ function adicionarHistorico(seg) {
   list.innerHTML = '';
   historicoDescanso.forEach((s, i) => {
     const tag = document.createElement('div');
-    tag.className = 'hist-tag' + (i === historicoDescanso.length - 1 ? ' last' : '');
-    tag.textContent = 'S' + (i + 1) + ': ' + s + 's';
+    tag.className = 'hist-tag' + (i === historicoDescanso.length-1 ? ' last' : '');
+    tag.textContent = 'S' + (i+1) + ': ' + s + 's';
     list.appendChild(tag);
   });
 }
 
-function pararTimer() {
-  if (intervalo) { clearInterval(intervalo); intervalo = null; }
-}
+function pararTimer() { if (intervalo) { clearInterval(intervalo); intervalo = null; } }
 
 function resetTimer(silencioso) {
   if (!silencioso) clickBeep();
-  pararTimer();
-  pararAutoStart();
-  pararCronTreino();
+  pararTimer(); pararAutoStart(); pararCronTreino();
   contador = 0; tempoRestante = 0; segundosTreino = 0;
   historicoDescanso = [];
   document.getElementById('lbl-status').textContent = 'PRONTO PARA TREINAR';
@@ -1049,15 +975,10 @@ function iniciarAutoStart() {
   el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...';
   autoTimer = setInterval(() => {
     autoCountdown--;
-    if (autoCountdown <= 0) {
-      pararAutoStart();
-      iniciarTimer();
-    } else {
-      el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...';
-    }
+    if (autoCountdown <= 0) { pararAutoStart(); iniciarTimer(); }
+    else el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...';
   }, 1000);
 }
-
 function pararAutoStart() {
   if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
   document.getElementById('auto-countdown').textContent = '';
@@ -1067,19 +988,13 @@ function iniciarCronTreino() {
   segundosTreino = 0;
   intervaloTreino = setInterval(() => {
     segundosTreino++;
-    const m = String(Math.floor(segundosTreino / 60)).padStart(2, '0');
-    const s = String(segundosTreino % 60).padStart(2, '0');
-    document.getElementById('ib-tempo-treino').textContent = m + ':' + s;
+    const m = String(Math.floor(segundosTreino/60)).padStart(2,'0');
+    const s = String(segundosTreino%60).padStart(2,'0');
+    document.getElementById('ib-tempo-treino').textContent = m+':'+s;
   }, 1000);
 }
-
-function pararCronTreino() {
-  if (intervaloTreino) { clearInterval(intervaloTreino); intervaloTreino = null; }
-}
-
-function vibrar(padrao) {
-  if (vibAtivada && navigator.vibrate) navigator.vibrate(padrao);
-}
+function pararCronTreino() { if (intervaloTreino) { clearInterval(intervaloTreino); intervaloTreino = null; } }
+function vibrar(padrao) { if (vibAtivada && navigator.vibrate) navigator.vibrate(padrao); }
 
 // ══════════════════════════════════════════════════════════════════════
 //  ÁUDIO: Web Audio API
@@ -1088,32 +1003,26 @@ function getAC() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-
 function tocarTom(freq, dur, vol, tipo, t0) {
   try {
     const ac = getAC(), osc = ac.createOscillator(), gain = ac.createGain();
     osc.connect(gain); gain.connect(ac.destination);
-    osc.type = tipo || 'sine'; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol || 0.7, t0 || ac.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, (t0 || ac.currentTime) + dur);
-    osc.start(t0 || ac.currentTime); osc.stop((t0 || ac.currentTime) + dur);
+    osc.type = tipo||'sine'; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol||0.7, t0||ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, (t0||ac.currentTime)+dur);
+    osc.start(t0||ac.currentTime); osc.stop((t0||ac.currentTime)+dur);
   } catch(e) {}
 }
-
 function tocarBeepNormal() { tocarTom(800, 0.20, 0.7, 'sine'); }
 function tocarBeepFim()    { tocarTom(1400, 1.20, 0.9, 'sine'); }
-
 function tocarProcessamento(cb) {
   try {
     const ac  = getAC();
-    const seq = [
-      { f: 120, d: .06 }, { f: 90,  d: .04 }, { f: 200, d: .05 },
-      { f: 80,  d: .06 }, { f: 160, d: .04 }, { f: 100, d: .07 }
-    ];
+    const seq = [{f:120,d:.06},{f:90,d:.04},{f:200,d:.05},{f:80,d:.06},{f:160,d:.04},{f:100,d:.07}];
     let t = ac.currentTime + 0.02;
-    seq.forEach(({ f, d }) => { tocarTom(f, d, 0.18, 'square', t); t += d + 0.01; });
-    const dur = seq.reduce((s, x) => s + x.d + 0.01, 0);
-    setTimeout(() => { if (cb) cb(); }, (dur + 0.05) * 1000);
+    seq.forEach(({f,d}) => { tocarTom(f,d,0.18,'square',t); t+=d+.01; });
+    const dur = seq.reduce((s,x)=>s+x.d+.01, 0);
+    setTimeout(() => { if (cb) cb(); }, (dur+.05)*1000);
   } catch(e) { if (cb) cb(); }
 }
 
