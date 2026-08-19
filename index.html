@@ -56,13 +56,16 @@
     .panel::after  { content:''; position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-bottom:3px solid; border-right:3px solid; border-color:inherit; }
     .corner-tr { position:absolute; top:-2px; right:-2px; width:20px; height:20px; border-top:3px solid; border-right:3px solid; border-color:inherit; }
     .corner-bl { position:absolute; bottom:-2px; left:-2px; width:20px; height:20px; border-bottom:3px solid; border-left:3px solid; border-color:inherit; }
+    
     .glitch { position:relative; font-weight:bold; text-align:center; }
     .glitch::before { content:attr(data-text); position:absolute; left:0; width:100%; text-align:center; color:var(--pink); opacity:.55; transform:translate(3px,2px); }
     .glitch::after  { content:attr(data-text); position:absolute; left:0; width:100%; text-align:center; color:var(--yellow); opacity:.40; transform:translate(-3px,-2px); }
+    
     .neon-line { height:1.5px; background:var(--yellow); opacity:.45; margin:4px auto 10px; width:55%; }
     .title-main { font-size:clamp(30px,8.5vw,50px); color:var(--yellow); margin:6px 0 4px; letter-spacing:2px; }
     .title-sub  { color:var(--cyan); font-size:clamp(10px,2.8vw,13px); font-weight:bold; text-align:center; margin-bottom:20px; letter-spacing:.5px; }
     .footer-txt { color:var(--dim); font-size:clamp(10px,2.5vw,12px); text-align:center; margin-top:16px; }
+    
     .btn-round {
       border-radius:50%; border:2px solid;
       background:rgba(10,12,20,.96);
@@ -78,11 +81,14 @@
     .sz-md { width:clamp(82px,23vw,110px); height:clamp(82px,23vw,110px); }
     .sz-sm { width:clamp(62px,17vw,80px);  height:clamp(62px,17vw,80px); font-size:clamp(22px,6.5vw,30px); }
     .sz-xs { width:clamp(46px,13vw,58px);  height:clamp(46px,13vw,58px); font-size:clamp(18px,5.5vw,24px); }
+    .sz-xxs { width:clamp(36px,10vw,44px); height:clamp(36px,10vw,44px); font-size:clamp(13px,3.8vw,16px); }
+    
     .c-yellow { border-color:var(--yellow); color:var(--yellow); box-shadow:0 0 14px rgba(252,238,12,.30); }
     .c-cyan   { border-color:var(--cyan);   color:var(--cyan);   box-shadow:0 0 14px rgba(0,240,255,.25); }
     .c-pink   { border-color:var(--pink);   color:var(--pink);   box-shadow:0 0 14px rgba(255,0,60,.25); }
     .c-green  { border-color:var(--green);  color:var(--green);  box-shadow:0 0 14px rgba(0,255,64,.25); }
     .c-orange { border-color:var(--orange); color:var(--orange); box-shadow:0 0 14px rgba(255,140,0,.25); }
+    
     .btn-sec {
       display:block; width:100%;
       background:rgba(12,14,24,.94);
@@ -98,8 +104,12 @@
     .btn-sec.pink   { border-color:var(--pink);   color:var(--pink); }
     .btn-sec.yellow { border-color:var(--yellow); color:var(--yellow); }
     .btn-sec.green  { border-color:var(--green);  color:var(--green); }
+    
+    .mode-stats { display:block; font-size:clamp(10px,2.8vw,12px); color:var(--dim); margin-top:4px; font-weight:normal; letter-spacing:0.5px; }
+
     #screen-home .btn-row { display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:4px; }
     .home-nome { color:var(--yellow); font-size:clamp(11px,3vw,14px); font-weight:bold; text-align:center; margin-bottom:4px; letter-spacing:1px; }
+    
     #voz-status-chip {
       display:flex; align-items:center; justify-content:center;
       gap:6px; margin:6px 0 2px;
@@ -108,6 +118,7 @@
     }
     #voz-status-dot { font-size:10px; }
     #voz-status-txt { color:var(--dim); }
+    
     .input-nome {
       width:100%; background:rgba(0,240,255,.06);
       border:2px solid var(--cyan); color:var(--cyan);
@@ -117,30 +128,42 @@
       text-transform:uppercase; margin:12px 0;
     }
     .input-nome::placeholder { color:rgba(0,240,255,.35); }
+    
     .status-dot { position:absolute; top:8px; left:10px; color:var(--green); font-size:clamp(9px,2.4vw,11px); font-weight:bold; }
-    .timer-modo { position:absolute; top:8px; right:10px; font-size:clamp(9px,2.4vw,11px); font-weight:bold; }
-    .lbl-status { color:var(--cyan); font-size:clamp(15px,4.2vw,20px); font-weight:bold; text-align:center; margin-top:20px; margin-bottom:6px; letter-spacing:1.5px; }
-    .lbl-series-title { color:var(--dim); font-size:clamp(10px,2.8vw,14px); font-weight:bold; text-align:center; }
-    .lbl-series { font-size:clamp(60px,18vw,90px); font-weight:bold; text-align:center; color:var(--cyan); line-height:1; margin:2px 0 4px; }
-    .lbl-timer  { font-size:clamp(46px,13vw,68px); font-weight:bold; text-align:center; min-height:70px; line-height:1.1; margin-bottom:6px; letter-spacing:2px; }
+    .timer-header { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; margin-top:14px; border-bottom:1px solid rgba(0,240,255,0.2); padding-bottom:8px; }
+    .timer-header-icon { font-size:clamp(20px,5.5vw,26px); }
+    .timer-header-label { font-size:clamp(18px,5vw,22px); font-weight:bold; color:var(--yellow); letter-spacing:1.5px; }
+    
+    .lbl-status { color:var(--cyan); font-size:clamp(14px,4vw,18px); font-weight:bold; text-align:center; margin-bottom:12px; letter-spacing:1.5px; }
+    
+    .lbl-series { font-size:clamp(50px,15vw,80px); font-weight:bold; text-align:center; color:var(--cyan); line-height:1; margin:0 0 10px; }
+    .lbl-timer  { font-size:clamp(42px,12vw,62px); font-weight:bold; text-align:center; min-height:65px; line-height:1.1; margin-bottom:6px; letter-spacing:2px; }
     .t-white { color:white; }
     .t-pink  { color:var(--pink);  text-shadow:0 0 16px rgba(255,0,60,.8); }
     .t-green { color:var(--green); text-shadow:0 0 16px rgba(0,255,64,.8); }
-    .prog-wrap { margin:4px 0 8px; }
+    
+    .prog-wrap { margin:4px 0 12px; }
     .prog-label { display:flex; justify-content:space-between; color:var(--dim); font-size:clamp(9px,2.4vw,11px); font-weight:bold; margin-bottom:4px; }
-    .prog-bar-bg { width:100%; height:8px; background:rgba(255,255,255,.08); border:1px solid rgba(0,240,255,.2); }
-    .prog-bar-fill { height:100%; background:var(--cyan); transition:width .4s ease; width:0%; }
-    .timer-infos { display:flex; justify-content:space-between; margin:6px 0 8px; gap:6px; }
+    .prog-bar-bg { width:100%; height:10px; background:rgba(255,255,255,.08); border:1px solid rgba(0,240,255,.2); border-radius:2px; overflow:hidden;}
+    .prog-bar-fill { height:100%; background:var(--cyan); transition:width 1s linear, background-color 0.3s ease; width:100%; }
+    .prog-bar-fill.sets { transition:width 0.4s ease; width:0%; background:var(--green); }
+    
+    .timer-infos { display:flex; justify-content:space-between; margin:10px 0 8px; gap:6px; }
     .info-box { flex:1; background:rgba(0,240,255,.05); border:1px solid rgba(0,240,255,.2); padding:6px 4px; text-align:center; }
     .info-box .ib-label { color:var(--dim); font-size:clamp(8px,2.2vw,10px); font-weight:bold; letter-spacing:.5px; }
     .info-box .ib-val   { color:var(--cyan); font-size:clamp(12px,3.5vw,16px); font-weight:bold; margin-top:2px; }
+    
     .hist-wrap { margin:6px 0 10px; }
     .hist-label { color:var(--dim); font-size:clamp(9px,2.4vw,11px); font-weight:bold; margin-bottom:4px; letter-spacing:.5px; }
     .hist-list  { display:flex; gap:5px; flex-wrap:wrap; }
     .hist-tag { background:rgba(0,240,255,.08); border:1px solid rgba(0,240,255,.25); color:var(--cyan); font-size:clamp(9px,2.4vw,11px); font-weight:bold; padding:3px 8px; letter-spacing:.5px; }
     .hist-tag.last { border-color:var(--green); color:var(--green); background:rgba(0,255,64,.08); }
-    .timer-btn-row { display:flex; justify-content:space-around; align-items:center; margin-top:12px; }
-    .play-icon { width:0; height:0; border-style:solid; border-width:16px 0 16px 26px; border-color:transparent transparent transparent white; margin-left:6px; }
+    
+    .timer-btn-row { display:flex; justify-content:space-around; align-items:center; margin-top:16px; }
+    
+    .play-icon { width:0; height:0; border-style:solid; border-width:14px 0 14px 22px; border-color:transparent transparent transparent white; margin-left:6px; }
+    .pause-icon { width:16px; height:20px; border-left:6px solid white; border-right:6px solid white; margin-left:0; }
+    
     .btn-back {
       position:absolute; top:15px; left:15px;
       background:rgba(0,0,0,.5); border:2px solid var(--cyan); color:var(--cyan);
@@ -148,55 +171,73 @@
       padding:7px 14px; cursor:pointer; z-index:20;
       -webkit-tap-highlight-color:transparent;
     }
-    .cfg-section { margin-bottom:14px; }
-    .cfg-section-title { color:var(--yellow); font-size:clamp(10px,2.8vw,12px); font-weight:bold; letter-spacing:1px; border-bottom:1px solid rgba(252,238,12,.2); padding-bottom:4px; margin-bottom:10px; }
-    .cfg-row { display:flex; align-items:center; justify-content:space-around; margin:10px 0; }
-    .cfg-time { font-size:clamp(34px,9.5vw,52px); font-weight:bold; color:var(--cyan); min-width:100px; text-align:center; }
+    
+    .cfg-nav {
+      position:sticky; top:-2px; z-index:15; display:flex; gap:4px;
+      background:rgba(8,10,18,0.98); padding:10px 0; border-bottom:2px solid var(--cyan); margin-bottom:15px;
+    }
+    .cfg-nav button {
+      flex:1; background:rgba(0,240,255,0.05); border:1px solid var(--cyan);
+      color:var(--cyan); font-size:clamp(9px,2.5vw,12px); font-weight:bold; font-family:'Courier New',monospace;
+      padding:8px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .cfg-nav button:active { background:var(--cyan); color:#000; }
+    
+    .cfg-section { margin-bottom:14px; scroll-margin-top: 50px; }
+    .cfg-section-title { color:var(--yellow); font-size:clamp(11px,3vw,13px); font-weight:bold; letter-spacing:1px; border-bottom:1px solid rgba(252,238,12,.2); padding-bottom:6px; margin-bottom:12px; }
+    
     .preset-row { display:flex; gap:6px; justify-content:center; margin:6px 0 14px; }
-    .btn-preset { flex:1; background:rgba(12,14,24,.94); border:2px solid var(--cyan); color:var(--cyan); font-family:'Courier New',monospace; font-size:clamp(10px,2.8vw,14px); font-weight:bold; padding:clamp(9px,2.8vw,12px) 2px; cursor:pointer; letter-spacing:.5px; -webkit-tap-highlight-color:transparent; }
-    .btn-preset:active { opacity:.65; }
+    
     .meta-modo-block { border:1px solid rgba(0,240,255,.18); background:rgba(0,240,255,.03); padding:10px 12px 6px; margin-bottom:10px; }
     .meta-modo-block:last-child { margin-bottom:0; }
-    .meta-modo-label { font-size:clamp(9px,2.5vw,11px); font-weight:bold; letter-spacing:1px; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .meta-modo-label { font-size:clamp(10px,2.8vw,12px); font-weight:bold; letter-spacing:1px; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
     .meta-modo-label.musc { color:var(--cyan); }
     .meta-modo-label.card { color:var(--pink); }
     .meta-modo-label.hiit { color:var(--yellow); }
-    .meta-mini-row { display:flex; align-items:center; justify-content:space-around; }
-    .cfg-time-sm { font-size:clamp(26px,7.5vw,40px); font-weight:bold; color:var(--cyan); min-width:70px; text-align:center; }
+    
+    .meta-mini-row { display:flex; align-items:center; justify-content:center; gap:6px; }
+    
+    .cfg-time-sm { font-size:clamp(22px,6vw,34px); font-weight:bold; color:var(--cyan); min-width:60px; text-align:center; flex:1; }
     .cfg-time-sm.card { color:var(--pink); }
     .cfg-time-sm.hiit { color:var(--yellow); }
-    .preset-row-sm { display:flex; gap:5px; justify-content:center; margin:4px 0 2px; }
+    
+    .preset-row-sm { display:flex; gap:5px; justify-content:center; margin:10px 0 2px; }
     .btn-preset-sm { flex:1; background:rgba(12,14,24,.94); border:1px solid var(--cyan); color:var(--cyan); font-family:'Courier New',monospace; font-size:clamp(9px,2.5vw,12px); font-weight:bold; padding:clamp(6px,2vw,9px) 2px; cursor:pointer; letter-spacing:.3px; -webkit-tap-highlight-color:transparent; }
     .btn-preset-sm.card { border-color:var(--pink); color:var(--pink); }
     .btn-preset-sm.hiit { border-color:var(--yellow); color:var(--yellow); }
     .btn-preset-sm:active { opacity:.65; }
+    
     .toggle-row { display:flex; align-items:center; justify-content:space-between; margin:8px 0; }
     .toggle-label { color:var(--dim); font-size:clamp(11px,3vw,14px); font-weight:bold; letter-spacing:.5px; }
     .toggle-switch { position:relative; width:46px; height:24px; background:rgba(0,0,0,.5); border:2px solid var(--cyan); cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
     .toggle-switch.on { background:rgba(0,240,255,.2); }
     .toggle-knob { position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--dim); transition:left .2s, background .2s; }
     .toggle-switch.on .toggle-knob { left:24px; background:var(--cyan); }
+    
     .slider-row { display:flex; align-items:center; gap:10px; margin:8px 0; }
     .slider-lbl { color:var(--dim); font-size:clamp(10px,2.8vw,13px); font-weight:bold; min-width:62px; }
     input[type=range] { flex:1; -webkit-appearance:none; height:4px; background:rgba(0,240,255,.25); border-radius:0; outline:none; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; background:var(--cyan); border-radius:0; cursor:pointer; }
     .slider-val { color:var(--cyan); font-size:clamp(11px,3vw,14px); font-weight:bold; min-width:36px; text-align:right; }
+    
     .cfg-select { width:100%; background:rgba(12,14,24,.94); border:2px solid var(--cyan); color:var(--cyan); font-family:'Courier New',monospace; font-weight:bold; font-size:clamp(12px,3.2vw,15px); padding:9px 10px; cursor:pointer; letter-spacing:.5px; outline:none; margin:4px 0 10px; -webkit-appearance:none; appearance:none; }
+    
     #voz-indicator { position:fixed; bottom:14px; right:14px; color:var(--green); font-size:11px; font-weight:bold; z-index:100; opacity:0; transition:opacity .3s; }
     #voz-indicator.ativo { opacity:1; }
-    #modal-nome { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.75); }
-    #modal-nome.active { display:flex; }
+    
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.85); }
+    .modal-overlay.active { display:flex; }
+    
     #screen-config { justify-content:flex-start; padding-top:20px; }
-    .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:90vh; padding-bottom:10px; }
+    .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:90vh; padding-bottom:10px; position:relative; }
+    
     .voz-modo-info {
       background:rgba(0,240,255,.05); border:1px solid rgba(0,240,255,.2);
       padding:8px 10px; margin-bottom:10px; font-size:clamp(9px,2.5vw,11px);
       font-weight:bold; letter-spacing:.5px; color:var(--dim);
       display:flex; align-items:center; gap:8px;
     }
-    .voz-modo-info span.tag {
-      padding:2px 6px; font-size:clamp(9px,2.3vw,10px); font-weight:bold;
-    }
+    .voz-modo-info span.tag { padding:2px 6px; font-size:clamp(9px,2.3vw,10px); font-weight:bold; }
     .tag-online  { background:rgba(0,255,64,.15);  border:1px solid var(--green);  color:var(--green); }
     .tag-offline { background:rgba(255,140,0,.15); border:1px solid var(--orange); color:var(--orange); }
     .tag-beep    { background:rgba(255,0,60,.15);  border:1px solid var(--pink);   color:var(--pink); }
@@ -209,7 +250,7 @@
 <div id="voz-indicator">▐ TRANSMITINDO ▌</div>
 
 <!-- MODAL: TROCAR NOME -->
-<div id="modal-nome">
+<div id="modal-nome" class="modal-overlay">
   <div class="panel" style="border-color:var(--yellow);width:90%;max-width:380px">
     <div class="corner-tr" style="border-color:var(--yellow)"></div>
     <div class="corner-bl" style="border-color:var(--yellow)"></div>
@@ -218,6 +259,35 @@
     <input class="input-nome" id="input-nome-modal" type="text" maxlength="16" placeholder="SEU NOME" autocomplete="off" autocorrect="off" spellcheck="false">
     <button class="btn-sec green" style="margin-top:4px" onclick="salvarNome()">▶ CONFIRMAR</button>
     <button class="btn-sec yellow" style="margin-top:6px" onclick="fecharModalNome()">✕ CANCELAR</button>
+  </div>
+</div>
+
+<!-- MODAL: RESUMO DO TREINO -->
+<div id="modal-resumo" class="modal-overlay">
+  <div class="panel" style="border-color:var(--green);width:90%;max-width:380px">
+    <div class="corner-tr" style="border-color:var(--green)"></div>
+    <div class="corner-bl" style="border-color:var(--green)"></div>
+    <div class="glitch" data-text="TREINO CONCLUÍDO!" style="font-size:clamp(18px,6vw,26px);color:var(--green);margin-bottom:12px">TREINO CONCLUÍDO!</div>
+    <div style="color:var(--dim);font-size:clamp(11px,3vw,14px);text-align:center;margin-bottom:16px;font-weight:bold">// ESTATÍSTICAS DA SESSÃO</div>
+    
+    <div class="timer-infos" style="flex-direction:column; gap:10px; margin-bottom:16px;">
+      <div class="info-box" style="border-color:var(--green); background:rgba(0,255,64,0.05);">
+        <div class="ib-label" style="color:var(--green);">MODO FINALIZADO</div>
+        <div class="ib-val" id="resumo-modo" style="color:white; font-size:18px;">--</div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="info-box">
+          <div class="ib-label">TEMPO TOTAL</div>
+          <div class="ib-val" id="resumo-tempo" style="font-size:18px;">00:00</div>
+        </div>
+        <div class="info-box">
+          <div class="ib-label">SÉRIES FEITAS</div>
+          <div class="ib-val" id="resumo-series" style="font-size:18px;">0 / 0</div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn-sec green" style="margin-top:10px" onclick="fecharResumo()">▶ FINALIZAR</button>
   </div>
 </div>
 
@@ -241,7 +311,7 @@
         <button class="btn-round sz-md c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v3.1 ]</div>
+    <div class="footer-txt">[ GYM TIMER PRO v4.0 ]</div>
   </div>
 </div>
 
@@ -251,33 +321,51 @@
     <div class="corner-tr" style="border-color:var(--yellow)"></div>
     <div class="corner-bl" style="border-color:var(--yellow)"></div>
     <div class="glitch" data-text="TIPO DE TREINO" style="font-size:clamp(18px,5.5vw,28px);color:var(--yellow);margin-bottom:22px">TIPO DE TREINO</div>
-    <button class="btn-sec"        onclick="selecionarModo('musculacao')">💪 MUSCULAÇÃO</button>
-    <button class="btn-sec pink"   onclick="selecionarModo('cardio')">🏃 CARDIO</button>
-    <button class="btn-sec pink"   onclick="selecionarModo('hiit')">⚡ HIIT</button>
-    <button class="btn-sec yellow" onclick="irPara('screen-home')" style="margin-top:12px">&lt; VOLTAR</button>
+    
+    <button class="btn-sec" onclick="selecionarModo('musculacao')">
+      💪 MUSCULAÇÃO <span class="mode-stats" id="stat-musc">--</span>
+    </button>
+    <button class="btn-sec pink" onclick="selecionarModo('cardio')">
+      🏃 CARDIO <span class="mode-stats" id="stat-cardio">--</span>
+    </button>
+    <button class="btn-sec pink" onclick="selecionarModo('hiit')">
+      ⚡ HIIT <span class="mode-stats" id="stat-hiit">--</span>
+    </button>
+    
+    <button class="btn-sec yellow" onclick="irPara('screen-home')" style="margin-top:20px">&lt; VOLTAR</button>
   </div>
 </div>
 
 <!-- TELA: CONFIGURAÇÃO -->
 <div class="screen" id="screen-config">
   <button class="btn-back" onclick="irPara('screen-home')">&lt; Voltar</button>
-  <div class="config-scroll">
-    <div class="panel" style="border-color:var(--pink);margin-top:44px">
+  <div class="config-scroll" id="config-scroll-area">
+    <div class="panel" style="border-color:var(--pink);margin-top:44px; padding-top:0;">
       <div class="corner-tr" style="border-color:var(--pink)"></div>
       <div class="corner-bl" style="border-color:var(--pink)"></div>
-      <div class="glitch" data-text="CONFIGURAÇÃO" style="font-size:clamp(18px,5.2vw,26px);color:var(--yellow);margin-bottom:14px">CONFIGURAÇÃO</div>
+      
+      <!-- HEADER STICKY DE NAVEGAÇÃO -->
+      <div class="cfg-nav">
+        <button onclick="scrollToCfg('sec-tempos')">TEMPOS</button>
+        <button onclick="scrollToCfg('sec-metas')">METAS</button>
+        <button onclick="scrollToCfg('sec-sistema')">SISTEMA</button>
+      </div>
+      
+      <div class="glitch" data-text="CONFIGURAÇÃO" style="font-size:clamp(18px,5.2vw,26px);color:var(--yellow);margin-bottom:20px">CONFIGURAÇÃO</div>
 
       <!-- ══ TEMPO DE DESCANSO POR MODO ══ -->
-      <div class="cfg-section">
+      <div class="cfg-section" id="sec-tempos">
         <div class="cfg-section-title">⏱ TEMPO DE DESCANSO POR MODO</div>
 
         <!-- Musculação -->
         <div class="meta-modo-block">
           <div class="meta-modo-label musc">💪 MUSCULAÇÃO</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('musculacao',-5)">−</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('musculacao',-5)">-5</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('musculacao',-1)">-1</button>
             <div class="cfg-time-sm glitch" id="cfg-tempo-musculacao" data-text="60s">60s</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('musculacao',+5)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('musculacao',+1)">+1</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('musculacao',+5)">+5</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',30)">30S</button>
@@ -292,9 +380,11 @@
         <div class="meta-modo-block">
           <div class="meta-modo-label card">🏃 CARDIO</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('cardio',-5)">−</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('cardio',-5)">-5</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('cardio',-1)">-1</button>
             <div class="cfg-time-sm card glitch" id="cfg-tempo-cardio" data-text="30s">30s</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('cardio',+5)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('cardio',+1)">+1</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('cardio',+5)">+5</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm card" onclick="definirTempoModo('cardio',15)">15S</button>
@@ -309,9 +399,11 @@
         <div class="meta-modo-block">
           <div class="meta-modo-label hiit">⚡ HIIT</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarTempoModo('hiit',-5)">−</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('hiit',-5)">-5</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoModo('hiit',-1)">-1</button>
             <div class="cfg-time-sm hiit glitch" id="cfg-tempo-hiit" data-text="20s">20s</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarTempoModo('hiit',+5)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('hiit',+1)">+1</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('hiit',+5)">+5</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm hiit" onclick="definirTempoModo('hiit',10)">10S</button>
@@ -324,14 +416,14 @@
       </div>
 
       <!-- META DE SÉRIES POR MODO -->
-      <div class="cfg-section">
+      <div class="cfg-section" id="sec-metas">
         <div class="cfg-section-title">🎯 META DE SÉRIES POR MODO</div>
         <div class="meta-modo-block">
           <div class="meta-modo-label musc">💪 MUSCULAÇÃO</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarMetaModo('musculacao',-1)">−</button>
+            <button class="btn-round sz-xxs c-pink"  onclick="mudarMetaModo('musculacao',-1)">-1</button>
             <div class="cfg-time-sm glitch" id="cfg-meta-musculacao" data-text="6">6</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarMetaModo('musculacao',+1)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarMetaModo('musculacao',+1)">+1</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm" onclick="definirMetaModo('musculacao',3)">3</button>
@@ -341,12 +433,13 @@
             <button class="btn-preset-sm" onclick="definirMetaModo('musculacao',8)">8</button>
           </div>
         </div>
+        
         <div class="meta-modo-block">
           <div class="meta-modo-label card">🏃 CARDIO</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarMetaModo('cardio',-1)">−</button>
+            <button class="btn-round sz-xxs c-pink"  onclick="mudarMetaModo('cardio',-1)">-1</button>
             <div class="cfg-time-sm card glitch" id="cfg-meta-cardio" data-text="3">3</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarMetaModo('cardio',+1)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarMetaModo('cardio',+1)">+1</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm card" onclick="definirMetaModo('cardio',2)">2</button>
@@ -356,12 +449,13 @@
             <button class="btn-preset-sm card" onclick="definirMetaModo('cardio',6)">6</button>
           </div>
         </div>
+        
         <div class="meta-modo-block">
           <div class="meta-modo-label hiit">⚡ HIIT</div>
           <div class="meta-mini-row">
-            <button class="btn-round sz-xs c-pink"  onclick="mudarMetaModo('hiit',-1)">−</button>
+            <button class="btn-round sz-xxs c-pink"  onclick="mudarMetaModo('hiit',-1)">-1</button>
             <div class="cfg-time-sm hiit glitch" id="cfg-meta-hiit" data-text="4">4</div>
-            <button class="btn-round sz-xs c-green" onclick="mudarMetaModo('hiit',+1)">+</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarMetaModo('hiit',+1)">+1</button>
           </div>
           <div class="preset-row-sm">
             <button class="btn-preset-sm hiit" onclick="definirMetaModo('hiit',3)">3</button>
@@ -373,25 +467,20 @@
         </div>
       </div>
 
-      <!-- ALERTA ANTECIPADO -->
-      <div class="cfg-section">
-        <div class="cfg-section-title">🔔 ALERTA SONORO ANTECIPADO</div>
+      <!-- ALERTA E AUTOMAÇÕES -->
+      <div class="cfg-section" id="sec-sistema">
+        <div class="cfg-section-title">⚙️ SISTEMA & ALERTAS</div>
         <select class="cfg-select" id="cfg-alerta" onchange="salvarAlerta()">
-          <option value="3">Nos últimos 3 segundos</option>
-          <option value="5" selected>Nos últimos 5 segundos</option>
-          <option value="10">Nos últimos 10 segundos</option>
-          <option value="0">Desativado</option>
+          <option value="3">Alerta: Últimos 3 segundos</option>
+          <option value="5" selected>Alerta: Últimos 5 segundos</option>
+          <option value="10">Alerta: Últimos 10 segundos</option>
+          <option value="0">Alerta Desativado</option>
         </select>
-      </div>
-
-      <!-- AUTO-RESTART -->
-      <div class="cfg-section">
-        <div class="cfg-section-title">🔄 AUTO-INICIAR PRÓXIMO DESCANSO</div>
         <select class="cfg-select" id="cfg-autostart" onchange="salvarAutoStart()">
-          <option value="0" selected>Desativado (manual)</option>
-          <option value="3">Automático em 3s</option>
-          <option value="5">Automático em 5s</option>
-          <option value="10">Automático em 10s</option>
+          <option value="0" selected>Auto-Iniciar: Desativado</option>
+          <option value="3">Auto-Iniciar: Em 3s</option>
+          <option value="5">Auto-Iniciar: Em 5s</option>
+          <option value="10">Auto-Iniciar: Em 10s</option>
         </select>
       </div>
 
@@ -431,7 +520,7 @@
         </div>
       </div>
 
-      <div style="display:flex;justify-content:center;margin-top:6px">
+      <div style="display:flex;justify-content:center;margin-top:10px;margin-bottom:10px;">
         <button class="btn-round sz-md c-yellow" onclick="salvarConfig()">SALVAR</button>
       </div>
     </div>
@@ -445,18 +534,37 @@
     <div class="corner-tr" style="border-color:var(--green)"></div>
     <div class="corner-bl" style="border-color:var(--green)"></div>
     <div class="status-dot">● ONLINE</div>
-    <div class="timer-modo" id="timer-modo-label" style="color:var(--yellow)">MUSCULAÇÃO</div>
+    
+    <!-- NOVO HEADER DE MODO -->
+    <div class="timer-header">
+      <span class="timer-header-icon" id="timer-modo-icon">💪</span>
+      <div class="glitch timer-header-label" id="timer-modo-label" data-text="MUSCULAÇÃO">MUSCULAÇÃO</div>
+    </div>
+    
     <div class="lbl-status" id="lbl-status">PRONTO PARA TREINAR</div>
-    <div class="lbl-series-title">// SÉRIES CONCLUÍDAS</div>
+    
     <div class="lbl-series glitch" id="lbl-series" data-text="0">0</div>
+    
+    <!-- BARRA DE TEMPO (NOVA) -->
+    <div class="prog-wrap" style="margin-bottom:8px;">
+      <div class="prog-label">
+        <span>TEMPO DESCANSO</span>
+        <span id="prog-txt-tempo">-- / --</span>
+      </div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill" id="countdown-fill"></div></div>
+    </div>
+    
+    <!-- BARRA DE SÉRIES -->
     <div class="prog-wrap">
       <div class="prog-label">
-        <span id="prog-txt-esq">PROGRESSO</span>
+        <span>PROGRESSO (SÉRIES)</span>
         <span id="prog-txt-dir">0 / 6</span>
       </div>
-      <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-fill"></div></div>
+      <div class="prog-bar-bg"><div class="prog-bar-fill sets" id="prog-fill"></div></div>
     </div>
+    
     <div class="lbl-timer t-white glitch" id="lbl-timer" data-text="--">--</div>
+    
     <div class="timer-infos">
       <div class="info-box">
         <div class="ib-label">TEMPO TREINO</div>
@@ -471,13 +579,16 @@
         <div class="ib-val" id="ib-meta">6</div>
       </div>
     </div>
+    
     <div class="hist-wrap" id="hist-wrap" style="display:none">
       <div class="hist-label">// HISTÓRICO DE DESCANSO:</div>
       <div class="hist-list" id="hist-list"></div>
     </div>
+    
     <div class="timer-btn-row">
-      <button class="btn-round sz-lg c-green" onclick="iniciarTimer()">
-        <div class="play-icon"></div>
+      <!-- BOTÃO PLAY/PAUSE DINÂMICO -->
+      <button class="btn-round sz-lg c-green" onclick="togglePlayPause()">
+        <div id="btn-play-icon" class="play-icon"></div>
       </button>
       <button class="btn-round sz-lg c-pink" onclick="resetTimer(false)" style="font-size:clamp(24px,7.5vw,36px)">↺</button>
     </div>
@@ -497,23 +608,22 @@ let vibAtivada     = localStorage.getItem('gym_vib')   !== 'false';
 let volVoz         = parseInt(localStorage.getItem('gym_vol'))    || 100;
 let rateVoz        = parseInt(localStorage.getItem('gym_rate'))   || 85;
 
-// ── Tempo de descanso por modo (NOVO) ──────────────────────────────
+// Tempos e Metas
 let tempoPorModo = {
   musculacao: parseInt(localStorage.getItem('gym_tempo_musculacao')) || 60,
   cardio:     parseInt(localStorage.getItem('gym_tempo_cardio'))     || 30,
   hiit:       parseInt(localStorage.getItem('gym_tempo_hiit'))       || 20
 };
-
-// ── Meta de séries por modo ─────────────────────────────────────────
 let metaPorModo = {
   musculacao: parseInt(localStorage.getItem('gym_meta_musculacao')) || 6,
   cardio:     parseInt(localStorage.getItem('gym_meta_cardio'))     || 3,
   hiit:       parseInt(localStorage.getItem('gym_meta_hiit'))       || 4
 };
 
-let modoTreino      = "musculacao";
+const iconesModos = { musculacao: '💪', cardio: '🏃', hiit: '⚡' };
+let modoTreino      = localStorage.getItem('gym_last_mode') || 'musculacao';
 let metaSeries      = metaPorModo[modoTreino];
-let tempoAtual      = tempoPorModo[modoTreino]; // tempo do modo ativo
+let tempoAtual      = tempoPorModo[modoTreino];
 let contador        = 0;
 let tempoRestante   = 0;
 let intervalo       = null;
@@ -524,6 +634,7 @@ let segundosTreino  = 0;
 let historicoDescanso = [];
 let audioCtx        = null;
 let wakeLock        = null;
+let timerRodando    = false; // Adicionado para suportar Pause
 
 // ══════════════════════════════════════════════════════════════════════
 //  SISTEMA DE VOZ ADAPTATIVO
@@ -576,7 +687,6 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); detectarVozModo(); };
   carregarVozesNativas();
 }
-
 window.addEventListener('online',  () => tentarCarregarRV());
 window.addEventListener('offline', () => { window.RV_LOADED = false; detectarVozModo(); });
 
@@ -600,9 +710,6 @@ function atualizarChipVoz() {
   if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  FALAR
-// ══════════════════════════════════════════════════════════════════════
 function mostrarIndicador(a) { document.getElementById("voz-indicator").classList.toggle("ativo", a); }
 
 function falar(texto) {
@@ -644,9 +751,6 @@ function falarNativo(texto) {
   } catch(e) { mostrarIndicador(false); }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  WAKE LOCK / ÁUDIO DESBLOQUEIO
-// ══════════════════════════════════════════════════════════════════════
 async function solicitarWakeLock() {
   try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
 }
@@ -657,7 +761,6 @@ function desbloquearAudio() {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   carregarVozesNativas();
   detectarVozModo();
-  falar("Vamos começar, " + nomeUsuario);
   solicitarWakeLock();
 }
 
@@ -666,8 +769,7 @@ document.addEventListener('visibilitychange', () => {
     const ac = getAC();
     if (ac.state === 'suspended') ac.resume().catch(() => {});
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    carregarVozesNativas();
-    detectarVozModo();
+    carregarVozesNativas(); detectarVozModo();
   }
 });
 
@@ -712,33 +814,32 @@ requestAnimationFrame(animarMatrix);
 // ══════════════════════════════════════════════════════════════════════
 function initUI() {
   atualizarDisplayNome();
-  // Tempo por modo
-  atualizarDisplayTempoModo('musculacao');
-  atualizarDisplayTempoModo('cardio');
-  atualizarDisplayTempoModo('hiit');
-  // Meta por modo
-  atualizarDisplayMetaModo('musculacao');
-  atualizarDisplayMetaModo('cardio');
-  atualizarDisplayMetaModo('hiit');
-  // Sliders / toggles
-  document.getElementById('slider-vol').value     = volVoz;
-  document.getElementById('val-vol').textContent  = volVoz + '%';
-  document.getElementById('slider-rate').value    = rateVoz;
-  document.getElementById('val-rate').textContent = rateVoz + '%';
-  sincToggle('toggle-voz', vozAtivada);
-  sincToggle('toggle-vib', vibAtivada);
-  document.getElementById('cfg-alerta').value    = alertaSegundos;
+  atualizarStatsModo();
+  atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
+  atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
+  document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
+  document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
+  sincToggle('toggle-voz', vozAtivada); sincToggle('toggle-vib', vibAtivada);
+  document.getElementById('cfg-alerta').value = alertaSegundos;
   document.getElementById('cfg-autostart').value = autoStartSeg;
-  tentarCarregarRV();
-  detectarVozModo();
+  tentarCarregarRV(); detectarVozModo();
 }
 
-function atualizarDisplayNome() {
-  document.getElementById('home-nome-display').textContent = '// OPERADOR: ' + nomeUsuario.toUpperCase();
+function atualizarDisplayNome() { document.getElementById('home-nome-display').textContent = '// OPERADOR: ' + nomeUsuario.toUpperCase(); }
+
+function atualizarStatsModo() {
+  document.getElementById('stat-musc').textContent = `[ ${tempoPorModo.musculacao}s / ${metaPorModo.musculacao}x ]`;
+  document.getElementById('stat-cardio').textContent = `[ ${tempoPorModo.cardio}s / ${metaPorModo.cardio}x ]`;
+  document.getElementById('stat-hiit').textContent = `[ ${tempoPorModo.hiit}s / ${metaPorModo.hiit}x ]`;
+}
+
+function scrollToCfg(id) {
+  const el = document.getElementById(id);
+  if(el) document.getElementById('config-scroll-area').scrollTo({ top: el.offsetTop - 50, behavior: 'smooth' });
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  MODAL NOME
+//  MODAIS
 // ══════════════════════════════════════════════════════════════════════
 function abrirModalNome() {
   clickBeep();
@@ -751,138 +852,106 @@ function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').
 function salvarNome() {
   const raw = document.getElementById('input-nome-modal').value.trim();
   if (!raw) return;
-  nomeUsuario = raw;
-  localStorage.setItem('gym_nome', nomeUsuario);
-  atualizarDisplayNome();
-  fecharModalNome();
-  const ac = getAC();
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
-  carregarVozesNativas(); detectarVozModo();
-  falar("Nome atualizado. Vamos começar, " + nomeUsuario);
+  nomeUsuario = raw; localStorage.setItem('gym_nome', nomeUsuario);
+  atualizarDisplayNome(); fecharModalNome();
+  desbloquearAudio(); falar("Nome atualizado. Vamos começar, " + nomeUsuario);
 }
 document.getElementById('input-nome-modal').addEventListener('keydown', e => {
   if (e.key === 'Enter') salvarNome();
   if (e.key === 'Escape') fecharModalNome();
 });
 
+function mostrarResumo() {
+  const modoNomes = { musculacao:'MUSCULAÇÃO', cardio:'CARDIO', hiit:'HIIT' };
+  document.getElementById('resumo-modo').textContent = modoNomes[modoTreino] || modoTreino.toUpperCase();
+  document.getElementById('resumo-tempo').textContent = document.getElementById('ib-tempo-treino').textContent;
+  document.getElementById('resumo-series').textContent = contador + ' / ' + metaSeries;
+  document.getElementById('modal-resumo').classList.add('active');
+  falar("Parabéns, " + nomeUsuario + "! Meta de " + metaSeries + " séries atingida. Treino concluído!");
+}
+
+function fecharResumo() {
+  clickBeep();
+  document.getElementById('modal-resumo').classList.remove('active');
+  voltarDoTimer();
+}
+
 // ══════════════════════════════════════════════════════════════════════
 //  NAVEGAÇÃO
 // ══════════════════════════════════════════════════════════════════════
 function clickBeep() { tocarTom(600, 0.05, 0.2, 'square'); }
-
 function irPara(id) {
   clickBeep();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function irParaSelecao() { desbloquearAudio(); irPara('screen-mode'); }
+function irParaSelecao() { desbloquearAudio(); falar("Vamos começar, " + nomeUsuario); irPara('screen-mode'); }
 function irParaConfig()  { desbloquearAudio(); atualizarChipVoz(); irPara('screen-config'); }
 
 function selecionarModo(modo) {
   clickBeep();
   modoTreino = modo;
   metaSeries = metaPorModo[modo];
-  tempoAtual = tempoPorModo[modo]; // ← carrega o tempo deste modo
-  const modoNomes = { musculacao:'Musculação', cardio:'Cardio', hiit:'H I I T' };
+  tempoAtual = tempoPorModo[modo];
+  localStorage.setItem('gym_last_mode', modo);
+  
+  const modoNomes = { musculacao:'MUSCULAÇÃO', cardio:'CARDIO', hiit:'H I I T' };
   document.getElementById('timer-modo-label').textContent = modoNomes[modo] || modo.toUpperCase();
-  const tempoLabel = tempoAtual >= 60
-    ? Math.floor(tempoAtual/60) + 'min' + (tempoAtual%60 ? (tempoAtual%60)+'s' : '')
-    : tempoAtual + 's';
-  falar("Modo " + (modoNomes[modo]||modo) + ". Descanso: " + tempoLabel + ". Meta: " + metaSeries + " séries. Vamos lá, " + nomeUsuario);
+  document.getElementById('timer-modo-label').setAttribute('data-text', modoNomes[modo] || modo.toUpperCase());
+  document.getElementById('timer-modo-icon').textContent = iconesModos[modo] || '💪';
+  
+  const tempoLabel = tempoAtual >= 60 ? Math.floor(tempoAtual/60) + 'min' + (tempoAtual%60 ? (tempoAtual%60)+'s' : '') : tempoAtual + 's';
+  falar("Modo " + (modoNomes[modo]||modo) + ". Descanso: " + tempoLabel + ". Meta: " + metaSeries + " séries.");
+  
   resetTimer(true);
   irPara('screen-timer');
 }
 
 function voltarDoTimer() {
   pararTimer(); pararAutoStart(); pararCronTreino();
+  timerRodando = false;
   irPara('screen-home');
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÃO — TEMPO POR MODO (NOVO)
+//  CONFIGURAÇÃO 
 // ══════════════════════════════════════════════════════════════════════
-function mudarTempoModo(modo, d) {
-  clickBeep();
-  tempoPorModo[modo] = Math.max(5, tempoPorModo[modo] + d);
-  atualizarDisplayTempoModo(modo);
-}
-
-function definirTempoModo(modo, v) {
-  clickBeep();
-  tempoPorModo[modo] = v;
-  atualizarDisplayTempoModo(modo);
-}
-
+function mudarTempoModo(modo, d) { clickBeep(); tempoPorModo[modo] = Math.max(5, tempoPorModo[modo] + d); atualizarDisplayTempoModo(modo); atualizarStatsModo(); }
+function definirTempoModo(modo, v) { clickBeep(); tempoPorModo[modo] = v; atualizarDisplayTempoModo(modo); atualizarStatsModo(); }
 function atualizarDisplayTempoModo(modo) {
   const seg = tempoPorModo[modo];
-  const txt = seg >= 60
-    ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : ''))
-    : seg + 's';
+  const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's';
   const el = document.getElementById('cfg-tempo-' + modo);
-  if (!el) return;
-  el.textContent = txt;
-  el.setAttribute('data-text', txt);
+  if (el) { el.textContent = txt; el.setAttribute('data-text', txt); }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÃO — META DE SÉRIES
-// ══════════════════════════════════════════════════════════════════════
-function mudarMetaModo(modo, d) {
-  clickBeep();
-  metaPorModo[modo] = Math.max(1, Math.min(20, metaPorModo[modo] + d));
-  atualizarDisplayMetaModo(modo);
-}
-function definirMetaModo(modo, v) {
-  clickBeep();
-  metaPorModo[modo] = v;
-  atualizarDisplayMetaModo(modo);
-}
+function mudarMetaModo(modo, d) { clickBeep(); metaPorModo[modo] = Math.max(1, Math.min(20, metaPorModo[modo] + d)); atualizarDisplayMetaModo(modo); atualizarStatsModo(); }
+function definirMetaModo(modo, v) { clickBeep(); metaPorModo[modo] = v; atualizarDisplayMetaModo(modo); atualizarStatsModo(); }
 function atualizarDisplayMetaModo(modo) {
   const val = String(metaPorModo[modo]);
   const el  = document.getElementById('cfg-meta-' + modo);
-  if (!el) return;
-  el.textContent = val;
-  el.setAttribute('data-text', val);
+  if (el) { el.textContent = val; el.setAttribute('data-text', val); }
 }
 
-function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value);    localStorage.setItem('gym_alerta', alertaSegundos); }
+function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value); localStorage.setItem('gym_alerta', alertaSegundos); }
 function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
 function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; localStorage.setItem('gym_vol', volVoz); }
 function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; localStorage.setItem('gym_rate', rateVoz); }
 function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
 
-function toggleVoz() {
-  vozAtivada = !vozAtivada;
-  sincToggle('toggle-voz', vozAtivada);
-  localStorage.setItem('gym_voz', vozAtivada);
-  atualizarChipVoz();
-  if (vozAtivada) falar("Voz ativada.");
-}
-function toggleVib() {
-  vibAtivada = !vibAtivada;
-  sincToggle('toggle-vib', vibAtivada);
-  localStorage.setItem('gym_vib', vibAtivada);
-  if (vibAtivada && navigator.vibrate) navigator.vibrate(80);
-}
+function toggleVoz() { vozAtivada = !vozAtivada; sincToggle('toggle-voz', vozAtivada); localStorage.setItem('gym_voz', vozAtivada); atualizarChipVoz(); if (vozAtivada) falar("Voz ativada."); }
+function toggleVib() { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); if (vibAtivada && navigator.vibrate) navigator.vibrate(80); }
 
 function salvarConfig() {
-  // Salva tempos por modo
-  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao);
-  localStorage.setItem('gym_tempo_cardio',     tempoPorModo.cardio);
-  localStorage.setItem('gym_tempo_hiit',       tempoPorModo.hiit);
-  // Salva metas por modo
-  localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao);
-  localStorage.setItem('gym_meta_cardio',     metaPorModo.cardio);
-  localStorage.setItem('gym_meta_hiit',       metaPorModo.hiit);
-  // Atualiza tempoAtual se o modo já estava selecionado
-  tempoAtual = tempoPorModo[modoTreino];
-  metaSeries = metaPorModo[modoTreino];
+  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit);
+  localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
+  tempoAtual = tempoPorModo[modoTreino]; metaSeries = metaPorModo[modoTreino];
   falar("Configurações salvas. Pronto, " + nomeUsuario);
   irPara('screen-home');
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  TIMER
+//  TIMER CORE
 // ══════════════════════════════════════════════════════════════════════
 function setTimer(txt, cls) {
   const el = document.getElementById('lbl-timer');
@@ -899,36 +968,86 @@ function setSeries(n) {
   document.getElementById('ib-meta').textContent       = metaSeries;
 }
 
-function iniciarTimer() {
-  clickBeep();
-  pararTimer();
-  pararAutoStart();
+function atualizarBarraTempo(segundosRestantes) {
+  const elFill = document.getElementById('countdown-fill');
+  const txtProg = document.getElementById('prog-txt-tempo');
+  txtProg.textContent = segundosRestantes + 's / ' + tempoAtual + 's';
+  const pct = Math.max(0, (segundosRestantes / tempoAtual) * 100);
+  elFill.style.width = pct + '%';
+  if (pct > 50) elFill.style.backgroundColor = 'var(--cyan)';
+  else if (pct > 20) elFill.style.backgroundColor = 'var(--yellow)';
+  else elFill.style.backgroundColor = 'var(--pink)';
+}
+
+function resetTimer(silencioso) {
+  if (!silencioso) clickBeep();
+  pararTimer(); pararAutoStart(); pararCronTreino();
+  contador = 0; tempoRestante = tempoAtual; segundosTreino = 0; timerRodando = false;
+  historicoDescanso = [];
+  
+  document.getElementById('lbl-status').textContent = `PRONTO: ${tempoAtual}s`;
+  document.getElementById('btn-play-icon').className = 'play-icon';
+  setTimer(String(tempoAtual), 't-white');
+  setSeries(0);
+  atualizarBarraTempo(tempoAtual);
+  
+  document.getElementById('ib-tempo-treino').textContent = '00:00';
+  document.getElementById('ib-ultima').textContent = '--s';
+  document.getElementById('hist-wrap').style.display = 'none';
+  document.getElementById('hist-list').innerHTML = '';
   document.getElementById('auto-countdown').textContent = '';
+}
 
+function togglePlayPause() {
+  clickBeep();
+  if (timerRodando) {
+    pararTimer();
+    pararAutoStart();
+    timerRodando = false;
+    document.getElementById('btn-play-icon').className = 'play-icon';
+    document.getElementById('lbl-status').textContent = 'TIMER PAUSADO';
+  } else {
+    if (tempoRestante <= 0) tempoRestante = tempoAtual;
+    iniciarTimer();
+    document.getElementById('btn-play-icon').className = 'pause-icon';
+  }
+}
+
+function iniciarTimer() {
+  pararTimer(); pararAutoStart();
+  document.getElementById('auto-countdown').textContent = '';
   if (!intervaloTreino) iniciarCronTreino();
-
-  tempoRestante = tempoAtual; // usa o tempo do modo selecionado
+  
   document.getElementById('lbl-status').textContent = 'DESCANSANDO...';
   setTimer(String(tempoRestante), 't-white');
+  atualizarBarraTempo(tempoRestante);
   solicitarWakeLock();
+  timerRodando = true;
 
   intervalo = setInterval(() => {
     tempoRestante--;
+    atualizarBarraTempo(tempoRestante);
+    
     if (tempoRestante <= 0) {
       pararTimer();
+      timerRodando = false;
+      document.getElementById('btn-play-icon').className = 'play-icon';
+      
       setTimer('TREINE!', 't-green');
       document.getElementById('lbl-status').textContent = 'VAI TREINAR!';
       contador++;
       setSeries(contador);
       adicionarHistorico(tempoAtual);
       document.getElementById('ib-ultima').textContent = tempoAtual + 's';
-      tocarBeepFim();
-      vibrar([200, 100, 200]);
-      if (contador >= metaSeries)
-        falar("Parabéns, " + nomeUsuario + "! Meta de " + metaSeries + " séries atingida. Treino concluído!");
-      else
+      tocarBeepFim(); vibrar([200, 100, 200]);
+      
+      if (contador >= metaSeries) {
+        pararCronTreino();
+        setTimeout(mostrarResumo, 1200); // Exibe modal ao invés de só voz
+      } else {
         falar("Treine, " + nomeUsuario);
-      if (autoStartSeg > 0 && contador < metaSeries) iniciarAutoStart();
+        if (autoStartSeg > 0) iniciarAutoStart();
+      }
     } else {
       const emAlerta = alertaSegundos > 0 && tempoRestante <= alertaSegundos;
       setTimer(String(tempoRestante), emAlerta ? 't-pink' : 't-white');
@@ -937,13 +1056,14 @@ function iniciarTimer() {
   }, 1000);
 }
 
+function pararTimer() { if (intervalo) { clearInterval(intervalo); intervalo = null; } }
+
 function adicionarHistorico(seg) {
   historicoDescanso.push(seg);
   if (historicoDescanso.length > 8) historicoDescanso.shift();
   const wrap = document.getElementById('hist-wrap');
   const list = document.getElementById('hist-list');
-  wrap.style.display = 'block';
-  list.innerHTML = '';
+  wrap.style.display = 'block'; list.innerHTML = '';
   historicoDescanso.forEach((s, i) => {
     const tag = document.createElement('div');
     tag.className = 'hist-tag' + (i === historicoDescanso.length-1 ? ' last' : '');
@@ -952,31 +1072,20 @@ function adicionarHistorico(seg) {
   });
 }
 
-function pararTimer() { if (intervalo) { clearInterval(intervalo); intervalo = null; } }
-
-function resetTimer(silencioso) {
-  if (!silencioso) clickBeep();
-  pararTimer(); pararAutoStart(); pararCronTreino();
-  contador = 0; tempoRestante = 0; segundosTreino = 0;
-  historicoDescanso = [];
-  document.getElementById('lbl-status').textContent = 'PRONTO PARA TREINAR';
-  setTimer('--', 't-white');
-  setSeries(0);
-  document.getElementById('ib-tempo-treino').textContent = '00:00';
-  document.getElementById('ib-ultima').textContent = '--s';
-  document.getElementById('hist-wrap').style.display = 'none';
-  document.getElementById('hist-list').innerHTML = '';
-  document.getElementById('auto-countdown').textContent = '';
-}
-
 function iniciarAutoStart() {
   autoCountdown = autoStartSeg;
   const el = document.getElementById('auto-countdown');
   el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...';
   autoTimer = setInterval(() => {
     autoCountdown--;
-    if (autoCountdown <= 0) { pararAutoStart(); iniciarTimer(); }
-    else el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...';
+    if (autoCountdown <= 0) { 
+      pararAutoStart(); 
+      tempoRestante = tempoAtual; 
+      iniciarTimer(); 
+      document.getElementById('btn-play-icon').className = 'pause-icon';
+    } else { 
+      el.textContent = '▶ PRÓXIMO DESCANSO EM ' + autoCountdown + 's...'; 
+    }
   }, 1000);
 }
 function pararAutoStart() {
@@ -999,10 +1108,7 @@ function vibrar(padrao) { if (vibAtivada && navigator.vibrate) navigator.vibrate
 // ══════════════════════════════════════════════════════════════════════
 //  ÁUDIO: Web Audio API
 // ══════════════════════════════════════════════════════════════════════
-function getAC() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
+function getAC() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
 function tocarTom(freq, dur, vol, tipo, t0) {
   try {
     const ac = getAC(), osc = ac.createOscillator(), gain = ac.createGain();
@@ -1026,9 +1132,6 @@ function tocarProcessamento(cb) {
   } catch(e) { if (cb) cb(); }
 }
 
-// ══════════════════════════════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════════════════════════════
 initUI();
 </script>
 </body>
