@@ -37,6 +37,16 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.52); z-index: 1;
     }
+
+    /* RELÓGIO GLOBAL */
+    .global-clock {
+      position: fixed; top: 12px; right: 15px;
+      color: var(--cyan); font-size: clamp(12px, 3.5vw, 15px);
+      font-weight: bold; z-index: 1000;
+      text-shadow: 0 0 8px rgba(0,240,255,0.5);
+      letter-spacing: 1px;
+    }
+
     .screen {
       display: none; position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -256,6 +266,9 @@
 <div class="overlay"></div>
 <div id="voz-indicator">▐ TRANSMITINDO ▌</div>
 
+<!-- RELÓGIO GLOBAL -->
+<div id="global-clock" class="global-clock">00:00</div>
+
 <!-- TELA: LOADING BOOT -->
 <div class="screen active" id="screen-loading">
   <div class="glitch boot-text" data-text="INICIALIZANDO SISTEMA...">INICIALIZANDO SISTEMA...</div>
@@ -328,7 +341,7 @@
         <button class="btn-round sz-sm c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v4.1 ]</div>
+    <div class="footer-txt">[ GYM TIMER PRO v4.2 ]</div>
   </div>
 </div>
 
@@ -498,7 +511,7 @@
 
         <!-- ENGINE -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px">MÉTODO DE GERAÇÃO:</span>
-        <select class="cfg-select" id="cfg-voz-engine" onchange="mudarEngineVoz()" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-engine" style="border-color:var(--green); color:var(--green)">
           <option value="auto">Automático (Melhor Disponível)</option>
           <option value="native">Forçar Voz Nativa (Offline)</option>
           <option value="rv">Forçar Google Speech (Online)</option>
@@ -507,13 +520,13 @@
 
         <!-- VOICE SELECTOR -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">TIMBRE / VOZ:</span>
-        <select class="cfg-select" id="cfg-voz-seletor" onchange="salvarVozEscolhida()" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-seletor" style="border-color:var(--green); color:var(--green)">
           <option value="">Carregando vozes...</option>
         </select>
 
         <!-- VERBOSITY -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">MENSAGENS:</span>
-        <select class="cfg-select" id="cfg-voz-nivel" onchange="salvarNivelVoz()" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-nivel" style="border-color:var(--green); color:var(--green)">
           <option value="full">Completas (Detalha tempos e modos)</option>
           <option value="short">Resumidas (Apenas comandos essenciais)</option>
         </select>
@@ -539,7 +552,7 @@
 
       <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
         <button class="btn-sec green" style="flex:1" onclick="testarVoz()">🔊 TESTAR</button>
-        <button class="btn-sec yellow" style="flex:1" onclick="irPara('screen-home')">✔ SALVAR</button>
+        <button class="btn-sec yellow" style="flex:1" onclick="salvarConfigVoz()">✔ SALVAR</button>
       </div>
 
     </div>
@@ -613,6 +626,19 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
+//  ATUALIZAÇÃO DO RELÓGIO GLOBAL
+// ══════════════════════════════════════════════════════════════════════
+function atualizarRelogio() {
+  const relogio = document.getElementById('global-clock');
+  const agora = new Date();
+  const horas = String(agora.getHours()).padStart(2, '0');
+  const minutos = String(agora.getMinutes()).padStart(2, '0');
+  relogio.textContent = horas + ':' + minutos;
+}
+setInterval(atualizarRelogio, 1000);
+atualizarRelogio();
+
+// ══════════════════════════════════════════════════════════════════════
 //  ESTADO & CONFIGURAÇÕES GERAIS
 // ══════════════════════════════════════════════════════════════════════
 let nomeUsuario    = localStorage.getItem('gym_nome')    || 'Marcos';
@@ -646,9 +672,12 @@ let audioCtx = null, wakeLock = null, timerRodando = false;
 const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
 let vozModoAtual  = VOZ_MODOS.BEEP;
 let vozAtivada    = localStorage.getItem('gym_voz') !== 'false';
-let volVoz        = parseInt(localStorage.getItem('gym_vol'))    || 100;
-let rateVoz       = parseInt(localStorage.getItem('gym_rate'))   || 90;
-let pitchVoz      = parseFloat(localStorage.getItem('gym_pitch'))|| 1.0;
+
+// Verifica se os valores existem, caso contrário usa padrão, para garantir persistência
+let volVoz        = parseInt(localStorage.getItem('gym_vol')); if (isNaN(volVoz)) volVoz = 100;
+let rateVoz       = parseInt(localStorage.getItem('gym_rate')); if (isNaN(rateVoz)) rateVoz = 100;
+let pitchVoz      = parseFloat(localStorage.getItem('gym_pitch')); if (isNaN(pitchVoz)) pitchVoz = 1.0;
+
 let engineVozPref = localStorage.getItem('gym_voz_engine')       || 'auto';
 let uriVozEscolhida = localStorage.getItem('gym_voz_uri')        || '';
 let nivelVozPref  = localStorage.getItem('gym_voz_nivel')        || 'full';
@@ -677,9 +706,26 @@ function runBootSequence() {
       clearInterval(bootInt);
       initUI();
       irPara('screen-home');
-      detectarVozModo(); // Atualiza painéis
+      detectarVozModo(); 
+      darBoasVindas(); // Lógica de Boas Vindas com o Relógio
     }
   }, 100);
+}
+
+function darBoasVindas() {
+  const horaAtual = new Date().getHours();
+  let saudacaoTxt = "Boa noite";
+  
+  if (horaAtual >= 5 && horaAtual < 12) {
+    saudacaoTxt = "Bom dia";
+  } else if (horaAtual >= 12 && horaAtual < 18) {
+    saudacaoTxt = "Boa tarde";
+  }
+  
+  const mensagem = saudacaoTxt + ", " + nomeUsuario + ".";
+  // Tenta falar. Em alguns celulares (Safari/Chrome sem toque prévio), o áudio pode ser bloqueado
+  // até que o usuário toque na tela (como no botão INICIAR amarelo da Home).
+  falar(mensagem + " Sistema pronto.", mensagem);
 }
 
 function carregarVozesNativas() {
@@ -786,6 +832,9 @@ function falar(textoCompleto, textoCurto = "") {
 function testarVoz() {
   desbloquearAudio();
   detectarVozModo();
+  // Força limpar cache ativo antes de testar para aplicar o novo tom perfeitamente
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
+  
   falar("Sistema de voz operacional. Nível de volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
 }
 
@@ -884,7 +933,7 @@ function initUI() {
   atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
   atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
   
-  // Voice Controls Init
+  // Aplica as variáveis gravadas no HTML do Voice Controls
   document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
   document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
   document.getElementById('slider-pitch').value = pitchVoz * 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
@@ -941,7 +990,7 @@ function mostrarResumo() {
 function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').classList.remove('active'); voltarDoTimer(); }
 
 // ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÕES DE VOZ (DEDICADAS)
+//  CONFIGURAÇÕES DE VOZ - PERSISTÊNCIA 100% FUNCIONAL
 // ══════════════════════════════════════════════════════════════════════
 function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
 function toggleVoz() { 
@@ -951,22 +1000,38 @@ function toggleVoz() {
   detectarVozModo();
   if (vozAtivada) falar("Voz ativada."); 
 }
-function mudarEngineVoz() {
-  engineVozPref = document.getElementById('cfg-voz-engine').value;
-  localStorage.setItem('gym_voz_engine', engineVozPref);
-  detectarVozModo();
+
+// Quando o slider se move atualiza apenas a variavel no programa e a tela
+function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
+function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
+function atualizarPitch(v) { 
+  pitchVoz = parseInt(v)/10; 
+  document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); 
+  // Limpa o cache nativo pra já estar pronto caso você clique em 'Testar' em seguida
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
 }
-function salvarVozEscolhida() {
+
+// NOVO: Função para o Botão "✔ SALVAR" na área de Vozes (Grava fisicamente no Cache do celular)
+function salvarConfigVoz() {
+  clickBeep();
+  
+  // Pega todos os valores atuais dos seletores/sliders
+  engineVozPref   = document.getElementById('cfg-voz-engine').value;
   uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
+  nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
+  
+  // Salva no LocalStorage do Aparelho
+  localStorage.setItem('gym_voz_engine', engineVozPref);
   localStorage.setItem('gym_voz_uri', uriVozEscolhida);
-}
-function salvarNivelVoz() {
-  nivelVozPref = document.getElementById('cfg-voz-nivel').value;
   localStorage.setItem('gym_voz_nivel', nivelVozPref);
+  localStorage.setItem('gym_vol', volVoz);
+  localStorage.setItem('gym_rate', rateVoz);
+  localStorage.setItem('gym_pitch', pitchVoz);
+  
+  detectarVozModo(); // Atualiza a engine caso você tenha forçado "Offline" etc
+  irPara('screen-home'); // Volta pro Início
 }
-function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; localStorage.setItem('gym_vol', volVoz); }
-function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; localStorage.setItem('gym_rate', rateVoz); }
-function atualizarPitch(v) { pitchVoz = parseInt(v)/10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); localStorage.setItem('gym_pitch', pitchVoz); }
+
 
 // ══════════════════════════════════════════════════════════════════════
 //  CONFIGURAÇÕES GERAIS
