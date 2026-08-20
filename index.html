@@ -261,7 +261,7 @@
     /* LOADING SCREEN */
     #screen-loading .boot-text { color: var(--green); font-size: 14px; margin-bottom: 20px; letter-spacing: 2px; }
     .boot-bar-container { width: 80%; max-width: 300px; height: 12px; border: 2px solid var(--green); padding: 2px; }
-    .boot-bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.1s linear; }
+    .boot-bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.04s linear; }
     .btn-boot-start {
       margin-top: 15px;
       padding: 12px 24px;
@@ -296,7 +296,6 @@
 <div class="screen active" id="screen-loading">
   <div class="glitch boot-text" data-text="GYM TIMER // CYBER PRO">GYM TIMER // CYBER PRO</div>
   
-  <!-- Botão para destravar o áudio do navegador e iniciar carregamento -->
   <button class="btn-boot-start" id="btn-iniciar-boot" onclick="iniciarBoot()">
     ▶ INICIAR SISTEMA
   </button>
@@ -370,7 +369,7 @@
         <button class="btn-round sz-sm c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v4.2 ]</div>
+    <div class="footer-txt">[ GYM TIMER PRO v4.3 ]</div>
   </div>
 </div>
 
@@ -712,64 +711,139 @@ let uriVozEscolhida = localStorage.getItem('gym_voz_uri')    || '';
 let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
-// BOOT SEQUENCE & AÇÃO DO USUÁRIO PARA DESTRAVAR ÁUDIO
+// ── FIX: flag que indica se o warm-up do TTS já terminou ──
+let ttsWarmUpDone = false;
+
+// ══════════════════════════════════════════════════════════════════════
+//  BOOT SEQUENCE
+//  CORREÇÃO PRINCIPAL: warm-up do TTS iniciado imediatamente no clique.
+//  A saudação é enfileirada APÓS o warm-up (sem cancel entre eles).
+//  Boot reduzido de 1000ms → ~400ms (10 × 40ms).
+// ══════════════════════════════════════════════════════════════════════
 function iniciarBoot() {
-  desbloquearAudio();
+  // 1) Desbloqueia o AudioContext (Web Audio API) imediatamente
+  const ac = getAC();
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  solicitarWakeLock();
+
+  // 2) Dispara o warm-up do TTS ANTES de qualquer outra coisa.
+  //    Uma utterance silenciosa inicializa o serviço de TTS do Android/Chrome,
+  //    eliminando o atraso de 2-3s na primeira fala real.
+  _iniciarWarmUpTTS();
+
+  // 3) Também tenta carregar ResponsiveVoice em paralelo
+  tentarCarregarRV();
+
+  // 4) Atualiza UI da tela de boot
   document.getElementById('btn-iniciar-boot').style.display = 'none';
   document.getElementById('boot-container').style.display = 'block';
   document.getElementById('boot-log').style.display = 'block';
-  
+
   const bootText = document.querySelector('#screen-loading .boot-text');
   if (bootText) {
     bootText.textContent = 'INICIALIZANDO SISTEMA...';
     bootText.setAttribute('data-text', 'INICIALIZANDO SISTEMA...');
   }
-  
+
   runBootSequence();
+}
+
+function _iniciarWarmUpTTS() {
+  if (!('speechSynthesis' in window)) { ttsWarmUpDone = true; return; }
+
+  ttsWarmUpDone = false;
+  // NÃO chamamos cancel() aqui — apenas enfileiramos o warm-up silencioso.
+  const warmUp = new SpeechSynthesisUtterance('\u00A0'); // espaço não-quebrável
+  warmUp.volume = 0.01;  // quase inaudível — 0 é ignorado em alguns dispositivos
+  warmUp.rate   = 2;     // termina rápido
+  warmUp.lang   = 'pt-BR';
+
+  warmUp.onend   = () => { ttsWarmUpDone = true; };
+  warmUp.onerror = () => { ttsWarmUpDone = true; }; // falhou, mas libera a fila
+
+  window.speechSynthesis.speak(warmUp);
 }
 
 function runBootSequence() {
   let progress = 0;
   const fill = document.getElementById('boot-fill');
-  const log = document.getElementById('boot-log');
-  
-  tentarCarregarRV();
-  
+  const log  = document.getElementById('boot-log');
+
+  // ── FIX: intervalo de 40ms × 10 passos = ~400ms (era 100ms × 10 = 1000ms) ──
   const bootInt = setInterval(() => {
     progress += 10;
     if (fill) fill.style.width = progress + '%';
-    
+
     if (progress === 30 && log) log.textContent = "CARREGANDO SÍNTESE NATIVA...";
     if (progress === 60 && log) {
-        log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
-        carregarVozesNativas();
+      log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
+      carregarVozesNativas();
     }
     if (progress === 90 && log) log.textContent = "MÓDULOS DE VOZ PRONTOS.";
-    
+
     if (progress >= 100) {
       clearInterval(bootInt);
       initUI();
       irPara('screen-home');
-      detectarVozModo(); 
-      darBoasVindas(); // Saudação falada baseada no horário atual
+      detectarVozModo();
+      darBoasVindas();
     }
-  }, 100);
+  }, 40); // ← era 100
 }
 
+// ══════════════════════════════════════════════════════════════════════
+//  darBoasVindas — caminho direto, sem cancel, sem beeps
+//  A utterance de saudação é apenas enfileirada após o warm-up.
+// ══════════════════════════════════════════════════════════════════════
 function darBoasVindas() {
+  if (!vozAtivada) return;
+
   const horaAtual = new Date().getHours();
   let saudacaoTxt = "Boa noite";
-  
-  if (horaAtual >= 5 && horaAtual < 12) {
-    saudacaoTxt = "Bom dia";
-  } else if (horaAtual >= 12 && horaAtual < 18) {
-    saudacaoTxt = "Boa tarde";
+  if (horaAtual >= 5  && horaAtual < 12) saudacaoTxt = "Bom dia";
+  else if (horaAtual >= 12 && horaAtual < 18) saudacaoTxt = "Boa tarde";
+
+  const mensagem = saudacaoTxt + ", " + nomeUsuario + ". Sistema pronto.";
+
+  if (vozModoAtual === VOZ_MODOS.RV) {
+    // RV: usa o caminho normal (CDN já carregado ou cai para nativo)
+    falarComRV(mensagem);
+    return;
   }
-  
-  const mensagem = saudacaoTxt + ", " + nomeUsuario + ".";
-  falar(mensagem + " Sistema pronto.", mensagem);
+
+  if (vozModoAtual === VOZ_MODOS.NATIVE) {
+    // ── FIX: fala diretamente SEM cancel() e SEM tocarProcessamento()
+    //    Isso permite que o warm-up anterior seja seguido imediatamente
+    //    pela saudação, sem reinicialização do serviço TTS.
+    if (!('speechSynthesis' in window)) return;
+    try {
+      const u = new SpeechSynthesisUtterance(mensagem);
+      u.lang   = 'pt-BR';
+      u.rate   = rateVoz / 100;
+      u.pitch  = pitchVoz;
+      u.volume = volVoz / 100;
+
+      if (uriVozEscolhida && vozesNativasGlobais.length > 0) {
+        const vozExata = vozesNativasGlobais.find(v => v.voiceURI === uriVozEscolhida);
+        if (vozExata) u.voice = vozExata;
+      }
+
+      u.onstart = () => mostrarIndicador(true);
+      u.onend   = () => mostrarIndicador(false);
+      u.onerror = () => mostrarIndicador(false);
+
+      // Enfileira direto — o warm-up já está na fila antes deste
+      window.speechSynthesis.speak(u);
+    } catch(e) { mostrarIndicador(false); }
+    return;
+  }
+
+  // Modo BEEP: sem fala na saudação
 }
 
+// ══════════════════════════════════════════════════════════════════════
+//  CARREGAMENTO DE VOZES NATIVAS
+// ══════════════════════════════════════════════════════════════════════
 function carregarVozesNativas() {
   if (!('speechSynthesis' in window)) return;
   vozesNativasGlobais = window.speechSynthesis.getVoices();
@@ -803,10 +877,10 @@ function detectarVozModo() {
   } else {
     // Modo Auto
     if (window.RV_LOADED && navigator.onLine) vozModoAtual = VOZ_MODOS.RV;
-    else if (vozesNativasGlobais.length > 0) vozModoAtual = VOZ_MODOS.NATIVE;
+    else if (vozesNativasGlobais.length > 0)  vozModoAtual = VOZ_MODOS.NATIVE;
     else vozModoAtual = VOZ_MODOS.BEEP;
   }
-  
+
   const selVoz = document.getElementById('cfg-voz-seletor');
   if (selVoz) selVoz.disabled = (vozModoAtual !== VOZ_MODOS.NATIVE);
 
@@ -817,15 +891,15 @@ function popularSeletorDeVozes() {
   const sel = document.getElementById('cfg-voz-seletor');
   if (!sel) return;
   sel.innerHTML = '';
-  
+
   if (vozesNativasGlobais.length === 0) {
     sel.innerHTML = '<option value="">Sem vozes nativas detectadas</option>';
     return;
   }
-  
+
   let vozesPT = vozesNativasGlobais.filter(v => v.lang.includes('pt') || v.lang.includes('BR'));
   let vozesParaMostrar = vozesPT.length > 0 ? vozesPT : vozesNativasGlobais;
-  
+
   vozesParaMostrar.forEach(v => {
     const opt = document.createElement('option');
     opt.value = v.voiceURI;
@@ -845,31 +919,31 @@ function atualizarChipVoz() {
   const txt  = document.getElementById('voz-status-txt');
   const tag  = document.getElementById('cfg-voz-tag');
   const desc = document.getElementById('cfg-voz-desc');
-  
+
   if (!vozAtivada) {
     if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ OFF'; }
     if (tag) { tag.className = 'tag tag-beep'; tag.textContent = 'DESATIVADA'; desc.textContent = 'Sistema de voz desligado.'; }
     return;
   }
-  
+
   const labels = {
     [VOZ_MODOS.RV]:     { c:'var(--green)', t:'ONLINE (GOOGLE)', tagClass:'tag-online', tagTxt:'RV ONLINE', desc:'Usando Google Speech Cloud.' },
-    [VOZ_MODOS.NATIVE]: { c:'var(--orange)',t:'NATIVA (OFFLINE)',tagClass:'tag-offline', tagTxt:'NATIVO',  desc:'Usando voz local do dispositivo.' },
-    [VOZ_MODOS.BEEP]:   { c:'var(--pink)',  t:'SOMENTE BEEP',   tagClass:'tag-beep',    tagTxt:'BEEP',    desc:'Sem motor falado. Apenas toques.' }
+    [VOZ_MODOS.NATIVE]: { c:'var(--orange)',t:'NATIVA (OFFLINE)', tagClass:'tag-offline', tagTxt:'NATIVO',  desc:'Usando voz local do dispositivo.' },
+    [VOZ_MODOS.BEEP]:   { c:'var(--pink)',  t:'SOMENTE BEEP',    tagClass:'tag-beep',    tagTxt:'BEEP',    desc:'Sem motor falado. Apenas toques.' }
   };
   const l = labels[vozModoAtual] || labels[VOZ_MODOS.BEEP];
   if (dot) { dot.style.color = l.c; txt.textContent = l.t; }
   if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
 
-function mostrarIndicador(a) { 
+function mostrarIndicador(a) {
   const ind = document.getElementById("voz-indicator");
-  if (ind) ind.classList.toggle("ativo", a); 
+  if (ind) ind.classList.toggle("ativo", a);
 }
 
 function falar(textoCompleto, textoCurto = "") {
   if (!vozAtivada) return;
-  
+
   const textoParaFalar = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
   if (!textoParaFalar) return;
 
@@ -880,15 +954,14 @@ function falar(textoCompleto, textoCurto = "") {
 
 function testarVoz() {
   desbloquearAudio();
-  
-  // Atualiza valores dos controles no momento do teste
+
   engineVozPref   = document.getElementById('cfg-voz-engine').value;
   uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
   nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
-  
+
   detectarVozModo();
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
-  
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
   falar("Sistema de voz operacional. Volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
 }
 
@@ -913,16 +986,16 @@ function falarNativo(texto) {
     window.speechSynthesis.cancel();
     tocarProcessamento(() => {
       const u = new SpeechSynthesisUtterance(texto);
-      u.lang = 'pt-BR'; 
-      u.rate = rateVoz/100; 
-      u.pitch = pitchVoz; 
+      u.lang  = 'pt-BR';
+      u.rate  = rateVoz/100;
+      u.pitch = pitchVoz;
       u.volume = volVoz/100;
-      
+
       if (uriVozEscolhida && vozesNativasGlobais.length > 0) {
         const vozExata = vozesNativasGlobais.find(v => v.voiceURI === uriVozEscolhida);
         if (vozExata) u.voice = vozExata;
       }
-      
+
       u.onstart = () => mostrarIndicador(true);
       u.onend   = () => mostrarIndicador(false);
       u.onerror = () => mostrarIndicador(false);
@@ -935,22 +1008,11 @@ async function solicitarWakeLock() {
   try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
 }
 
+// ── FIX: desbloquearAudio não cancela mais o TTS nem reenfileira warm-up.
+//    Isso evita interferir na fila de utterances durante o boot.
 function desbloquearAudio() {
   const ac = getAC();
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  
-  // WARM-UP (Aquecimento) do motor de voz para matar o delay de 3 segundos
-  if ('speechSynthesis' in window) {
-     window.speechSynthesis.cancel();
-     let warmUp = new SpeechSynthesisUtterance(''); // Fala invisível para acordar
-     warmUp.volume = 0;
-     window.speechSynthesis.speak(warmUp);
-  }
-  // Aquecendo a nuvem
-  if (typeof responsiveVoice !== 'undefined') {
-     responsiveVoice.speak("", "Brazilian Portuguese Female", {volume: 0});
-  }
-  
   solicitarWakeLock();
 }
 
@@ -998,14 +1060,14 @@ function initUI() {
   atualizarStatsModo();
   atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
   atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
-  
+
   document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
   document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
   document.getElementById('slider-pitch').value = pitchVoz * 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
-  
+
   document.getElementById('cfg-voz-engine').value = engineVozPref;
   document.getElementById('cfg-voz-nivel').value = nivelVozPref;
-  
+
   sincToggle('toggle-voz', vozAtivada); sincToggle('toggle-vib', vibAtivada);
   document.getElementById('cfg-alerta').value = alertaSegundos;
   document.getElementById('cfg-autostart').value = autoStartSeg;
@@ -1058,12 +1120,12 @@ function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').c
 //  CONFIGURAÇÕES DE VOZ - PERSISTÊNCIA & HANDLERS
 // ══════════════════════════════════════════════════════════════════════
 function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
-function toggleVoz() { 
-  vozAtivada = !vozAtivada; 
-  sincToggle('toggle-voz', vozAtivada); 
-  localStorage.setItem('gym_voz', vozAtivada); 
+function toggleVoz() {
+  vozAtivada = !vozAtivada;
+  sincToggle('toggle-voz', vozAtivada);
+  localStorage.setItem('gym_voz', vozAtivada);
   detectarVozModo();
-  if (vozAtivada) falar("Voz ativada."); 
+  if (vozAtivada) falar("Voz ativada.");
 }
 
 function aoMudarEngine() {
@@ -1084,26 +1146,26 @@ function aoMudarNivelVoz() {
 
 function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
 function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
-function atualizarPitch(v) { 
-  pitchVoz = parseInt(v)/10; 
-  document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); 
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
+function atualizarPitch(v) {
+  pitchVoz = parseInt(v)/10;
+  document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
 function salvarConfigVoz() {
   clickBeep();
-  
+
   engineVozPref   = document.getElementById('cfg-voz-engine').value;
   uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
   nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
-  
+
   localStorage.setItem('gym_voz_engine', engineVozPref);
   localStorage.setItem('gym_voz_uri', uriVozEscolhida);
   localStorage.setItem('gym_voz_nivel', nivelVozPref);
   localStorage.setItem('gym_vol', volVoz);
   localStorage.setItem('gym_rate', rateVoz);
   localStorage.setItem('gym_pitch', pitchVoz);
-  
+
   detectarVozModo();
   irPara('screen-home');
 }
@@ -1136,15 +1198,15 @@ function selecionarModo(modo) {
   clickBeep();
   modoTreino = modo; metaSeries = metaPorModo[modo]; tempoAtual = tempoPorModo[modo];
   localStorage.setItem('gym_last_mode', modo);
-  
+
   const modoNomes = { musculacao:'MUSCULAÇÃO', cardio:'CARDIO', hiit:'H I I T' };
   document.getElementById('timer-modo-label').textContent = modoNomes[modo] || modo.toUpperCase();
   document.getElementById('timer-modo-label').setAttribute('data-text', modoNomes[modo] || modo.toUpperCase());
   document.getElementById('timer-modo-icon').textContent = iconesModos[modo] || '💪';
-  
+
   const tempoLabel = tempoAtual >= 60 ? Math.floor(tempoAtual/60) + 'min' + (tempoAtual%60 ? (tempoAtual%60)+'s' : '') : tempoAtual + 's';
   falar("Modo " + (modoNomes[modo]||modo) + ". Descanso: " + tempoLabel + ". Meta: " + metaSeries + " séries.", "Modo " + (modoNomes[modo]||modo));
-  
+
   resetTimer(true);
   irPara('screen-timer');
 }
@@ -1181,7 +1243,7 @@ function resetTimer(silencioso) {
   if (!silencioso) clickBeep();
   pararTimer(); pararAutoStart(); pararCronTreino();
   contador = 0; tempoRestante = tempoAtual; segundosTreino = 0; timerRodando = false; historicoDescanso = [];
-  
+
   document.getElementById('lbl-status').textContent = `PRONTO: ${tempoAtual}s`;
   document.getElementById('btn-play-icon').className = 'play-icon';
   setTimer(String(tempoAtual), 't-white'); setSeries(0); atualizarBarraTempo(tempoAtual);
@@ -1207,7 +1269,7 @@ function iniciarTimer() {
   pararTimer(); pararAutoStart();
   document.getElementById('auto-countdown').textContent = '';
   if (!intervaloTreino) iniciarCronTreino();
-  
+
   document.getElementById('lbl-status').textContent = 'DESCANSANDO...';
   setTimer(String(tempoRestante), 't-white');
   atualizarBarraTempo(tempoRestante);
@@ -1217,14 +1279,14 @@ function iniciarTimer() {
   intervalo = setInterval(() => {
     tempoRestante--;
     atualizarBarraTempo(tempoRestante);
-    
+
     if (tempoRestante <= 0) {
       pararTimer(); timerRodando = false;
       document.getElementById('btn-play-icon').className = 'play-icon';
-      
+
       setTimer('TREINE!', 't-green'); document.getElementById('lbl-status').textContent = 'VAI TREINAR!';
       contador++; setSeries(contador);
-      
+
       historicoDescanso.push(tempoAtual);
       if (historicoDescanso.length > 8) historicoDescanso.shift();
       document.getElementById('hist-wrap').style.display = 'block';
@@ -1236,9 +1298,9 @@ function iniciarTimer() {
         list.appendChild(tag);
       });
       document.getElementById('ib-ultima').textContent = tempoAtual + 's';
-      
+
       tocarBeepFim(); if (vibAtivada && navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      
+
       if (contador >= metaSeries) {
         pararCronTreino();
         setTimeout(mostrarResumo, 1200);
@@ -1295,11 +1357,7 @@ function tocarProcessamento(cb) {
     const seq = [{f:120,d:.06},{f:90,d:.04},{f:200,d:.05},{f:80,d:.06},{f:160,d:.04},{f:100,d:.07}];
     let t = ac.currentTime + 0.02;
     seq.forEach(({f,d}) => { tocarTom(f,d,0.18,'square',t); t+=d+.01; });
-    
-    // CORREÇÃO: Removido o delay do SetTimeout. 
-    // O Truque de UX: a chamada da API começa *no exato milissegundo* que o bipe dispara
     if (cb) cb();
-    
   } catch(e) { if (cb) cb(); }
 }
 
