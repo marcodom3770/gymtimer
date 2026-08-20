@@ -938,7 +938,19 @@ async function solicitarWakeLock() {
 function desbloquearAudio() {
   const ac = getAC();
   if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  
+  // WARM-UP (Aquecimento) do motor de voz para matar o delay de 3 segundos
+  if ('speechSynthesis' in window) {
+     window.speechSynthesis.cancel();
+     let warmUp = new SpeechSynthesisUtterance(''); // Fala invisível para acordar
+     warmUp.volume = 0;
+     window.speechSynthesis.speak(warmUp);
+  }
+  // Aquecendo a nuvem
+  if (typeof responsiveVoice !== 'undefined') {
+     responsiveVoice.speak("", "Brazilian Portuguese Female", {volume: 0});
+  }
+  
   solicitarWakeLock();
 }
 
@@ -1283,8 +1295,11 @@ function tocarProcessamento(cb) {
     const seq = [{f:120,d:.06},{f:90,d:.04},{f:200,d:.05},{f:80,d:.06},{f:160,d:.04},{f:100,d:.07}];
     let t = ac.currentTime + 0.02;
     seq.forEach(({f,d}) => { tocarTom(f,d,0.18,'square',t); t+=d+.01; });
-    const dur = seq.reduce((s,x)=>s+x.d+.01, 0);
-    setTimeout(() => { if (cb) cb(); }, (dur+.05)*1000);
+    
+    // CORREÇÃO: Removido o delay do SetTimeout. 
+    // O Truque de UX: a chamada da API começa *no exato milissegundo* que o bipe dispara
+    if (cb) cb();
+    
   } catch(e) { if (cb) cb(); }
 }
 
