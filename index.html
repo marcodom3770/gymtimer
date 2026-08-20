@@ -45,6 +45,10 @@
       font-weight: bold; z-index: 1000;
       text-shadow: 0 0 8px rgba(0,240,255,0.5);
       letter-spacing: 1px;
+      background: rgba(5, 5, 16, 0.7);
+      padding: 3px 8px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 4px;
     }
 
     .screen {
@@ -258,6 +262,25 @@
     #screen-loading .boot-text { color: var(--green); font-size: 14px; margin-bottom: 20px; letter-spacing: 2px; }
     .boot-bar-container { width: 80%; max-width: 300px; height: 12px; border: 2px solid var(--green); padding: 2px; }
     .boot-bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.1s linear; }
+    .btn-boot-start {
+      margin-top: 15px;
+      padding: 12px 24px;
+      background: rgba(0, 255, 64, 0.1);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 0 12px rgba(0, 255, 64, 0.3);
+      transition: all 0.2s ease;
+    }
+    .btn-boot-start:active {
+      transform: scale(0.95);
+      background: var(--green);
+      color: #000;
+    }
   </style>
 </head>
 <body>
@@ -271,11 +294,17 @@
 
 <!-- TELA: LOADING BOOT -->
 <div class="screen active" id="screen-loading">
-  <div class="glitch boot-text" data-text="INICIALIZANDO SISTEMA...">INICIALIZANDO SISTEMA...</div>
-  <div class="boot-bar-container">
+  <div class="glitch boot-text" data-text="GYM TIMER // CYBER PRO">GYM TIMER // CYBER PRO</div>
+  
+  <!-- Botão para destravar o áudio do navegador e iniciar carregamento -->
+  <button class="btn-boot-start" id="btn-iniciar-boot" onclick="iniciarBoot()">
+    ▶ INICIAR SISTEMA
+  </button>
+
+  <div class="boot-bar-container" id="boot-container" style="display: none; margin-top: 20px;">
     <div class="boot-bar-fill" id="boot-fill"></div>
   </div>
-  <div style="color:var(--dim); font-size:10px; margin-top:10px; letter-spacing:1px;" id="boot-log">CARREGANDO MÓDULOS DE VOZ...</div>
+  <div style="color:var(--dim); font-size:10px; margin-top:10px; letter-spacing:1px; display: none;" id="boot-log">CARREGANDO MÓDULOS DE VOZ...</div>
 </div>
 
 <!-- MODAL: TROCAR NOME -->
@@ -511,7 +540,7 @@
 
         <!-- ENGINE -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px">MÉTODO DE GERAÇÃO:</span>
-        <select class="cfg-select" id="cfg-voz-engine" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-engine" style="border-color:var(--green); color:var(--green)" onchange="aoMudarEngine()">
           <option value="auto">Automático (Melhor Disponível)</option>
           <option value="native">Forçar Voz Nativa (Offline)</option>
           <option value="rv">Forçar Google Speech (Online)</option>
@@ -520,13 +549,13 @@
 
         <!-- VOICE SELECTOR -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">TIMBRE / VOZ:</span>
-        <select class="cfg-select" id="cfg-voz-seletor" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-seletor" style="border-color:var(--green); color:var(--green)" onchange="aoMudarSeletorVoz()">
           <option value="">Carregando vozes...</option>
         </select>
 
         <!-- VERBOSITY -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">MENSAGENS:</span>
-        <select class="cfg-select" id="cfg-voz-nivel" style="border-color:var(--green); color:var(--green)">
+        <select class="cfg-select" id="cfg-voz-nivel" style="border-color:var(--green); color:var(--green)" onchange="aoMudarNivelVoz()">
           <option value="full">Completas (Detalha tempos e modos)</option>
           <option value="short">Resumidas (Apenas comandos essenciais)</option>
         </select>
@@ -539,8 +568,8 @@
         </div>
         <div class="slider-row">
           <span class="slider-lbl">VELOC.</span>
-          <input type="range" id="slider-rate" min="50" max="150" value="90" oninput="atualizarRate(this.value)" style="background:rgba(0,255,64,.25)">
-          <span class="slider-val" id="val-rate" style="color:var(--green)">90%</span>
+          <input type="range" id="slider-rate" min="50" max="150" value="100" oninput="atualizarRate(this.value)" style="background:rgba(0,255,64,.25)">
+          <span class="slider-val" id="val-rate" style="color:var(--green)">100%</span>
         </div>
         <div class="slider-row">
           <span class="slider-lbl">TOM (PITCH)</span>
@@ -630,6 +659,7 @@
 // ══════════════════════════════════════════════════════════════════════
 function atualizarRelogio() {
   const relogio = document.getElementById('global-clock');
+  if (!relogio) return;
   const agora = new Date();
   const horas = String(agora.getHours()).padStart(2, '0');
   const minutos = String(agora.getMinutes()).padStart(2, '0');
@@ -662,52 +692,66 @@ let modoTreino      = localStorage.getItem('gym_last_mode') || 'musculacao';
 let metaSeries      = metaPorModo[modoTreino];
 let tempoAtual      = tempoPorModo[modoTreino];
 let contador        = 0, tempoRestante = 0, segundosTreino = 0;
-let intervalo = null, intervaloTreino = null, autoTimer = null;
+let intervalo = null, intervaloTreino = null, autoTimer = null, autoCountdown = 0;
 let historicoDescanso = [];
 let audioCtx = null, wakeLock = null, timerRodando = false;
 
 // ══════════════════════════════════════════════════════════════════════
-//  NOVO SISTEMA DE VOZ - ESTADOS
+//  SISTEMA DE VOZ - ESTADOS & CARREGAMENTO
 // ══════════════════════════════════════════════════════════════════════
 const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
 let vozModoAtual  = VOZ_MODOS.BEEP;
 let vozAtivada    = localStorage.getItem('gym_voz') !== 'false';
 
-// Verifica se os valores existem, caso contrário usa padrão, para garantir persistência
 let volVoz        = parseInt(localStorage.getItem('gym_vol')); if (isNaN(volVoz)) volVoz = 100;
 let rateVoz       = parseInt(localStorage.getItem('gym_rate')); if (isNaN(rateVoz)) rateVoz = 100;
 let pitchVoz      = parseFloat(localStorage.getItem('gym_pitch')); if (isNaN(pitchVoz)) pitchVoz = 1.0;
 
-let engineVozPref = localStorage.getItem('gym_voz_engine')       || 'auto';
-let uriVozEscolhida = localStorage.getItem('gym_voz_uri')        || '';
-let nivelVozPref  = localStorage.getItem('gym_voz_nivel')        || 'full';
+let engineVozPref   = localStorage.getItem('gym_voz_engine') || 'auto';
+let uriVozEscolhida = localStorage.getItem('gym_voz_uri')    || '';
+let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
-// BOOT SEQUENCE (Mascarar carregamento de vozes)
+// BOOT SEQUENCE & AÇÃO DO USUÁRIO PARA DESTRAVAR ÁUDIO
+function iniciarBoot() {
+  desbloquearAudio();
+  document.getElementById('btn-iniciar-boot').style.display = 'none';
+  document.getElementById('boot-container').style.display = 'block';
+  document.getElementById('boot-log').style.display = 'block';
+  
+  const bootText = document.querySelector('#screen-loading .boot-text');
+  if (bootText) {
+    bootText.textContent = 'INICIALIZANDO SISTEMA...';
+    bootText.setAttribute('data-text', 'INICIALIZANDO SISTEMA...');
+  }
+  
+  runBootSequence();
+}
+
 function runBootSequence() {
   let progress = 0;
   const fill = document.getElementById('boot-fill');
   const log = document.getElementById('boot-log');
   
-  // Tentar carregar ResponsiveVoice em background
   tentarCarregarRV();
   
   const bootInt = setInterval(() => {
-    progress += 8;
-    fill.style.width = progress + '%';
+    progress += 10;
+    if (fill) fill.style.width = progress + '%';
     
-    if (progress === 40) log.textContent = "CONECTANDO SÍNTESE NATIVA...";
-    if (progress === 70) {
-        log.textContent = "MÓDULOS DE ÁUDIO PRONTOS.";
-        carregarVozesNativas(); // Força tentativa de carga
+    if (progress === 30 && log) log.textContent = "CARREGANDO SÍNTESE NATIVA...";
+    if (progress === 60 && log) {
+        log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
+        carregarVozesNativas();
     }
+    if (progress === 90 && log) log.textContent = "MÓDULOS DE VOZ PRONTOS.";
     
     if (progress >= 100) {
       clearInterval(bootInt);
       initUI();
       irPara('screen-home');
       detectarVozModo(); 
-      darBoasVindas(); // Lógica de Boas Vindas com o Relógio
+      darBoasVindas(); // Saudação falada baseada no horário atual
     }
   }, 100);
 }
@@ -723,8 +767,6 @@ function darBoasVindas() {
   }
   
   const mensagem = saudacaoTxt + ", " + nomeUsuario + ".";
-  // Tenta falar. Em alguns celulares (Safari/Chrome sem toque prévio), o áudio pode ser bloqueado
-  // até que o usuário toque na tela (como no botão INICIAR amarelo da Home).
   falar(mensagem + " Sistema pronto.", mensagem);
 }
 
@@ -732,11 +774,13 @@ function carregarVozesNativas() {
   if (!('speechSynthesis' in window)) return;
   vozesNativasGlobais = window.speechSynthesis.getVoices();
   popularSeletorDeVozes();
-  if (vozesNativasGlobais.length > 0 && vozModoAtual === VOZ_MODOS.BEEP) detectarVozModo();
+  detectarVozModo();
 }
 
 if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); detectarVozModo(); };
+  window.speechSynthesis.onvoiceschanged = () => {
+    carregarVozesNativas();
+  };
 }
 
 function tentarCarregarRV() {
@@ -750,28 +794,28 @@ function tentarCarregarRV() {
 }
 
 function detectarVozModo() {
-  if (engineVozPref === 'beep') {
+  if (!vozAtivada || engineVozPref === 'beep') {
     vozModoAtual = VOZ_MODOS.BEEP;
-  } else if (engineVozPref === 'native' && vozesNativasGlobais.length > 0) {
-    vozModoAtual = VOZ_MODOS.NATIVE;
-  } else if (engineVozPref === 'rv' && window.RV_LOADED && navigator.onLine) {
-    vozModoAtual = VOZ_MODOS.RV;
+  } else if (engineVozPref === 'native') {
+    vozModoAtual = (vozesNativasGlobais.length > 0) ? VOZ_MODOS.NATIVE : VOZ_MODOS.BEEP;
+  } else if (engineVozPref === 'rv') {
+    vozModoAtual = (window.RV_LOADED && navigator.onLine) ? VOZ_MODOS.RV : VOZ_MODOS.BEEP;
   } else {
-    // Auto Mode
+    // Modo Auto
     if (window.RV_LOADED && navigator.onLine) vozModoAtual = VOZ_MODOS.RV;
     else if (vozesNativasGlobais.length > 0) vozModoAtual = VOZ_MODOS.NATIVE;
     else vozModoAtual = VOZ_MODOS.BEEP;
   }
   
-  // Habilitar/Desabilitar seletor dependendo do motor
   const selVoz = document.getElementById('cfg-voz-seletor');
-  selVoz.disabled = (vozModoAtual !== VOZ_MODOS.NATIVE);
+  if (selVoz) selVoz.disabled = (vozModoAtual !== VOZ_MODOS.NATIVE);
 
   atualizarChipVoz();
 }
 
 function popularSeletorDeVozes() {
   const sel = document.getElementById('cfg-voz-seletor');
+  if (!sel) return;
   sel.innerHTML = '';
   
   if (vozesNativasGlobais.length === 0) {
@@ -779,7 +823,6 @@ function popularSeletorDeVozes() {
     return;
   }
   
-  // Prioriza Português
   let vozesPT = vozesNativasGlobais.filter(v => v.lang.includes('pt') || v.lang.includes('BR'));
   let vozesParaMostrar = vozesPT.length > 0 ? vozesPT : vozesNativasGlobais;
   
@@ -790,7 +833,11 @@ function popularSeletorDeVozes() {
     sel.appendChild(opt);
   });
 
-  if (uriVozEscolhida) sel.value = uriVozEscolhida;
+  if (uriVozEscolhida) {
+    sel.value = uriVozEscolhida;
+  } else if (sel.options.length > 0) {
+    uriVozEscolhida = sel.options[0].value;
+  }
 }
 
 function atualizarChipVoz() {
@@ -801,41 +848,48 @@ function atualizarChipVoz() {
   
   if (!vozAtivada) {
     if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ OFF'; }
-    if (tag) { tag.className = 'tag tag-beep'; tag.textContent = 'DESATIVADA'; desc.textContent = 'Ative no painel acima.'; }
+    if (tag) { tag.className = 'tag tag-beep'; tag.textContent = 'DESATIVADA'; desc.textContent = 'Sistema de voz desligado.'; }
     return;
   }
   
   const labels = {
     [VOZ_MODOS.RV]:     { c:'var(--green)', t:'ONLINE (GOOGLE)', tagClass:'tag-online', tagTxt:'RV ONLINE', desc:'Usando Google Speech Cloud.' },
     [VOZ_MODOS.NATIVE]: { c:'var(--orange)',t:'NATIVA (OFFLINE)',tagClass:'tag-offline', tagTxt:'NATIVO',  desc:'Usando voz local do dispositivo.' },
-    [VOZ_MODOS.BEEP]:   { c:'var(--pink)',  t:'SOMENTE BEEP',   tagClass:'tag-beep',    tagTxt:'BEEP',    desc:'Sem motor de voz. Somente toques.' }
+    [VOZ_MODOS.BEEP]:   { c:'var(--pink)',  t:'SOMENTE BEEP',   tagClass:'tag-beep',    tagTxt:'BEEP',    desc:'Sem motor falado. Apenas toques.' }
   };
   const l = labels[vozModoAtual] || labels[VOZ_MODOS.BEEP];
   if (dot) { dot.style.color = l.c; txt.textContent = l.t; }
   if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
 
-function mostrarIndicador(a) { document.getElementById("voz-indicator").classList.toggle("ativo", a); }
+function mostrarIndicador(a) { 
+  const ind = document.getElementById("voz-indicator");
+  if (ind) ind.classList.toggle("ativo", a); 
+}
 
 function falar(textoCompleto, textoCurto = "") {
   if (!vozAtivada) return;
   
-  // Aplica a lógica de Verbosidade
   const textoParaFalar = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
   if (!textoParaFalar) return;
 
   if (vozModoAtual === VOZ_MODOS.RV)     { falarComRV(textoParaFalar); return; }
   if (vozModoAtual === VOZ_MODOS.NATIVE) { falarNativo(textoParaFalar); return; }
-  tocarProcessamento(null); // Fallback do Beep
+  tocarProcessamento(null);
 }
 
 function testarVoz() {
   desbloquearAudio();
+  
+  // Atualiza valores dos controles no momento do teste
+  engineVozPref   = document.getElementById('cfg-voz-engine').value;
+  uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
+  nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
+  
   detectarVozModo();
-  // Força limpar cache ativo antes de testar para aplicar o novo tom perfeitamente
   if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
   
-  falar("Sistema de voz operacional. Nível de volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
+  falar("Sistema de voz operacional. Volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
 }
 
 function falarComRV(texto) {
@@ -933,7 +987,6 @@ function initUI() {
   atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
   atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
   
-  // Aplica as variáveis gravadas no HTML do Voice Controls
   document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
   document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
   document.getElementById('slider-pitch').value = pitchVoz * 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
@@ -990,7 +1043,7 @@ function mostrarResumo() {
 function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').classList.remove('active'); voltarDoTimer(); }
 
 // ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÕES DE VOZ - PERSISTÊNCIA 100% FUNCIONAL
+//  CONFIGURAÇÕES DE VOZ - PERSISTÊNCIA & HANDLERS
 // ══════════════════════════════════════════════════════════════════════
 function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
 function toggleVoz() { 
@@ -1001,26 +1054,37 @@ function toggleVoz() {
   if (vozAtivada) falar("Voz ativada."); 
 }
 
-// Quando o slider se move atualiza apenas a variavel no programa e a tela
+function aoMudarEngine() {
+  clickBeep();
+  engineVozPref = document.getElementById('cfg-voz-engine').value;
+  detectarVozModo();
+}
+
+function aoMudarSeletorVoz() {
+  clickBeep();
+  uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
+}
+
+function aoMudarNivelVoz() {
+  clickBeep();
+  nivelVozPref = document.getElementById('cfg-voz-nivel').value;
+}
+
 function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
 function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
 function atualizarPitch(v) { 
   pitchVoz = parseInt(v)/10; 
   document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); 
-  // Limpa o cache nativo pra já estar pronto caso você clique em 'Testar' em seguida
   if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
 }
 
-// NOVO: Função para o Botão "✔ SALVAR" na área de Vozes (Grava fisicamente no Cache do celular)
 function salvarConfigVoz() {
   clickBeep();
   
-  // Pega todos os valores atuais dos seletores/sliders
   engineVozPref   = document.getElementById('cfg-voz-engine').value;
   uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
   nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
   
-  // Salva no LocalStorage do Aparelho
   localStorage.setItem('gym_voz_engine', engineVozPref);
   localStorage.setItem('gym_voz_uri', uriVozEscolhida);
   localStorage.setItem('gym_voz_nivel', nivelVozPref);
@@ -1028,10 +1092,9 @@ function salvarConfigVoz() {
   localStorage.setItem('gym_rate', rateVoz);
   localStorage.setItem('gym_pitch', pitchVoz);
   
-  detectarVozModo(); // Atualiza a engine caso você tenha forçado "Offline" etc
-  irPara('screen-home'); // Volta pro Início
+  detectarVozModo();
+  irPara('screen-home');
 }
-
 
 // ══════════════════════════════════════════════════════════════════════
 //  CONFIGURAÇÕES GERAIS
@@ -1226,7 +1289,9 @@ function tocarProcessamento(cb) {
 }
 
 // INICIALIZAÇÃO
-window.onload = runBootSequence;
+window.onload = () => {
+  tentarCarregarRV();
+};
 </script>
 </body>
 </html>
