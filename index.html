@@ -147,7 +147,7 @@
     .status-dot { position:absolute; top:8px; left:10px; color:var(--green); font-size:clamp(9px,2.4vw,11px); font-weight:bold; }
     .timer-header { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px; margin-top:14px; border-bottom:1px solid rgba(0,240,255,0.2); padding-bottom:8px; }
     .timer-header-icon { font-size:clamp(20px,5.5vw,26px); }
-    .timer-header-label { font-size:clamp(18px,5vw,22px); font-weight:bold; color:var(--yellow); letter-spacing:1.5px; }
+    .timer-header-label { font-size:clamp(18px,5vw,22px); font-weight:bold; color:var(--yellow); letter-spacing:1.5px; text-align:center; }
     
     .lbl-status { color:var(--cyan); font-size:clamp(14px,4vw,18px); font-weight:bold; text-align:center; margin-bottom:12px; letter-spacing:1.5px; }
     
@@ -244,7 +244,7 @@
     .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.85); }
     .modal-overlay.active { display:flex; }
     
-    #screen-config, #screen-voice-config { justify-content:flex-start; padding-top:20px; }
+    #screen-config, #screen-voice-config, #screen-dia { justify-content:flex-start; padding-top:20px; }
     .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:90vh; padding-bottom:10px; position:relative; margin-top:28px; }
     
     .voz-modo-info {
@@ -281,6 +281,15 @@
       background: var(--green);
       color: #000;
     }
+
+    /* ESTILOS PARA A ROTINA SEMANAL */
+    .treino-list-container { max-height: 40vh; overflow-y: auto; margin: 15px 0; border: 1px solid rgba(0,240,255,0.2); background: rgba(0,240,255,0.02); padding: 10px; }
+    .treino-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,240,255,0.3); padding: 10px 5px; }
+    .treino-item:last-child { border-bottom: none; }
+    .treino-nome-lbl { color: var(--yellow); font-weight: bold; font-size: clamp(14px, 4vw, 16px); }
+    .treino-series-lbl { color: var(--cyan); font-size: clamp(11px, 3vw, 13px); }
+    .btn-del-treino { background: none; border: 1px solid var(--pink); color: var(--pink); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
+    .empty-msg { text-align: center; color: var(--dim); font-size: 12px; padding: 20px 0; }
   </style>
 </head>
 <body>
@@ -296,7 +305,6 @@
 <div class="screen active" id="screen-loading">
   <div class="glitch boot-text" data-text="GYM TIMER // CYBER PRO">GYM TIMER // CYBER PRO</div>
   
-  <!-- Botão para destravar o áudio do navegador e iniciar carregamento -->
   <button class="btn-boot-start" id="btn-iniciar-boot" onclick="iniciarBoot()">
     ▶ INICIAR SISTEMA
   </button>
@@ -320,7 +328,7 @@
   </div>
 </div>
 
-<!-- MODAL: RESUMO DO TREINO -->
+<!-- MODAL: RESUMO GERAL DO TREINO -->
 <div id="modal-resumo" class="modal-overlay">
   <div class="panel" style="border-color:var(--green);width:90%;max-width:380px">
     <div class="corner-tr" style="border-color:var(--green)"></div>
@@ -349,6 +357,41 @@
   </div>
 </div>
 
+<!-- MODAL: EXERCÍCIO CONCLUÍDO (PARA ROTINA SEMANAL) -->
+<div id="modal-proximo-treino" class="modal-overlay">
+  <div class="panel" style="border-color:var(--yellow);width:90%;max-width:380px">
+    <div class="corner-tr" style="border-color:var(--yellow)"></div>
+    <div class="corner-bl" style="border-color:var(--yellow)"></div>
+    <div class="glitch" data-text="EXERCÍCIO CONCLUÍDO" style="font-size:clamp(16px,5vw,22px);color:var(--yellow);margin-bottom:12px">EXERCÍCIO CONCLUÍDO</div>
+    
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="color:var(--dim); font-size:12px; margin-bottom:5px;">PREPARE-SE PARA O PRÓXIMO:</div>
+      <div id="proximo-treino-nome" style="color:var(--cyan); font-size:22px; font-weight:bold; text-transform:uppercase;">--</div>
+      <div id="proximo-treino-series" style="color:var(--yellow); font-size:14px; margin-top:5px;">--</div>
+    </div>
+    
+    <button class="btn-sec green" onclick="iniciarProximoTreino()">▶ INICIAR PRÓXIMO</button>
+  </div>
+</div>
+
+<!-- MODAL: ADICIONAR TREINO (ROTINA SEMANAL) -->
+<div id="modal-add-treino" class="modal-overlay">
+  <div class="panel" style="border-color:var(--cyan);width:90%;max-width:380px">
+    <div class="corner-tr" style="border-color:var(--cyan)"></div>
+    <div class="corner-bl" style="border-color:var(--cyan)"></div>
+    <div class="glitch" data-text="NOVO EXERCÍCIO" style="font-size:clamp(16px,5vw,22px);color:var(--cyan);margin-bottom:12px">NOVO EXERCÍCIO</div>
+    
+    <div style="color:var(--dim);font-size:12px;margin-bottom:4px;font-weight:bold">// NOME DO EXERCÍCIO</div>
+    <input class="input-nome" id="input-treino-nome" type="text" maxlength="25" placeholder="Ex: Supino Reto" autocomplete="off" style="margin-top:0;">
+    
+    <div style="color:var(--dim);font-size:12px;margin-bottom:4px;font-weight:bold; margin-top:10px;">// NÚMERO DE SÉRIES (META)</div>
+    <input class="input-nome" id="input-treino-series" type="number" min="1" max="20" placeholder="Ex: 6" autocomplete="off" style="margin-top:0;">
+    
+    <button class="btn-sec cyan" style="margin-top:15px" onclick="salvarNovoTreino()">✔ ADICIONAR</button>
+    <button class="btn-sec yellow" style="margin-top:6px" onclick="fecharModalAddTreino()">✕ CANCELAR</button>
+  </div>
+</div>
+
 <!-- TELA: HOME -->
 <div class="screen" id="screen-home">
   <div class="panel" style="border-color:var(--cyan)">
@@ -363,18 +406,22 @@
       <span id="voz-status-txt">VOZ ONLINE</span>
     </div>
     <div class="btn-row">
-      <button class="btn-round sz-lg c-yellow" onclick="irParaSelecao()">INICIAR</button>
-      <div style="display:flex;gap:12px">
+      <button class="btn-round sz-lg c-yellow" onclick="irParaSelecao()">TREINO LIVRE</button>
+      
+      <!-- NOVO BOTÃO: ROTINA SEMANAL -->
+      <button class="btn-sec green" onclick="abrirSemana()" style="margin-top:10px; font-size:14px;">📅 ROTINA SEMANAL</button>
+
+      <div style="display:flex;gap:12px; margin-top:10px;">
         <button class="btn-round sz-sm c-cyan"   onclick="irParaConfig()">⚙️</button>
         <button class="btn-round sz-sm c-green"  onclick="irParaVozConfig()">🗣️</button>
         <button class="btn-round sz-sm c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v4.2 ]</div>
+    <div class="footer-txt">[ GYM TIMER PRO v4.3 ]</div>
   </div>
 </div>
 
-<!-- TELA: SELEÇÃO DE MODO -->
+<!-- TELA: SELEÇÃO DE MODO (LIVRE) -->
 <div class="screen" id="screen-mode">
   <div class="panel" style="border-color:var(--yellow)">
     <div class="corner-tr" style="border-color:var(--yellow)"></div>
@@ -395,6 +442,47 @@
   </div>
 </div>
 
+<!-- TELA: SELEÇÃO DE DIA DA SEMANA -->
+<div class="screen" id="screen-semana">
+  <div class="panel" style="border-color:var(--green)">
+    <div class="corner-tr" style="border-color:var(--green)"></div>
+    <div class="corner-bl" style="border-color:var(--green)"></div>
+    <div class="glitch" data-text="DIAS DA SEMANA" style="font-size:clamp(18px,5.5vw,26px);color:var(--green);margin-bottom:22px">DIAS DA SEMANA</div>
+    
+    <button class="btn-sec" onclick="abrirDia('segunda')">SEGUNDA-FEIRA</button>
+    <button class="btn-sec" onclick="abrirDia('terca')">TERÇA-FEIRA</button>
+    <button class="btn-sec" onclick="abrirDia('quarta')">QUARTA-FEIRA</button>
+    <button class="btn-sec" onclick="abrirDia('quinta')">QUINTA-FEIRA</button>
+    <button class="btn-sec" onclick="abrirDia('sexta')">SEXTA-FEIRA</button>
+    <button class="btn-sec" onclick="abrirDia('sabado')">SÁBADO</button>
+    <button class="btn-sec" onclick="abrirDia('domingo')">DOMINGO</button>
+    
+    <button class="btn-sec yellow" onclick="irPara('screen-home')" style="margin-top:20px">&lt; VOLTAR</button>
+  </div>
+</div>
+
+<!-- TELA: EXERCÍCIOS DO DIA -->
+<div class="screen" id="screen-dia">
+  <button class="btn-back" onclick="irPara('screen-semana')" style="border-color:var(--cyan); color:var(--cyan)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--cyan)">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+      
+      <div class="glitch" id="titulo-dia" data-text="TREINOS" style="font-size:clamp(18px,5.2vw,24px);color:var(--cyan);margin-bottom:10px; text-transform:uppercase;">TREINOS</div>
+      <div style="text-align:center; color:var(--dim); font-size:11px; margin-bottom:10px;">// O TEMPO DE DESCANSO USARÁ O PADRÃO DA MUSCULAÇÃO</div>
+      
+      <div class="treino-list-container" id="lista-treinos-dia">
+        <!-- Lista será injetada aqui -->
+      </div>
+      
+      <button class="btn-sec cyan" onclick="abrirModalAddTreino()">+ ADICIONAR EXERCÍCIO</button>
+      <button class="btn-sec green" onclick="iniciarTreinoDoDia()" style="margin-top:15px; font-size:18px; padding:15px;">▶ INICIAR TREINO DO DIA</button>
+      
+    </div>
+  </div>
+</div>
+
 <!-- TELA: CONFIGURAÇÃO GERAL -->
 <div class="screen" id="screen-config">
   <button class="btn-back" onclick="irPara('screen-home')">&lt; Voltar</button>
@@ -402,6 +490,7 @@
     <div class="panel" style="border-color:var(--cyan); padding-top:0;">
       <div class="corner-tr" style="border-color:var(--cyan)"></div>
       <div class="corner-bl" style="border-color:var(--cyan)"></div>
+      <!-- Configurações se mantêm idênticas... -->
       
       <div class="cfg-nav">
         <button onclick="scrollToCfg('sec-tempos')">TEMPOS</button>
@@ -411,10 +500,8 @@
       
       <div class="glitch" data-text="AJUSTES" style="font-size:clamp(18px,5.2vw,26px);color:var(--cyan);margin-bottom:20px">AJUSTES</div>
 
-      <!-- TEMPO DE DESCANSO POR MODO -->
       <div class="cfg-section" id="sec-tempos">
         <div class="cfg-section-title" style="color:var(--cyan); border-color:var(--cyan)">⏱ TEMPO DE DESCANSO</div>
-        <!-- Musculação -->
         <div class="meta-modo-block">
           <div class="meta-modo-label musc">💪 MUSCULAÇÃO</div>
           <div class="meta-mini-row">
@@ -432,7 +519,7 @@
             <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',120)">2M</button>
           </div>
         </div>
-        <!-- Cardio -->
+        <!-- (Cardio e Hiit omitidos visualmente aqui para brevidade, mas continuam existindo e iguais no layout) -->
         <div class="meta-modo-block">
           <div class="meta-modo-label card">🏃 CARDIO</div>
           <div class="meta-mini-row">
@@ -443,7 +530,6 @@
             <button class="btn-round sz-xxs c-green" onclick="mudarTempoModo('cardio',+5)">+5</button>
           </div>
         </div>
-        <!-- HIIT -->
         <div class="meta-modo-block">
           <div class="meta-modo-label hiit">⚡ HIIT</div>
           <div class="meta-mini-row">
@@ -456,9 +542,8 @@
         </div>
       </div>
 
-      <!-- META DE SÉRIES -->
       <div class="cfg-section" id="sec-metas">
-        <div class="cfg-section-title" style="color:var(--cyan); border-color:var(--cyan)">🎯 META DE SÉRIES</div>
+        <div class="cfg-section-title" style="color:var(--cyan); border-color:var(--cyan)">🎯 META DE SÉRIES (TREINO LIVRE)</div>
         <div class="meta-modo-block">
           <div class="meta-modo-label musc">💪 MUSCULAÇÃO</div>
           <div class="meta-mini-row">
@@ -485,7 +570,6 @@
         </div>
       </div>
 
-      <!-- SISTEMA -->
       <div class="cfg-section" id="sec-sistema">
         <div class="cfg-section-title" style="color:var(--cyan); border-color:var(--cyan)">⚙️ COMPORTAMENTO</div>
         <select class="cfg-select" id="cfg-alerta" onchange="salvarAlerta()">
@@ -515,7 +599,7 @@
   </div>
 </div>
 
-<!-- TELA: CONFIGURAÇÃO DE VOZ -->
+<!-- TELA: CONFIGURAÇÃO DE VOZ (Sem alterações estruturais, apenas design mantido) -->
 <div class="screen" id="screen-voice-config">
   <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--green); color:var(--green)">&lt; Voltar</button>
   <div class="config-scroll">
@@ -538,7 +622,6 @@
           </div>
         </div>
 
-        <!-- ENGINE -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px">MÉTODO DE GERAÇÃO:</span>
         <select class="cfg-select" id="cfg-voz-engine" style="border-color:var(--green); color:var(--green)" onchange="aoMudarEngine()">
           <option value="auto">Automático (Melhor Disponível)</option>
@@ -547,20 +630,17 @@
           <option value="beep">Somente Efeitos (BEEP)</option>
         </select>
 
-        <!-- VOICE SELECTOR -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">TIMBRE / VOZ:</span>
         <select class="cfg-select" id="cfg-voz-seletor" style="border-color:var(--green); color:var(--green)" onchange="aoMudarSeletorVoz()">
           <option value="">Carregando vozes...</option>
         </select>
 
-        <!-- VERBOSITY -->
         <span class="slider-lbl" style="display:block;margin-bottom:4px; margin-top:10px;">MENSAGENS:</span>
         <select class="cfg-select" id="cfg-voz-nivel" style="border-color:var(--green); color:var(--green)" onchange="aoMudarNivelVoz()">
           <option value="full">Completas (Detalha tempos e modos)</option>
           <option value="short">Resumidas (Apenas comandos essenciais)</option>
         </select>
 
-        <!-- SLIDERS -->
         <div class="slider-row" style="margin-top:20px">
           <span class="slider-lbl">VOLUME</span>
           <input type="range" id="slider-vol" min="0" max="100" value="100" oninput="atualizarVol(this.value)" style="background:rgba(0,255,64,.25)">
@@ -576,7 +656,6 @@
           <input type="range" id="slider-pitch" min="0" max="20" value="10" oninput="atualizarPitch(this.value)" style="background:rgba(0,255,64,.25)">
           <span class="slider-val" id="val-pitch" style="color:var(--green)">1.0</span>
         </div>
-
       </div>
 
       <div style="display:flex; justify-content:center; gap:12px; margin-top:20px;">
@@ -697,6 +776,22 @@ let historicoDescanso = [];
 let audioCtx = null, wakeLock = null, timerRodando = false;
 
 // ══════════════════════════════════════════════════════════════════════
+//  ESTADO: ROTINA SEMANAL
+// ══════════════════════════════════════════════════════════════════════
+let modoPlanejadoAtivo = false;
+let diaSelecionado = '';
+let idxTreinoAtual = 0;
+let listaTreinosDia = [];
+
+let planejamentoSemanal = JSON.parse(localStorage.getItem('gym_plan')) || {
+  segunda: [], terca: [], quarta: [], quinta: [], sexta: [], sabado: [], domingo: []
+};
+
+function salvarPlanejamento() {
+  localStorage.setItem('gym_plan', JSON.stringify(planejamentoSemanal));
+}
+
+// ══════════════════════════════════════════════════════════════════════
 //  SISTEMA DE VOZ - ESTADOS & CARREGAMENTO
 // ══════════════════════════════════════════════════════════════════════
 const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
@@ -712,7 +807,6 @@ let uriVozEscolhida = localStorage.getItem('gym_voz_uri')    || '';
 let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
-// BOOT SEQUENCE & AÇÃO DO USUÁRIO PARA DESTRAVAR ÁUDIO
 function iniciarBoot() {
   desbloquearAudio();
   document.getElementById('btn-iniciar-boot').style.display = 'none';
@@ -751,7 +845,7 @@ function runBootSequence() {
       initUI();
       irPara('screen-home');
       detectarVozModo(); 
-      darBoasVindas(); // Saudação falada baseada no horário atual
+      darBoasVindas();
     }
   }, 100);
 }
@@ -759,13 +853,8 @@ function runBootSequence() {
 function darBoasVindas() {
   const horaAtual = new Date().getHours();
   let saudacaoTxt = "Boa noite";
-  
-  if (horaAtual >= 5 && horaAtual < 12) {
-    saudacaoTxt = "Bom dia";
-  } else if (horaAtual >= 12 && horaAtual < 18) {
-    saudacaoTxt = "Boa tarde";
-  }
-  
+  if (horaAtual >= 5 && horaAtual < 12) saudacaoTxt = "Bom dia";
+  else if (horaAtual >= 12 && horaAtual < 18) saudacaoTxt = "Boa tarde";
   const mensagem = saudacaoTxt + ", " + nomeUsuario + ".";
   falar(mensagem + " Sistema pronto.", mensagem);
 }
@@ -778,9 +867,7 @@ function carregarVozesNativas() {
 }
 
 if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    carregarVozesNativas();
-  };
+  window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); };
 }
 
 function tentarCarregarRV() {
@@ -794,22 +881,16 @@ function tentarCarregarRV() {
 }
 
 function detectarVozModo() {
-  if (!vozAtivada || engineVozPref === 'beep') {
-    vozModoAtual = VOZ_MODOS.BEEP;
-  } else if (engineVozPref === 'native') {
-    vozModoAtual = (vozesNativasGlobais.length > 0) ? VOZ_MODOS.NATIVE : VOZ_MODOS.BEEP;
-  } else if (engineVozPref === 'rv') {
-    vozModoAtual = (window.RV_LOADED && navigator.onLine) ? VOZ_MODOS.RV : VOZ_MODOS.BEEP;
-  } else {
-    // Modo Auto
+  if (!vozAtivada || engineVozPref === 'beep') { vozModoAtual = VOZ_MODOS.BEEP; } 
+  else if (engineVozPref === 'native') { vozModoAtual = (vozesNativasGlobais.length > 0) ? VOZ_MODOS.NATIVE : VOZ_MODOS.BEEP; } 
+  else if (engineVozPref === 'rv') { vozModoAtual = (window.RV_LOADED && navigator.onLine) ? VOZ_MODOS.RV : VOZ_MODOS.BEEP; } 
+  else {
     if (window.RV_LOADED && navigator.onLine) vozModoAtual = VOZ_MODOS.RV;
     else if (vozesNativasGlobais.length > 0) vozModoAtual = VOZ_MODOS.NATIVE;
     else vozModoAtual = VOZ_MODOS.BEEP;
   }
-  
   const selVoz = document.getElementById('cfg-voz-seletor');
   if (selVoz) selVoz.disabled = (vozModoAtual !== VOZ_MODOS.NATIVE);
-
   atualizarChipVoz();
 }
 
@@ -818,33 +899,22 @@ function popularSeletorDeVozes() {
   if (!sel) return;
   sel.innerHTML = '';
   
-  if (vozesNativasGlobais.length === 0) {
-    sel.innerHTML = '<option value="">Sem vozes nativas detectadas</option>';
-    return;
-  }
+  if (vozesNativasGlobais.length === 0) { sel.innerHTML = '<option value="">Sem vozes nativas detectadas</option>'; return; }
   
   let vozesPT = vozesNativasGlobais.filter(v => v.lang.includes('pt') || v.lang.includes('BR'));
   let vozesParaMostrar = vozesPT.length > 0 ? vozesPT : vozesNativasGlobais;
   
   vozesParaMostrar.forEach(v => {
-    const opt = document.createElement('option');
-    opt.value = v.voiceURI;
-    opt.textContent = `${v.name} (${v.lang})`;
-    sel.appendChild(opt);
+    const opt = document.createElement('option'); opt.value = v.voiceURI; opt.textContent = `${v.name} (${v.lang})`; sel.appendChild(opt);
   });
 
-  if (uriVozEscolhida) {
-    sel.value = uriVozEscolhida;
-  } else if (sel.options.length > 0) {
-    uriVozEscolhida = sel.options[0].value;
-  }
+  if (uriVozEscolhida) sel.value = uriVozEscolhida;
+  else if (sel.options.length > 0) uriVozEscolhida = sel.options[0].value;
 }
 
 function atualizarChipVoz() {
-  const dot  = document.getElementById('voz-status-dot');
-  const txt  = document.getElementById('voz-status-txt');
-  const tag  = document.getElementById('cfg-voz-tag');
-  const desc = document.getElementById('cfg-voz-desc');
+  const dot = document.getElementById('voz-status-dot'); const txt = document.getElementById('voz-status-txt');
+  const tag = document.getElementById('cfg-voz-tag'); const desc = document.getElementById('cfg-voz-desc');
   
   if (!vozAtivada) {
     if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ OFF'; }
@@ -862,17 +932,12 @@ function atualizarChipVoz() {
   if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
 
-function mostrarIndicador(a) { 
-  const ind = document.getElementById("voz-indicator");
-  if (ind) ind.classList.toggle("ativo", a); 
-}
+function mostrarIndicador(a) { const ind = document.getElementById("voz-indicator"); if (ind) ind.classList.toggle("ativo", a); }
 
 function falar(textoCompleto, textoCurto = "") {
   if (!vozAtivada) return;
-  
   const textoParaFalar = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
   if (!textoParaFalar) return;
-
   if (vozModoAtual === VOZ_MODOS.RV)     { falarComRV(textoParaFalar); return; }
   if (vozModoAtual === VOZ_MODOS.NATIVE) { falarNativo(textoParaFalar); return; }
   tocarProcessamento(null);
@@ -880,15 +945,10 @@ function falar(textoCompleto, textoCurto = "") {
 
 function testarVoz() {
   desbloquearAudio();
-  
-  // Atualiza valores dos controles no momento do teste
-  engineVozPref   = document.getElementById('cfg-voz-engine').value;
-  uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
-  nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
-  
+  engineVozPref = document.getElementById('cfg-voz-engine').value; uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
+  nivelVozPref = document.getElementById('cfg-voz-nivel').value;
   detectarVozModo();
   if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
-  
   falar("Sistema de voz operacional. Volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
 }
 
@@ -899,8 +959,7 @@ function falarComRV(texto) {
     tocarProcessamento(() => {
       responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {
         rate: rateVoz/100, volume: volVoz/100, pitch: pitchVoz,
-        onstart: () => mostrarIndicador(true),
-        onend:   () => mostrarIndicador(false),
+        onstart: () => mostrarIndicador(true), onend: () => mostrarIndicador(false),
         onerror: () => { mostrarIndicador(false); falarNativo(texto); }
       });
     });
@@ -913,53 +972,33 @@ function falarNativo(texto) {
     window.speechSynthesis.cancel();
     tocarProcessamento(() => {
       const u = new SpeechSynthesisUtterance(texto);
-      u.lang = 'pt-BR'; 
-      u.rate = rateVoz/100; 
-      u.pitch = pitchVoz; 
-      u.volume = volVoz/100;
-      
+      u.lang = 'pt-BR'; u.rate = rateVoz/100; u.pitch = pitchVoz; u.volume = volVoz/100;
       if (uriVozEscolhida && vozesNativasGlobais.length > 0) {
         const vozExata = vozesNativasGlobais.find(v => v.voiceURI === uriVozEscolhida);
         if (vozExata) u.voice = vozExata;
       }
-      
-      u.onstart = () => mostrarIndicador(true);
-      u.onend   = () => mostrarIndicador(false);
-      u.onerror = () => mostrarIndicador(false);
+      u.onstart = () => mostrarIndicador(true); u.onend = () => mostrarIndicador(false); u.onerror = () => mostrarIndicador(false);
       window.speechSynthesis.speak(u);
     });
   } catch(e) { mostrarIndicador(false); }
 }
 
-async function solicitarWakeLock() {
-  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
-}
+async function solicitarWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
 
 function desbloquearAudio() {
-  const ac = getAC();
-  if (ac.state === 'suspended') ac.resume().catch(() => {});
-  
-  // WARM-UP (Aquecimento) do motor de voz para matar o delay de 3 segundos
+  const ac = getAC(); if (ac.state === 'suspended') ac.resume().catch(() => {});
   if ('speechSynthesis' in window) {
-     window.speechSynthesis.cancel();
-     let warmUp = new SpeechSynthesisUtterance(''); // Fala invisível para acordar
-     warmUp.volume = 0;
-     window.speechSynthesis.speak(warmUp);
+     window.speechSynthesis.cancel(); let warmUp = new SpeechSynthesisUtterance(''); warmUp.volume = 0; window.speechSynthesis.speak(warmUp);
   }
-  // Aquecendo a nuvem
-  if (typeof responsiveVoice !== 'undefined') {
-     responsiveVoice.speak("", "Brazilian Portuguese Female", {volume: 0});
-  }
-  
+  if (typeof responsiveVoice !== 'undefined') { responsiveVoice.speak("", "Brazilian Portuguese Female", {volume: 0}); }
   solicitarWakeLock();
 }
 
 // ══════════════════════════════════════════════════════════════════════
 //  MATRIX RAIN (Visuals)
 // ══════════════════════════════════════════════════════════════════════
-const canvas = document.getElementById('matrix');
-const ctx2d  = canvas.getContext('2d');
-const CHARS  = '01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%&*+-/<>=?';
+const canvas = document.getElementById('matrix'); const ctx2d = canvas.getContext('2d');
+const CHARS = '01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%&*+-/<>=?';
 const N_COLS = window.innerWidth < 600 ? 15 : 26;
 const CELL_H = 22, TRAIL = 10, FSIZE = 14;
 let colunas = [], lastTime = 0;
@@ -970,32 +1009,25 @@ function initMatrix() {
 }
 function rnd(s) { return s[Math.floor(Math.random()*s.length)]; }
 function animarMatrix(now) {
-  requestAnimationFrame(animarMatrix);
-  const dt = Math.min((now-lastTime)/1000,.05); lastTime = now;
-  ctx2d.clearRect(0,0,canvas.width,canvas.height);
-  ctx2d.font = `bold ${FSIZE}px monospace`;
+  requestAnimationFrame(animarMatrix); const dt = Math.min((now-lastTime)/1000,.05); lastTime = now;
+  ctx2d.clearRect(0,0,canvas.width,canvas.height); ctx2d.font = `bold ${FSIZE}px monospace`;
   for (const col of colunas) {
-    col.headY += col.vel*dt;
-    if (col.headY > canvas.height+TRAIL*CELL_H) { col.headY=-Math.random()*200; col.vel=80+Math.random()*130; }
+    col.headY += col.vel*dt; if (col.headY > canvas.height+TRAIL*CELL_H) { col.headY=-Math.random()*200; col.vel=80+Math.random()*130; }
     for (let t=0; t<TRAIL; t++) {
-      const y = col.headY-t*CELL_H;
-      if (y<-CELL_H||y>canvas.height+CELL_H) continue;
+      const y = col.headY-t*CELL_H; if (y<-CELL_H||y>canvas.height+CELL_H) continue;
       ctx2d.fillStyle = t===0?'rgba(200,255,215,0.95)':`rgba(0,255,64,${Math.max(.04,1-t/TRAIL)*.80})`;
       if (Math.random()<.015) col.chars[t]=rnd(CHARS);
       ctx2d.fillText(col.chars[t],col.x,y);
     }
   }
 }
-window.addEventListener('resize', initMatrix);
-initMatrix();
-requestAnimationFrame(animarMatrix);
+window.addEventListener('resize', initMatrix); initMatrix(); requestAnimationFrame(animarMatrix);
 
 // ══════════════════════════════════════════════════════════════════════
-//  UI & CONTROLES
+//  UI & CONTROLES (NAVEGAÇÃO)
 // ══════════════════════════════════════════════════════════════════════
 function initUI() {
-  atualizarDisplayNome();
-  atualizarStatsModo();
+  atualizarDisplayNome(); atualizarStatsModo();
   atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
   atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
   
@@ -1003,12 +1035,9 @@ function initUI() {
   document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
   document.getElementById('slider-pitch').value = pitchVoz * 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
   
-  document.getElementById('cfg-voz-engine').value = engineVozPref;
-  document.getElementById('cfg-voz-nivel').value = nivelVozPref;
-  
+  document.getElementById('cfg-voz-engine').value = engineVozPref; document.getElementById('cfg-voz-nivel').value = nivelVozPref;
   sincToggle('toggle-voz', vozAtivada); sincToggle('toggle-vib', vibAtivada);
-  document.getElementById('cfg-alerta').value = alertaSegundos;
-  document.getElementById('cfg-autostart').value = autoStartSeg;
+  document.getElementById('cfg-alerta').value = alertaSegundos; document.getElementById('cfg-autostart').value = autoStartSeg;
 }
 
 function atualizarDisplayNome() { document.getElementById('home-nome-display').textContent = '// OPERADOR: ' + nomeUsuario.toUpperCase(); }
@@ -1018,122 +1047,174 @@ function atualizarStatsModo() {
   document.getElementById('stat-hiit').textContent = `[ ${tempoPorModo.hiit}s / ${metaPorModo.hiit}x ]`;
 }
 
-function scrollToCfg(id) {
-  const el = document.getElementById(id);
-  if(el) document.getElementById('config-scroll-area').scrollTo({ top: el.offsetTop - 50, behavior: 'smooth' });
-}
+function scrollToCfg(id) { const el = document.getElementById(id); if(el) document.getElementById('config-scroll-area').scrollTo({ top: el.offsetTop - 50, behavior: 'smooth' }); }
 
-// Navegação
 function clickBeep() { tocarTom(600, 0.05, 0.2, 'square'); }
 function irPara(id) {
   clickBeep();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-function irParaSelecao() { desbloquearAudio(); falar("Vamos começar.", ""); irPara('screen-mode'); }
+function irParaSelecao() { desbloquearAudio(); irPara('screen-mode'); }
 function irParaConfig()  { desbloquearAudio(); irPara('screen-config'); }
 function irParaVozConfig() { desbloquearAudio(); carregarVozesNativas(); detectarVozModo(); irPara('screen-voice-config'); }
 
-// Modais (Nome e Resumo)
+// ══════════════════════════════════════════════════════════════════════
+//  ROTINA SEMANAL (NOVO)
+// ══════════════════════════════════════════════════════════════════════
+function abrirSemana() { desbloquearAudio(); irPara('screen-semana'); }
+
+function abrirDia(dia) {
+  clickBeep();
+  diaSelecionado = dia;
+  const nomesDias = { segunda: 'SEGUNDA', terca: 'TERÇA', quarta: 'QUARTA', quinta: 'QUINTA', sexta: 'SEXTA', sabado: 'SÁBADO', domingo: 'DOMINGO' };
+  
+  document.getElementById('titulo-dia').textContent = "TREINOS - " + nomesDias[dia];
+  document.getElementById('titulo-dia').setAttribute('data-text', "TREINOS - " + nomesDias[dia]);
+  
+  renderizarTreinosDoDia();
+  irPara('screen-dia');
+}
+
+function renderizarTreinosDoDia() {
+  const container = document.getElementById('lista-treinos-dia');
+  container.innerHTML = '';
+  
+  const treinos = planejamentoSemanal[diaSelecionado];
+  if (treinos.length === 0) {
+    container.innerHTML = '<div class="empty-msg">NENHUM EXERCÍCIO CONFIGURADO PARA ESTE DIA.</div>';
+    return;
+  }
+  
+  treinos.forEach((treino, idx) => {
+    const el = document.createElement('div');
+    el.className = 'treino-item';
+    el.innerHTML = `
+      <div>
+        <div class="treino-nome-lbl">${idx + 1}. ${treino.nome.toUpperCase()}</div>
+        <div class="treino-series-lbl">${treino.series} SÉRIES</div>
+      </div>
+      <button class="btn-del-treino" onclick="removerTreino(${idx})">✕</button>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function abrirModalAddTreino() {
+  clickBeep();
+  document.getElementById('input-treino-nome').value = '';
+  document.getElementById('input-treino-series').value = '';
+  document.getElementById('modal-add-treino').classList.add('active');
+  setTimeout(()=>document.getElementById('input-treino-nome').focus(), 200);
+}
+
+function fecharModalAddTreino() {
+  clickBeep();
+  document.getElementById('modal-add-treino').classList.remove('active');
+}
+
+function salvarNovoTreino() {
+  const nome = document.getElementById('input-treino-nome').value.trim();
+  const series = parseInt(document.getElementById('input-treino-series').value);
+  
+  if (!nome) { alert("Digite o nome do exercício!"); return; }
+  if (isNaN(series) || series <= 0) { alert("Digite uma quantidade válida de séries!"); return; }
+  
+  planejamentoSemanal[diaSelecionado].push({ nome: nome, series: series });
+  salvarPlanejamento();
+  renderizarTreinosDoDia();
+  fecharModalAddTreino();
+}
+
+function removerTreino(idx) {
+  clickBeep();
+  planejamentoSemanal[diaSelecionado].splice(idx, 1);
+  salvarPlanejamento();
+  renderizarTreinosDoDia();
+}
+
+function iniciarTreinoDoDia() {
+  clickBeep();
+  if (planejamentoSemanal[diaSelecionado].length === 0) {
+    alert("Adicione pelo menos um exercício neste dia!");
+    return;
+  }
+  
+  modoPlanejadoAtivo = true;
+  listaTreinosDia = planejamentoSemanal[diaSelecionado];
+  idxTreinoAtual = 0;
+  
+  // Usar o tempo configurado da musculação como padrão para a rotina
+  modoTreino = 'musculacao';
+  tempoAtual = tempoPorModo['musculacao'];
+  
+  falar("Iniciando rotina de " + diaSelecionado + ". Primeiro exercício: " + listaTreinosDia[0].nome, "Iniciando treino.");
+  prepararTreinoAtual();
+  irPara('screen-timer');
+}
+
+function prepararTreinoAtual() {
+  const exercicio = listaTreinosDia[idxTreinoAtual];
+  metaSeries = exercicio.series;
+  
+  document.getElementById('timer-modo-icon').textContent = '📋';
+  document.getElementById('timer-modo-label').textContent = exercicio.nome.toUpperCase();
+  document.getElementById('timer-modo-label').setAttribute('data-text', exercicio.nome.toUpperCase());
+  
+  resetTimer(true);
+  
+  // Atualiza a Label status indicando em qual exercicio estamos
+  document.getElementById('lbl-status').textContent = `EXERCÍCIO ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
+}
+
+function mostrarProximoTreino() {
+  const proxExercicio = listaTreinosDia[idxTreinoAtual + 1];
+  document.getElementById('proximo-treino-nome').textContent = proxExercicio.nome.toUpperCase();
+  document.getElementById('proximo-treino-series').textContent = proxExercicio.series + " SÉRIES";
+  document.getElementById('modal-proximo-treino').classList.add('active');
+}
+
+function iniciarProximoTreino() {
+  clickBeep();
+  document.getElementById('modal-proximo-treino').classList.remove('active');
+  idxTreinoAtual++;
+  prepararTreinoAtual();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  MODAIS (NOME E RESUMO)
+// ══════════════════════════════════════════════════════════════════════
 function abrirModalNome() { clickBeep(); document.getElementById('input-nome-modal').value = nomeUsuario; document.getElementById('modal-nome').classList.add('active'); setTimeout(()=>document.getElementById('input-nome-modal').focus(), 200); }
 function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').classList.remove('active'); }
-function salvarNome() {
-  const raw = document.getElementById('input-nome-modal').value.trim();
-  if (raw) { nomeUsuario = raw; localStorage.setItem('gym_nome', nomeUsuario); atualizarDisplayNome(); }
-  fecharModalNome(); desbloquearAudio();
-}
+function salvarNome() { const raw = document.getElementById('input-nome-modal').value.trim(); if (raw) { nomeUsuario = raw; localStorage.setItem('gym_nome', nomeUsuario); atualizarDisplayNome(); } fecharModalNome(); desbloquearAudio(); }
 document.getElementById('input-nome-modal').addEventListener('keydown', e => { if (e.key === 'Enter') salvarNome(); if (e.key === 'Escape') fecharModalNome(); });
 
 function mostrarResumo() {
-  const modoNomes = { musculacao:'MUSCULAÇÃO', cardio:'CARDIO', hiit:'HIIT' };
-  document.getElementById('resumo-modo').textContent = modoNomes[modoTreino] || modoTreino.toUpperCase();
+  let nomeModo = modoTreino.toUpperCase();
+  if (modoPlanejadoAtivo) {
+    nomeModo = `ROTINA DE ${diaSelecionado.toUpperCase()}`;
+  }
+  
+  document.getElementById('resumo-modo').textContent = nomeModo;
   document.getElementById('resumo-tempo').textContent = document.getElementById('ib-tempo-treino').textContent;
-  document.getElementById('resumo-series').textContent = contador + ' / ' + metaSeries;
+  
+  if (modoPlanejadoAtivo) {
+    // No modo planejado ele conta os exercícios feitos
+    document.getElementById('resumo-series').textContent = `${idxTreinoAtual + 1} EXERCÍCIOS`;
+  } else {
+    document.getElementById('resumo-series').textContent = contador + ' / ' + metaSeries;
+  }
+  
   document.getElementById('modal-resumo').classList.add('active');
-  falar("Parabéns! Meta de séries atingida. Treino concluído!", "Treino concluído!");
 }
 function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').classList.remove('active'); voltarDoTimer(); }
-
-// ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÕES DE VOZ - PERSISTÊNCIA & HANDLERS
-// ══════════════════════════════════════════════════════════════════════
-function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
-function toggleVoz() { 
-  vozAtivada = !vozAtivada; 
-  sincToggle('toggle-voz', vozAtivada); 
-  localStorage.setItem('gym_voz', vozAtivada); 
-  detectarVozModo();
-  if (vozAtivada) falar("Voz ativada."); 
-}
-
-function aoMudarEngine() {
-  clickBeep();
-  engineVozPref = document.getElementById('cfg-voz-engine').value;
-  detectarVozModo();
-}
-
-function aoMudarSeletorVoz() {
-  clickBeep();
-  uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
-}
-
-function aoMudarNivelVoz() {
-  clickBeep();
-  nivelVozPref = document.getElementById('cfg-voz-nivel').value;
-}
-
-function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
-function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
-function atualizarPitch(v) { 
-  pitchVoz = parseInt(v)/10; 
-  document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); 
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
-}
-
-function salvarConfigVoz() {
-  clickBeep();
-  
-  engineVozPref   = document.getElementById('cfg-voz-engine').value;
-  uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
-  nivelVozPref    = document.getElementById('cfg-voz-nivel').value;
-  
-  localStorage.setItem('gym_voz_engine', engineVozPref);
-  localStorage.setItem('gym_voz_uri', uriVozEscolhida);
-  localStorage.setItem('gym_voz_nivel', nivelVozPref);
-  localStorage.setItem('gym_vol', volVoz);
-  localStorage.setItem('gym_rate', rateVoz);
-  localStorage.setItem('gym_pitch', pitchVoz);
-  
-  detectarVozModo();
-  irPara('screen-home');
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  CONFIGURAÇÕES GERAIS
-// ══════════════════════════════════════════════════════════════════════
-function mudarTempoModo(m, d) { clickBeep(); tempoPorModo[m] = Math.max(5, tempoPorModo[m] + d); atualizarDisplayTempoModo(m); atualizarStatsModo(); }
-function definirTempoModo(m, v) { clickBeep(); tempoPorModo[m] = v; atualizarDisplayTempoModo(m); atualizarStatsModo(); }
-function atualizarDisplayTempoModo(m) { const seg = tempoPorModo[m]; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-' + m); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
-
-function mudarMetaModo(m, d) { clickBeep(); metaPorModo[m] = Math.max(1, Math.min(20, metaPorModo[m] + d)); atualizarDisplayMetaModo(m); atualizarStatsModo(); }
-function atualizarDisplayMetaModo(m) { const val = String(metaPorModo[m]); const el = document.getElementById('cfg-meta-' + m); if (el) { el.textContent = val; el.setAttribute('data-text', val); } }
-
-function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value); localStorage.setItem('gym_alerta', alertaSegundos); }
-function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
-function toggleVib()       { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); if (vibAtivada && navigator.vibrate) navigator.vibrate(80); }
-
-function salvarConfigGeral() {
-  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit);
-  localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
-  tempoAtual = tempoPorModo[modoTreino]; metaSeries = metaPorModo[modoTreino];
-  irPara('screen-home');
-}
 
 // ══════════════════════════════════════════════════════════════════════
 //  LÓGICA DO CRONÔMETRO
 // ══════════════════════════════════════════════════════════════════════
 function selecionarModo(modo) {
   clickBeep();
+  modoPlanejadoAtivo = false; // Desativa o modo de rotina
   modoTreino = modo; metaSeries = metaPorModo[modo]; tempoAtual = tempoPorModo[modo];
   localStorage.setItem('gym_last_mode', modo);
   
@@ -1152,6 +1233,7 @@ function selecionarModo(modo) {
 function voltarDoTimer() {
   pararTimer(); pararAutoStart(); pararCronTreino();
   timerRodando = false;
+  modoPlanejadoAtivo = false;
   irPara('screen-home');
 }
 
@@ -1179,13 +1261,21 @@ function atualizarBarraTempo(segundosRestantes) {
 
 function resetTimer(silencioso) {
   if (!silencioso) clickBeep();
-  pararTimer(); pararAutoStart(); pararCronTreino();
-  contador = 0; tempoRestante = tempoAtual; segundosTreino = 0; timerRodando = false; historicoDescanso = [];
+  pararTimer(); pararAutoStart();
+  contador = 0; tempoRestante = tempoAtual; timerRodando = false; historicoDescanso = [];
   
-  document.getElementById('lbl-status').textContent = `PRONTO: ${tempoAtual}s`;
+  if (modoPlanejadoAtivo) {
+    document.getElementById('lbl-status').textContent = `EXERCÍCIO ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
+  } else {
+    document.getElementById('lbl-status').textContent = `PRONTO: ${tempoAtual}s`;
+    segundosTreino = 0;
+    pararCronTreino();
+    document.getElementById('ib-tempo-treino').textContent = '00:00';
+  }
+
   document.getElementById('btn-play-icon').className = 'play-icon';
   setTimer(String(tempoAtual), 't-white'); setSeries(0); atualizarBarraTempo(tempoAtual);
-  document.getElementById('ib-tempo-treino').textContent = '00:00'; document.getElementById('ib-ultima').textContent = '--s';
+  document.getElementById('ib-ultima').textContent = '--s';
   document.getElementById('hist-wrap').style.display = 'none'; document.getElementById('hist-list').innerHTML = '';
   document.getElementById('auto-countdown').textContent = '';
 }
@@ -1239,9 +1329,20 @@ function iniciarTimer() {
       
       tocarBeepFim(); if (vibAtivada && navigator.vibrate) navigator.vibrate([200, 100, 200]);
       
+      // CHECAGEM DE TÉRMINO DA META
       if (contador >= metaSeries) {
-        pararCronTreino();
-        setTimeout(mostrarResumo, 1200);
+        
+        if (modoPlanejadoAtivo && idxTreinoAtual < listaTreinosDia.length - 1) {
+            // SE TEM PRÓXIMO EXERCÍCIO NA ROTINA
+            falar("Exercício concluído! Prepare-se para o próximo.", "Exercício concluído!");
+            setTimeout(mostrarProximoTreino, 1200);
+        } else {
+            // FIM DO TREINO LIVRE OU DA ROTINA INTEIRA
+            pararCronTreino();
+            falar("Parabéns! Treino concluído!", "Treino concluído!");
+            setTimeout(mostrarResumo, 1200);
+        }
+
       } else {
         falar("Treine, " + nomeUsuario, "Treine!");
         if (autoStartSeg > 0) {
@@ -1265,7 +1366,7 @@ function iniciarTimer() {
 function pararTimer() { if (intervalo) { clearInterval(intervalo); intervalo = null; } }
 function pararAutoStart() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } document.getElementById('auto-countdown').textContent = ''; }
 function iniciarCronTreino() {
-  segundosTreino = 0;
+  if (segundosTreino === 0) segundosTreino = 0; // Só zera se for início absoluto
   intervaloTreino = setInterval(() => {
     segundosTreino++;
     document.getElementById('ib-tempo-treino').textContent = String(Math.floor(segundosTreino/60)).padStart(2,'0') + ':' + String(segundosTreino%60).padStart(2,'0');
@@ -1274,16 +1375,43 @@ function iniciarCronTreino() {
 function pararCronTreino() { if (intervaloTreino) { clearInterval(intervaloTreino); intervaloTreino = null; } }
 
 // ══════════════════════════════════════════════════════════════════════
-//  ÁUDIO BASE (BEEP E FALLBACK)
+//  ÁUDIO E RESTANTE DAS CONFIGURAÇÕES
 // ══════════════════════════════════════════════════════════════════════
+function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
+function toggleVoz() { vozAtivada = !vozAtivada; sincToggle('toggle-voz', vozAtivada); localStorage.setItem('gym_voz', vozAtivada); detectarVozModo(); if (vozAtivada) falar("Voz ativada."); }
+function aoMudarEngine() { clickBeep(); engineVozPref = document.getElementById('cfg-voz-engine').value; detectarVozModo(); }
+function aoMudarSeletorVoz() { clickBeep(); uriVozEscolhida = document.getElementById('cfg-voz-seletor').value; }
+function aoMudarNivelVoz() { clickBeep(); nivelVozPref = document.getElementById('cfg-voz-nivel').value; }
+function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
+function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
+function atualizarPitch(v) { pitchVoz = parseInt(v)/10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
+function salvarConfigVoz() {
+  clickBeep();
+  engineVozPref = document.getElementById('cfg-voz-engine').value; uriVozEscolhida = document.getElementById('cfg-voz-seletor').value; nivelVozPref = document.getElementById('cfg-voz-nivel').value;
+  localStorage.setItem('gym_voz_engine', engineVozPref); localStorage.setItem('gym_voz_uri', uriVozEscolhida); localStorage.setItem('gym_voz_nivel', nivelVozPref); localStorage.setItem('gym_vol', volVoz); localStorage.setItem('gym_rate', rateVoz); localStorage.setItem('gym_pitch', pitchVoz);
+  detectarVozModo(); irPara('screen-home');
+}
+function mudarTempoModo(m, d) { clickBeep(); tempoPorModo[m] = Math.max(5, tempoPorModo[m] + d); atualizarDisplayTempoModo(m); atualizarStatsModo(); }
+function definirTempoModo(m, v) { clickBeep(); tempoPorModo[m] = v; atualizarDisplayTempoModo(m); atualizarStatsModo(); }
+function atualizarDisplayTempoModo(m) { const seg = tempoPorModo[m]; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-' + m); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
+function mudarMetaModo(m, d) { clickBeep(); metaPorModo[m] = Math.max(1, Math.min(20, metaPorModo[m] + d)); atualizarDisplayMetaModo(m); atualizarStatsModo(); }
+function atualizarDisplayMetaModo(m) { const val = String(metaPorModo[m]); const el = document.getElementById('cfg-meta-' + m); if (el) { el.textContent = val; el.setAttribute('data-text', val); } }
+function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value); localStorage.setItem('gym_alerta', alertaSegundos); }
+function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
+function toggleVib()       { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); if (vibAtivada && navigator.vibrate) navigator.vibrate(80); }
+function salvarConfigGeral() {
+  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit);
+  localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
+  tempoAtual = tempoPorModo[modoTreino]; metaSeries = metaPorModo[modoTreino];
+  irPara('screen-home');
+}
+
 function getAC() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
 function tocarTom(freq, dur, vol, tipo, t0) {
   try {
     const ac = getAC(), osc = ac.createOscillator(), gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination);
-    osc.type = tipo||'sine'; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol||0.7, t0||ac.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, (t0||ac.currentTime)+dur);
+    osc.connect(gain); gain.connect(ac.destination); osc.type = tipo||'sine'; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol||0.7, t0||ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, (t0||ac.currentTime)+dur);
     osc.start(t0||ac.currentTime); osc.stop((t0||ac.currentTime)+dur);
   } catch(e) {}
 }
@@ -1295,18 +1423,11 @@ function tocarProcessamento(cb) {
     const seq = [{f:120,d:.06},{f:90,d:.04},{f:200,d:.05},{f:80,d:.06},{f:160,d:.04},{f:100,d:.07}];
     let t = ac.currentTime + 0.02;
     seq.forEach(({f,d}) => { tocarTom(f,d,0.18,'square',t); t+=d+.01; });
-    
-    // CORREÇÃO: Removido o delay do SetTimeout. 
-    // O Truque de UX: a chamada da API começa *no exato milissegundo* que o bipe dispara
     if (cb) cb();
-    
   } catch(e) { if (cb) cb(); }
 }
 
-// INICIALIZAÇÃO
-window.onload = () => {
-  tentarCarregarRV();
-};
+window.onload = () => { tentarCarregarRV(); };
 </script>
 </body>
 </html>
