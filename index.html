@@ -289,6 +289,7 @@
     .treino-nome-lbl { color: var(--yellow); font-weight: bold; font-size: clamp(14px, 4vw, 16px); }
     .treino-series-lbl { color: var(--cyan); font-size: clamp(11px, 3vw, 13px); }
     .btn-del-treino { background: none; border: 1px solid var(--pink); color: var(--pink); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
+    .btn-edit-treino { background: none; border: 1px solid var(--yellow); color: var(--yellow); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
     .empty-msg { text-align: center; color: var(--dim); font-size: 12px; padding: 20px 0; }
   </style>
 </head>
@@ -379,7 +380,7 @@
   <div class="panel" style="border-color:var(--cyan);width:90%;max-width:380px">
     <div class="corner-tr" style="border-color:var(--cyan)"></div>
     <div class="corner-bl" style="border-color:var(--cyan)"></div>
-    <div class="glitch" data-text="NOVO EXERCÍCIO" style="font-size:clamp(16px,5vw,22px);color:var(--cyan);margin-bottom:12px">NOVO EXERCÍCIO</div>
+    <div class="glitch" id="modal-treino-titulo" data-text="NOVO EXERCÍCIO" style="font-size:clamp(16px,5vw,22px);color:var(--cyan);margin-bottom:12px">NOVO EXERCÍCIO</div>
     
     <div style="color:var(--dim);font-size:12px;margin-bottom:4px;font-weight:bold">// NOME DO EXERCÍCIO</div>
     <input class="input-nome" id="input-treino-nome" type="text" maxlength="25" placeholder="Ex: Supino Reto" autocomplete="off" style="margin-top:0;">
@@ -387,7 +388,7 @@
     <div style="color:var(--dim);font-size:12px;margin-bottom:4px;font-weight:bold; margin-top:10px;">// NÚMERO DE SÉRIES (META)</div>
     <input class="input-nome" id="input-treino-series" type="number" min="1" max="20" placeholder="Ex: 6" autocomplete="off" style="margin-top:0;">
     
-    <button class="btn-sec cyan" style="margin-top:15px" onclick="salvarNovoTreino()">✔ ADICIONAR</button>
+    <button class="btn-sec cyan" id="btn-confirmar-treino" style="margin-top:15px" onclick="salvarNovoTreino()">✔ ADICIONAR</button>
     <button class="btn-sec yellow" style="margin-top:6px" onclick="fecharModalAddTreino()">✕ CANCELAR</button>
   </div>
 </div>
@@ -1115,20 +1116,44 @@ function renderizarTreinosDoDia() {
     const el = document.createElement('div');
     el.className = 'treino-item';
     el.innerHTML = `
-      <div>
+      <div style="flex:1; min-width:0;">
         <div class="treino-nome-lbl">${idx + 1}. ${treino.nome.toUpperCase()}</div>
         <div class="treino-series-lbl">${treino.series} SÉRIES</div>
       </div>
-      <button class="btn-del-treino" onclick="removerTreino(${idx})">✕</button>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="btn-edit-treino" onclick="abrirModalEditTreino(${idx})" title="Editar">✏</button>
+        <button class="btn-del-treino"  onclick="removerTreino(${idx})"         title="Excluir">✕</button>
+      </div>
     `;
     container.appendChild(el);
   });
 }
 
+let idxTreinoEditando = -1; // -1 = modo adicionar, >=0 = modo editar
+
 function abrirModalAddTreino() {
   clickBeep();
+  idxTreinoEditando = -1;
   document.getElementById('input-treino-nome').value = '';
   document.getElementById('input-treino-series').value = '';
+  const titulo = document.getElementById('modal-treino-titulo');
+  titulo.textContent = 'NOVO EXERCÍCIO';
+  titulo.setAttribute('data-text', 'NOVO EXERCÍCIO');
+  document.getElementById('btn-confirmar-treino').textContent = '✔ ADICIONAR';
+  document.getElementById('modal-add-treino').classList.add('active');
+  setTimeout(()=>document.getElementById('input-treino-nome').focus(), 200);
+}
+
+function abrirModalEditTreino(idx) {
+  clickBeep();
+  idxTreinoEditando = idx;
+  const treino = planejamentoSemanal[diaSelecionado][idx];
+  document.getElementById('input-treino-nome').value = treino.nome;
+  document.getElementById('input-treino-series').value = treino.series;
+  const titulo = document.getElementById('modal-treino-titulo');
+  titulo.textContent = 'EDITAR EXERCÍCIO';
+  titulo.setAttribute('data-text', 'EDITAR EXERCÍCIO');
+  document.getElementById('btn-confirmar-treino').textContent = '✔ SALVAR';
   document.getElementById('modal-add-treino').classList.add('active');
   setTimeout(()=>document.getElementById('input-treino-nome').focus(), 200);
 }
@@ -1136,6 +1161,7 @@ function abrirModalAddTreino() {
 function fecharModalAddTreino() {
   clickBeep();
   document.getElementById('modal-add-treino').classList.remove('active');
+  idxTreinoEditando = -1;
 }
 
 function salvarNovoTreino() {
@@ -1145,7 +1171,13 @@ function salvarNovoTreino() {
   if (!nome) { alert("Digite o nome do exercício!"); return; }
   if (isNaN(series) || series <= 0) { alert("Digite uma quantidade válida de séries!"); return; }
   
-  planejamentoSemanal[diaSelecionado].push({ nome: nome, series: series });
+  if (idxTreinoEditando >= 0) {
+    // Modo edição: atualiza o existente
+    planejamentoSemanal[diaSelecionado][idxTreinoEditando] = { nome: nome, series: series };
+  } else {
+    // Modo adição: insere novo
+    planejamentoSemanal[diaSelecionado].push({ nome: nome, series: series });
+  }
   salvarPlanejamento();
   renderizarTreinosDoDia();
   fecharModalAddTreino();
