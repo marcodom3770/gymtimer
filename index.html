@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>GYM TIMER // CYBER PRO</title>
+  <title>MARCODOM_GYM // CYBER PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <script>
@@ -303,7 +303,7 @@
 
 <!-- TELA: LOADING BOOT -->
 <div class="screen active" id="screen-loading">
-  <div class="glitch boot-text" data-text="GYM TIMER // CYBER PRO">GYM TIMER // CYBER PRO</div>
+  <div class="glitch boot-text" data-text="MARCODOM_GYM // CYBER PRO">MARCODOM_GYM // CYBER PRO</div>
   
   <button class="btn-boot-start" id="btn-iniciar-boot" onclick="iniciarBoot()">
     ▶ INICIAR SISTEMA
@@ -398,7 +398,7 @@
     <div class="corner-tr"></div>
     <div class="corner-bl"></div>
     <div class="neon-line"></div>
-    <div class="glitch title-main" data-text="GYM TIMER">GYM TIMER</div>
+    <div class="glitch title-main" data-text="MARCODOM_GYM">MARCODOM_GYM</div>
     <div class="title-sub">// SISTEMA DE DESCANSO DE ALTA PERFORMANCE</div>
     <div class="home-nome" id="home-nome-display">// OPERADOR: MARCOS</div>
     <div id="voz-status-chip" onclick="irParaVozConfig()">
@@ -417,7 +417,7 @@
         <button class="btn-round sz-sm c-pink"   onclick="abrirModalNome()">👤</button>
       </div>
     </div>
-    <div class="footer-txt">[ GYM TIMER PRO v4.3 ]</div>
+    <div class="footer-txt">DESENVOLVIDO POR: Marcos Roberto</div>
   </div>
 </div>
 
@@ -470,7 +470,7 @@
       <div class="corner-bl" style="border-color:var(--cyan)"></div>
       
       <div class="glitch" id="titulo-dia" data-text="TREINOS" style="font-size:clamp(18px,5.2vw,24px);color:var(--cyan);margin-bottom:10px; text-transform:uppercase;">TREINOS</div>
-      <div style="text-align:center; color:var(--dim); font-size:11px; margin-bottom:10px;">// O TEMPO DE DESCANSO USARÁ O PADRÃO DA MUSCULAÇÃO</div>
+      <div style="text-align:center; color:var(--dim); font-size:11px; margin-bottom:10px;">// TEMPO DE DESCANSO CONFIGURADO EM: ⚙️ AJUSTES → ROTINA</div>
       
       <div class="treino-list-container" id="lista-treinos-dia">
         <!-- Lista será injetada aqui -->
@@ -495,6 +495,7 @@
       <div class="cfg-nav">
         <button onclick="scrollToCfg('sec-tempos')">TEMPOS</button>
         <button onclick="scrollToCfg('sec-metas')">METAS</button>
+        <button onclick="scrollToCfg('sec-rotina')">ROTINA</button>
         <button onclick="scrollToCfg('sec-sistema')">SISTEMA</button>
       </div>
       
@@ -567,6 +568,28 @@
             <div class="cfg-time-sm hiit glitch" id="cfg-meta-hiit" data-text="4">4</div>
             <button class="btn-round sz-xxs c-green" onclick="mudarMetaModo('hiit',+1)">+1</button>
           </div>
+        </div>
+      </div>
+
+      <div class="cfg-section" id="sec-rotina">
+        <div class="cfg-section-title" style="color:var(--green); border-color:var(--green)">📅 TEMPO DE DESCANSO — ROTINA SEMANAL</div>
+        <div class="meta-modo-block" style="border-color:rgba(0,255,64,0.25); background:rgba(0,255,64,0.03);">
+          <div class="meta-modo-label" style="color:var(--green);">📋 ROTINA SEMANAL</div>
+          <div class="meta-mini-row">
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoRotina(-5)">-5</button>
+            <button class="btn-round sz-xxs c-pink" onclick="mudarTempoRotina(-1)">-1</button>
+            <div class="cfg-time-sm glitch" id="cfg-tempo-rotina" data-text="60s" style="color:var(--green);">60s</div>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoRotina(+1)">+1</button>
+            <button class="btn-round sz-xxs c-green" onclick="mudarTempoRotina(+5)">+5</button>
+          </div>
+          <div class="preset-row-sm">
+            <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(30)">30S</button>
+            <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(45)">45S</button>
+            <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(60)">1M</button>
+            <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(90)">1M30</button>
+            <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(120)">2M</button>
+          </div>
+          <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;text-align:center;margin-top:8px;letter-spacing:.3px;">// DESCANSO USADO EM TODOS OS EXERCÍCIOS DA ROTINA</div>
         </div>
       </div>
 
@@ -765,6 +788,7 @@ let metaPorModo = {
   cardio:     parseInt(localStorage.getItem('gym_meta_cardio'))     || 3,
   hiit:       parseInt(localStorage.getItem('gym_meta_hiit'))       || 4
 };
+let tempoRotina = parseInt(localStorage.getItem('gym_tempo_rotina')) || 60;
 
 const iconesModos = { musculacao: '💪', cardio: '🏃', hiit: '⚡' };
 let modoTreino      = localStorage.getItem('gym_last_mode') || 'musculacao';
@@ -1030,6 +1054,7 @@ function initUI() {
   atualizarDisplayNome(); atualizarStatsModo();
   atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
   atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
+  atualizarDisplayTempoRotina();
   
   document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
   document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
@@ -1144,9 +1169,9 @@ function iniciarTreinoDoDia() {
   listaTreinosDia = planejamentoSemanal[diaSelecionado];
   idxTreinoAtual = 0;
   
-  // Usar o tempo configurado da musculação como padrão para a rotina
+  // Usar o tempo configurado separadamente para a rotina semanal
   modoTreino = 'musculacao';
-  tempoAtual = tempoPorModo['musculacao'];
+  tempoAtual = tempoRotina;
   
   falar("Iniciando rotina de " + diaSelecionado + ". Primeiro exercício: " + listaTreinosDia[0].nome, "Iniciando treino.");
   prepararTreinoAtual();
@@ -1391,6 +1416,9 @@ function salvarConfigVoz() {
   localStorage.setItem('gym_voz_engine', engineVozPref); localStorage.setItem('gym_voz_uri', uriVozEscolhida); localStorage.setItem('gym_voz_nivel', nivelVozPref); localStorage.setItem('gym_vol', volVoz); localStorage.setItem('gym_rate', rateVoz); localStorage.setItem('gym_pitch', pitchVoz);
   detectarVozModo(); irPara('screen-home');
 }
+function mudarTempoRotina(d) { clickBeep(); tempoRotina = Math.max(5, tempoRotina + d); atualizarDisplayTempoRotina(); }
+function definirTempoRotina(v) { clickBeep(); tempoRotina = v; atualizarDisplayTempoRotina(); }
+function atualizarDisplayTempoRotina() { const seg = tempoRotina; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-rotina'); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
 function mudarTempoModo(m, d) { clickBeep(); tempoPorModo[m] = Math.max(5, tempoPorModo[m] + d); atualizarDisplayTempoModo(m); atualizarStatsModo(); }
 function definirTempoModo(m, v) { clickBeep(); tempoPorModo[m] = v; atualizarDisplayTempoModo(m); atualizarStatsModo(); }
 function atualizarDisplayTempoModo(m) { const seg = tempoPorModo[m]; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-' + m); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
@@ -1401,6 +1429,7 @@ function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('
 function toggleVib()       { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); if (vibAtivada && navigator.vibrate) navigator.vibrate(80); }
 function salvarConfigGeral() {
   localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit);
+  localStorage.setItem('gym_tempo_rotina', tempoRotina);
   localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
   tempoAtual = tempoPorModo[modoTreino]; metaSeries = metaPorModo[modoTreino];
   irPara('screen-home');
