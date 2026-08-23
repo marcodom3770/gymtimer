@@ -291,6 +291,81 @@
     .btn-del-treino { background: none; border: 1px solid var(--pink); color: var(--pink); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
     .btn-edit-treino { background: none; border: 1px solid var(--yellow); color: var(--yellow); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
     .empty-msg { text-align: center; color: var(--dim); font-size: 12px; padding: 20px 0; }
+
+    /* ── PAINEL DIETA & HIDRATAÇÃO ── */
+    #screen-dieta { justify-content: flex-start; padding-top: 20px; }
+
+    .dieta-input-group { margin-bottom: 14px; }
+    .dieta-input-label { color: var(--dim); font-size: clamp(10px,2.8vw,12px); font-weight: bold; letter-spacing: .5px; margin-bottom: 5px; display: block; }
+    .dieta-input {
+      width: 100%; background: rgba(252,238,12,.05);
+      border: 2px solid var(--yellow); color: var(--yellow);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(16px,4.5vw,20px); text-align: center;
+      padding: 10px 10px; letter-spacing: 1px; outline: none;
+    }
+    .dieta-input::placeholder { color: rgba(252,238,12,.3); }
+    .dieta-input:focus { box-shadow: 0 0 10px rgba(252,238,12,.25); }
+    .dieta-select {
+      width: 100%; background: rgba(252,238,12,.05);
+      border: 2px solid var(--yellow); color: var(--yellow);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(12px,3.2vw,15px); padding: 10px 10px;
+      cursor: pointer; letter-spacing: .5px; outline: none;
+      -webkit-appearance: none; appearance: none;
+    }
+    .dieta-select option { background: #0a0c18; }
+
+    .resultado-card {
+      border: 1px solid rgba(252,238,12,.3);
+      background: rgba(252,238,12,.04);
+      padding: 12px 14px; margin-bottom: 10px;
+    }
+    .resultado-card .rc-label { color: var(--dim); font-size: clamp(9px,2.4vw,11px); font-weight: bold; letter-spacing: .5px; }
+    .resultado-card .rc-val   { color: var(--yellow); font-size: clamp(18px,5vw,26px); font-weight: bold; margin-top: 2px; }
+    .resultado-card .rc-sub   { color: var(--cyan); font-size: clamp(10px,2.8vw,12px); font-weight: bold; margin-top: 4px; }
+    .resultado-card.green-card { border-color: rgba(0,255,64,.3); background: rgba(0,255,64,.04); }
+    .resultado-card.green-card .rc-val { color: var(--green); }
+    .resultado-card.pink-card  { border-color: rgba(255,0,60,.3);  background: rgba(255,0,60,.04); }
+    .resultado-card.pink-card  .rc-val { color: var(--pink); }
+    .resultado-card.cyan-card  { border-color: rgba(0,240,255,.3); background: rgba(0,240,255,.04); }
+    .resultado-card.cyan-card  .rc-val { color: var(--cyan); }
+
+    .imc-badge {
+      display: inline-block; padding: 4px 12px;
+      font-size: clamp(11px,3vw,14px); font-weight: bold;
+      letter-spacing: 1px; margin-top: 6px;
+    }
+
+    /* COPOS DE ÁGUA */
+    .agua-titulo { color: var(--cyan); font-size: clamp(11px,3vw,13px); font-weight: bold; letter-spacing: 1px; margin-bottom: 10px; border-bottom: 1px solid rgba(0,240,255,.2); padding-bottom: 6px; }
+    .agua-progress { text-align: center; color: var(--cyan); font-size: clamp(22px,6vw,32px); font-weight: bold; margin-bottom: 4px; }
+    .agua-progress-sub { text-align: center; color: var(--dim); font-size: clamp(10px,2.8vw,12px); font-weight: bold; margin-bottom: 12px; }
+    .copos-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 14px; }
+    .copo-btn {
+      width: clamp(44px,12vw,56px); height: clamp(52px,14vw,66px);
+      background: none; border: none; cursor: pointer; padding: 0;
+      -webkit-tap-highlight-color: transparent; position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .copo-btn svg { width: 100%; height: 100%; }
+    .copo-btn .copo-numero {
+      position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+      color: var(--dim); font-size: 10px; font-family: 'Courier New', monospace; font-weight: bold;
+    }
+    .copos-wrapper { padding-bottom: 20px; }
+    .agua-reset-btn {
+      display: block; width: 100%; margin-top: 8px;
+      background: rgba(0,240,255,.06); border: 1px dashed rgba(0,240,255,.3);
+      color: var(--dim); font-family: 'Courier New', monospace;
+      font-size: clamp(10px,2.8vw,12px); font-weight: bold;
+      padding: 8px; cursor: pointer; letter-spacing: 1px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .agua-reset-btn:active { opacity: .6; }
+    .agua-bar-wrap { margin-bottom: 14px; }
+    .agua-bar-bg { width: 100%; height: 8px; background: rgba(0,240,255,.1); border: 1px solid rgba(0,240,255,.2); }
+    .agua-bar-fill { height: 100%; background: var(--cyan); transition: width .4s ease; }
   </style>
 </head>
 <body>
@@ -411,6 +486,9 @@
       
       <!-- NOVO BOTÃO: ROTINA SEMANAL -->
       <button class="btn-sec green" onclick="abrirSemana()" style="margin-top:10px; font-size:14px;">📅 ROTINA SEMANAL</button>
+
+      <!-- BOTÃO: DIETA & HIDRATAÇÃO -->
+      <button class="btn-sec yellow" onclick="abrirDieta()" style="margin-top:4px; font-size:14px;">🥗 DIETA & HIDRATAÇÃO</button>
 
       <div style="display:flex;gap:12px; margin-top:10px;">
         <button class="btn-round sz-sm c-cyan"   onclick="irParaConfig()">⚙️</button>
@@ -755,6 +833,157 @@
     <div id="auto-countdown" style="text-align:center;color:var(--orange);font-size:clamp(11px,3vw,14px);font-weight:bold;margin-top:8px;min-height:18px;letter-spacing:1px"></div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     TELA: DIETA & HIDRATAÇÃO
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-dieta">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--yellow); color:var(--yellow)">&lt; Voltar</button>
+  <div class="config-scroll" style="width:93%;max-width:448px;overflow-y:auto;max-height:92vh;padding-bottom:16px;position:relative;margin-top:28px;">
+    
+    <!-- PAINEL: FORMULÁRIO DE DADOS -->
+    <div class="panel" id="dieta-form-panel" style="border-color:var(--yellow); margin-bottom:16px;">
+      <div class="corner-tr" style="border-color:var(--yellow)"></div>
+      <div class="corner-bl" style="border-color:var(--yellow)"></div>
+
+      <div class="glitch" data-text="PERFIL CORPORAL" style="font-size:clamp(16px,5vw,22px);color:var(--yellow);margin-bottom:6px">PERFIL CORPORAL</div>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,11px);font-weight:bold;text-align:center;margin-bottom:16px;letter-spacing:.5px">// PREENCHA SEUS DADOS PARA CÁLCULOS PRECISOS</div>
+
+      <!-- PESO -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">⚖️ PESO (kg)</span>
+        <input class="dieta-input" id="dieta-peso" type="number" min="30" max="250" step="0.1" placeholder="Ex: 75.5" inputmode="decimal">
+      </div>
+
+      <!-- ALTURA -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">📏 ALTURA (cm)</span>
+        <input class="dieta-input" id="dieta-altura" type="number" min="100" max="250" step="1" placeholder="Ex: 175" inputmode="numeric">
+      </div>
+
+      <!-- IDADE -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">🎂 IDADE (anos)</span>
+        <input class="dieta-input" id="dieta-idade" type="number" min="10" max="100" step="1" placeholder="Ex: 28" inputmode="numeric">
+      </div>
+
+      <!-- SEXO -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">👤 SEXO BIOLÓGICO</span>
+        <select class="dieta-select" id="dieta-sexo">
+          <option value="m">Masculino</option>
+          <option value="f">Feminino</option>
+        </select>
+      </div>
+
+      <!-- NÍVEL DE ATIVIDADE -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">🏋️ NÍVEL DE ATIVIDADE</span>
+        <select class="dieta-select" id="dieta-atividade">
+          <option value="1.2">Sedentário (sem exercício)</option>
+          <option value="1.375">Leve (1–3x por semana)</option>
+          <option value="1.55" selected>Moderado (3–5x por semana)</option>
+          <option value="1.725">Intenso (6–7x por semana)</option>
+          <option value="1.9">Muito intenso (2x por dia)</option>
+        </select>
+      </div>
+
+      <!-- BIOTIPO (OPCIONAL) -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">🧬 BIOTIPO <span style="color:var(--dim);font-weight:normal">(opcional)</span></span>
+        <select class="dieta-select" id="dieta-biotipo">
+          <option value="none">Não sei / Prefiro não informar</option>
+          <option value="ecto">Ectomorfo — magro, dificuldade de ganhar massa</option>
+          <option value="meso">Mesomorfo — musculoso, ganha e perde facilmente</option>
+          <option value="endo">Endomorfo — tendência a acumular gordura</option>
+        </select>
+      </div>
+
+      <button class="btn-sec yellow" style="margin-top:8px" onclick="calcularDieta()">▶ CALCULAR</button>
+    </div>
+
+    <!-- PAINEL: RESULTADOS (oculto até calcular) -->
+    <div id="dieta-resultados" style="display:none;">
+
+      <!-- IMC -->
+      <div class="panel" style="border-color:var(--yellow); margin-bottom:14px; padding:18px 18px 14px;">
+        <div class="corner-tr" style="border-color:var(--yellow)"></div>
+        <div class="corner-bl" style="border-color:var(--yellow)"></div>
+        <div style="color:var(--yellow);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(252,238,12,.2);padding-bottom:6px;margin-bottom:10px;">📊 IMC & PESO IDEAL</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <div class="resultado-card" style="flex:1">
+            <div class="rc-label">SEU IMC</div>
+            <div class="rc-val" id="res-imc">--</div>
+          </div>
+          <div class="resultado-card" style="flex:1" id="card-status-imc">
+            <div class="rc-label">STATUS</div>
+            <div class="rc-val" id="res-status-imc">--</div>
+          </div>
+        </div>
+        <div class="resultado-card cyan-card">
+          <div class="rc-label">PESO IDEAL ESTIMADO</div>
+          <div class="rc-val" id="res-peso-ideal">--</div>
+          <div class="rc-sub" id="res-diff-peso">--</div>
+        </div>
+        <div id="res-biotipo-info" style="display:none; margin-top:10px; padding:8px 10px; border:1px solid rgba(252,238,12,.2); background:rgba(252,238,12,.03); color:var(--dim); font-size:clamp(9px,2.5vw,11px); font-weight:bold; letter-spacing:.3px;"></div>
+      </div>
+
+      <!-- CALORIAS -->
+      <div class="panel" style="border-color:var(--orange); margin-bottom:14px; padding:18px 18px 14px;">
+        <div class="corner-tr" style="border-color:var(--orange)"></div>
+        <div class="corner-bl" style="border-color:var(--orange)"></div>
+        <div style="color:var(--orange);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(255,140,0,.2);padding-bottom:6px;margin-bottom:10px;">🔥 CALORIAS DIÁRIAS</div>
+        <div class="resultado-card" style="border-color:rgba(255,140,0,.3);background:rgba(255,140,0,.04);margin-bottom:10px;">
+          <div class="rc-label">MANUTENÇÃO (manter peso atual)</div>
+          <div class="rc-val" style="color:var(--orange)" id="res-cal-manutencao">--</div>
+          <div class="rc-sub" id="res-cal-macro">--</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <div class="resultado-card green-card" style="flex:1">
+            <div class="rc-label">GANHO DE MASSA</div>
+            <div class="rc-val" id="res-cal-ganho">--</div>
+            <div class="rc-sub">+300~500 kcal</div>
+          </div>
+          <div class="resultado-card pink-card" style="flex:1">
+            <div class="rc-label">EMAGRECIMENTO</div>
+            <div class="rc-val" id="res-cal-perca">--</div>
+            <div class="rc-sub">−500 kcal</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:8px 10px;border:1px solid rgba(255,140,0,.2);background:rgba(255,140,0,.03);color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.3px;" id="res-cal-obs">
+          // Valores calculados pela fórmula de Harris-Benedict revisada (Mifflin-St Jeor).
+        </div>
+      </div>
+
+      <!-- HIDRATAÇÃO -->
+      <div class="panel" style="border-color:var(--cyan); padding:18px 18px 14px;">
+        <div class="corner-tr" style="border-color:var(--cyan)"></div>
+        <div class="corner-bl" style="border-color:var(--cyan)"></div>
+        <div class="agua-titulo">💧 HIDRATAÇÃO DIÁRIA</div>
+
+        <div class="agua-progress" id="agua-display">0 / <span id="agua-total-copos">8</span></div>
+        <div class="agua-progress-sub" id="agua-ml-display">0 ml / 0 ml</div>
+
+        <div class="agua-bar-wrap">
+          <div class="agua-bar-bg"><div class="agua-bar-fill" id="agua-bar" style="width:0%"></div></div>
+        </div>
+
+        <div class="copos-wrapper">
+          <div class="copos-grid" id="copos-grid">
+            <!-- copos injetados por JS -->
+          </div>
+        </div>
+
+        <button class="agua-reset-btn" onclick="resetarCopos()">↺ REINICIAR CONTAGEM DO DIA</button>
+
+        <div style="margin-top:12px;padding:8px 10px;border:1px solid rgba(0,240,255,.2);background:rgba(0,240,255,.03);color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.3px;" id="agua-meta-info">
+          // Cada copo = 250ml. A contagem reseta automaticamente à meia-noite.
+        </div>
+      </div>
+
+    </div><!-- fim resultados -->
+  </div>
+</div><!-- fim screen-dieta -->
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
@@ -1487,6 +1716,267 @@ function tocarProcessamento(cb) {
     if (cb) cb();
   } catch(e) { if (cb) cb(); }
 }
+
+// ══════════════════════════════════════════════════════════════════════
+//  MÓDULO: DIETA & HIDRATAÇÃO
+// ══════════════════════════════════════════════════════════════════════
+
+// --- Estado da água ---
+let totalCopos        = 8;   // definido após cálculo
+let coposConsumidos   = 0;
+const AGUA_KEY        = 'gym_agua_copos';
+const AGUA_DATA_KEY   = 'gym_agua_data';
+const DIETA_DADOS_KEY = 'gym_dieta_dados';
+
+function abrirDieta() {
+  desbloquearAudio();
+  carregarDadosDieta();
+  verificarResetAgua();
+  irPara('screen-dieta');
+}
+
+function carregarDadosDieta() {
+  const saved = JSON.parse(localStorage.getItem(DIETA_DADOS_KEY) || 'null');
+  if (!saved) return;
+  const ids = ['dieta-peso','dieta-altura','dieta-idade','dieta-sexo','dieta-atividade','dieta-biotipo'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && saved[id] !== undefined) el.value = saved[id];
+  });
+  // Se já havia dados salvos, recalcula e exibe
+  if (saved['dieta-peso'] && saved['dieta-altura']) {
+    calcularDieta(true);
+  }
+}
+
+function salvarDadosDieta() {
+  const ids = ['dieta-peso','dieta-altura','dieta-idade','dieta-sexo','dieta-atividade','dieta-biotipo'];
+  const obj = {};
+  ids.forEach(id => { obj[id] = document.getElementById(id).value; });
+  localStorage.setItem(DIETA_DADOS_KEY, JSON.stringify(obj));
+}
+
+function calcularDieta(silencioso) {
+  if (!silencioso) clickBeep();
+
+  const peso      = parseFloat(document.getElementById('dieta-peso').value);
+  const alturaCm  = parseFloat(document.getElementById('dieta-altura').value);
+  const idade     = parseInt(document.getElementById('dieta-idade').value);
+  const sexo      = document.getElementById('dieta-sexo').value;
+  const fAtiv     = parseFloat(document.getElementById('dieta-atividade').value);
+  const biotipo   = document.getElementById('dieta-biotipo').value;
+
+  if (!peso || !alturaCm || !idade || isNaN(fAtiv)) {
+    if (!silencioso) alert('Preencha Peso, Altura e Idade para calcular!');
+    return;
+  }
+
+  salvarDadosDieta();
+
+  const alturaM = alturaCm / 100;
+
+  // --- IMC ---
+  const imc = peso / (alturaM * alturaM);
+
+  // Status IMC
+  let statusIMC, corIMC, badgeColor;
+  if      (imc < 18.5) { statusIMC='ABAIXO DO PESO'; corIMC='cyan-card';   badgeColor='var(--cyan)'; }
+  else if (imc < 25)   { statusIMC='PESO NORMAL ✓';  corIMC='green-card';  badgeColor='var(--green)'; }
+  else if (imc < 30)   { statusIMC='SOBREPESO';       corIMC='';            badgeColor='var(--yellow)'; }
+  else if (imc < 35)   { statusIMC='OBE. GRAU I';     corIMC='pink-card';   badgeColor='var(--orange)'; }
+  else                 { statusIMC='OBE. GRAU II+';   corIMC='pink-card';   badgeColor='var(--pink)'; }
+
+  document.getElementById('res-imc').textContent = imc.toFixed(1);
+  document.getElementById('res-imc').style.color = badgeColor;
+  document.getElementById('res-status-imc').textContent = statusIMC;
+  document.getElementById('res-status-imc').style.color  = badgeColor;
+  const cardStatus = document.getElementById('card-status-imc');
+  cardStatus.className = 'resultado-card ' + corIMC;
+
+  // --- Peso ideal (Fórmula de Devine) ---
+  const alturaPolegadas = alturaCm / 2.54;
+  const polegadasAcima5pes = alturaPolegadas - 60;
+  let pesoIdeal = sexo === 'm'
+    ? 50 + 2.3 * Math.max(0, polegadasAcima5pes)
+    : 45.5 + 2.3 * Math.max(0, polegadasAcima5pes);
+  pesoIdeal = Math.max(pesoIdeal, 40); // mínimo razoável
+  const diffPeso = peso - pesoIdeal;
+  document.getElementById('res-peso-ideal').textContent = pesoIdeal.toFixed(1) + ' kg';
+  if (Math.abs(diffPeso) < 2) {
+    document.getElementById('res-diff-peso').textContent = '✔ Você está no peso ideal!';
+    document.getElementById('res-diff-peso').style.color = 'var(--green)';
+  } else if (diffPeso > 0) {
+    document.getElementById('res-diff-peso').textContent = '▲ ' + diffPeso.toFixed(1) + ' kg acima do ideal';
+    document.getElementById('res-diff-peso').style.color = 'var(--yellow)';
+  } else {
+    document.getElementById('res-diff-peso').textContent = '▼ ' + Math.abs(diffPeso).toFixed(1) + ' kg abaixo do ideal';
+    document.getElementById('res-diff-peso').style.color = 'var(--cyan)';
+  }
+
+  // --- Biotipo ---
+  const biotipoInfo = document.getElementById('res-biotipo-info');
+  if (biotipo !== 'none') {
+    const biotipoTextos = {
+      ecto: '🧬 ECTOMORFO — Metabolismo acelerado. Foco em superávit calórico (+400~600 kcal) e alta ingestão de carboidratos complexos. Treinos de força com menor cardio.',
+      meso: '🧬 MESOMORFO — Responde bem a qualquer protocolo. Distribua macros: ~40% carbo / 30% proteína / 30% gordura. Treinos variados funcionam muito.',
+      endo: '🧬 ENDOMORFO — Metabolismo mais lento. Prefira déficit calórico moderado (−300~500 kcal) com ênfase em proteínas e gorduras boas. Cardio regular é aliado.'
+    };
+    biotipoInfo.textContent = biotipoTextos[biotipo] || '';
+    biotipoInfo.style.display = 'block';
+  } else {
+    biotipoInfo.style.display = 'none';
+  }
+
+  // --- TMB (Mifflin-St Jeor) ---
+  let tmb = sexo === 'm'
+    ? 10 * peso + 6.25 * alturaCm - 5 * idade + 5
+    : 10 * peso + 6.25 * alturaCm - 5 * idade - 161;
+
+  const manutencao = Math.round(tmb * fAtiv);
+  const ganho      = manutencao + 400;
+  const perca      = manutencao - 500;
+
+  // Ajuste por biotipo nas calorias
+  let obsExtra = '';
+  if (biotipo === 'ecto') obsExtra = ' // Ectomorfo: considere +100 kcal extra no ganho de massa.';
+  else if (biotipo === 'endo') obsExtra = ' // Endomorfo: evite superávit, mantenha déficit moderado.';
+
+  document.getElementById('res-cal-manutencao').textContent = manutencao + ' kcal';
+  document.getElementById('res-cal-ganho').textContent      = ganho + ' kcal';
+  document.getElementById('res-cal-perca').textContent      = Math.max(1200, perca) + ' kcal';
+
+  // Macros estimados (manutenção)
+  const prot = Math.round(peso * 1.8);         // 1.8g/kg (atleta)
+  const gord = Math.round((manutencao * 0.25) / 9);
+  const carb = Math.round((manutencao - prot*4 - gord*9) / 4);
+  document.getElementById('res-cal-macro').textContent =
+    `Proteína ~${prot}g · Carbo ~${carb}g · Gordura ~${gord}g`;
+  document.getElementById('res-cal-obs').textContent =
+    '// Mifflin-St Jeor · macros estimados para atleta (1.8g prot/kg).' + obsExtra;
+
+  // --- ÁGUA ---
+  // Fórmula: 35ml/kg, mínimo 2L, máximo 5L
+  const mlAgua   = Math.min(5000, Math.max(2000, Math.round(peso * 35)));
+  totalCopos     = Math.round(mlAgua / 250);
+  document.getElementById('agua-meta-info').textContent =
+    `// Meta: ${mlAgua}ml (${(mlAgua/1000).toFixed(1)}L) = ${totalCopos} copos de 250ml. ` +
+    `Calculado por: 35ml × ${peso}kg. Reseta à meia-noite.`;
+
+  // Recarrega contagem salva
+  verificarResetAgua();
+  renderizarCopos();
+  atualizarDisplayAgua();
+
+  // Exibir painel de resultados
+  document.getElementById('dieta-resultados').style.display = 'block';
+
+  // Scroll até resultados
+  setTimeout(() => {
+    document.getElementById('dieta-resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 150);
+}
+
+// ── Copos de Água ──
+function verificarResetAgua() {
+  const hoje       = new Date().toDateString();
+  const dataGuarda = localStorage.getItem(AGUA_DATA_KEY);
+  if (dataGuarda !== hoje) {
+    coposConsumidos = 0;
+    localStorage.setItem(AGUA_DATA_KEY, hoje);
+    localStorage.setItem(AGUA_KEY, '0');
+  } else {
+    coposConsumidos = parseInt(localStorage.getItem(AGUA_KEY) || '0');
+  }
+}
+
+function renderizarCopos() {
+  const grid = document.getElementById('copos-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= totalCopos; i++) {
+    const cheio = i <= coposConsumidos;
+    const btn = document.createElement('button');
+    btn.className = 'copo-btn';
+    btn.setAttribute('aria-label', 'Copo ' + i);
+    btn.onclick = () => toggleCopo(i);
+    btn.innerHTML = `
+      ${criarSVGCopo(cheio, i)}
+      <span class="copo-numero">${i}</span>
+    `;
+    grid.appendChild(btn);
+  }
+}
+
+function criarSVGCopo(cheio, idx) {
+  const corBorda  = cheio ? '#00f0ff' : 'rgba(0,240,255,0.35)';
+  const corAgua   = '#00f0ff';
+  const opacAgua  = cheio ? '0.85' : '0';
+  const brilho    = cheio ? '0 0 12px rgba(0,240,255,0.6)' : 'none';
+  return `<svg viewBox="0 0 50 66" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(${brilho})">
+    <!-- corpo do copo -->
+    <path d="M8 10 L6 62 Q6 64 8 64 L42 64 Q44 64 44 62 L42 10 Z"
+          fill="rgba(0,240,255,0.04)" stroke="${corBorda}" stroke-width="2" stroke-linejoin="round"/>
+    <!-- aba do copo -->
+    <path d="M6 10 L44 10" stroke="${corBorda}" stroke-width="2" stroke-linecap="round"/>
+    <!-- água -->
+    <clipPath id="clip-copo-${idx}">
+      <path d="M8.5 11 L7 62 Q7 63 8.5 63 L41.5 63 Q43 63 43 62 L41.5 11 Z"/>
+    </clipPath>
+    <rect x="0" y="22" width="50" height="42" fill="${corAgua}" opacity="${opacAgua}" clip-path="url(#clip-copo-${idx})"/>
+    <!-- marcação de 250ml -->
+    <line x1="35" y1="28" x2="42" y2="28" stroke="${corBorda}" stroke-width="1" opacity="0.5"/>
+    <text x="36" y="26" font-size="6" fill="${corBorda}" opacity="0.5" font-family="monospace">250</text>
+  </svg>`;
+}
+
+function toggleCopo(idx) {
+  clickBeep();
+  if (idx <= coposConsumidos) {
+    // Desfazer: clicou em um já cheio
+    coposConsumidos = idx - 1;
+  } else {
+    // Marcar até este
+    coposConsumidos = idx;
+  }
+  localStorage.setItem(AGUA_KEY, String(coposConsumidos));
+  renderizarCopos();
+  atualizarDisplayAgua();
+}
+
+function resetarCopos() {
+  clickBeep();
+  coposConsumidos = 0;
+  localStorage.setItem(AGUA_KEY, '0');
+  localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
+  renderizarCopos();
+  atualizarDisplayAgua();
+}
+
+function atualizarDisplayAgua() {
+  const mlConsumidos = coposConsumidos * 250;
+  const mlTotal      = totalCopos * 250;
+  const pct          = totalCopos > 0 ? Math.min(100, (coposConsumidos / totalCopos) * 100) : 0;
+  document.getElementById('agua-display').innerHTML =
+    coposConsumidos + ' / <span id="agua-total-copos">' + totalCopos + '</span>';
+  document.getElementById('agua-ml-display').textContent =
+    mlConsumidos + ' ml / ' + mlTotal + ' ml';
+  document.getElementById('agua-bar').style.width = pct + '%';
+}
+
+// Reset automático da água à meia-noite
+function agendarResetMeiaNoite() {
+  const agora   = new Date();
+  const amanha  = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1, 0, 0, 5);
+  const msAte   = amanha - agora;
+  setTimeout(() => {
+    coposConsumidos = 0;
+    localStorage.setItem(AGUA_KEY, '0');
+    localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
+    renderizarCopos();
+    atualizarDisplayAgua();
+    agendarResetMeiaNoite(); // reagenda para a próxima meia-noite
+  }, msAte);
+}
+agendarResetMeiaNoite();
 
 window.onload = () => { tentarCarregarRV(); };
 </script>
