@@ -365,7 +365,50 @@
     .agua-reset-btn:active { opacity: .6; }
     .agua-bar-wrap { margin-bottom: 14px; }
     .agua-bar-bg { width: 100%; height: 8px; background: rgba(0,240,255,.1); border: 1px solid rgba(0,240,255,.2); }
-    .agua-bar-fill { height: 100%; background: var(--cyan); transition: width .4s ease; }
+    .agua-bar-fill { height: 100%; background: var(--cyan); transition: width .4s ease, background .4s ease; }
+    .agua-bar-fill.nivel-baixo   { background: var(--pink); }
+    .agua-bar-fill.nivel-medio   { background: var(--yellow); }
+    .agua-bar-fill.nivel-alto    { background: var(--cyan); }
+    .agua-bar-fill.nivel-completo{ background: var(--green); box-shadow: 0 0 8px rgba(0,255,64,.4); }
+
+    /* Badge de contagem nos dias da semana */
+    .btn-sec-dia-wrap { position: relative; margin: 7px 0; }
+    .dia-badge {
+      position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
+      background: rgba(0,255,64,.15); border: 1px solid var(--green); color: var(--green);
+      font-size: clamp(9px,2.4vw,11px); font-weight: bold; padding: 2px 8px;
+      letter-spacing: .5px; pointer-events: none;
+    }
+    .dia-badge.vazio { background: rgba(255,0,60,.08); border-color: rgba(255,0,60,.3); color: rgba(255,0,60,.5); }
+    .btn-sec.hoje-btn {
+      border-color: var(--green) !important; color: var(--green) !important;
+      box-shadow: 0 0 16px rgba(0,255,64,.35) !important;
+    }
+
+    /* Pulse ao marcar copo */
+    @keyframes cup-pulse { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
+    .copo-pulse { animation: cup-pulse .28s ease; }
+
+    /* Erro inline no formulário de dieta */
+    .dieta-erro {
+      display: none; color: var(--pink); font-size: clamp(11px,3vw,13px); font-weight: bold;
+      text-align: center; padding: 9px 10px; margin: 4px 0 8px;
+      border: 1px solid rgba(255,0,60,.35); background: rgba(255,0,60,.06); letter-spacing: .5px;
+    }
+    .dieta-erro.ativo { display: block; }
+
+    /* Botão recalcular nos resultados */
+    .btn-recalcular {
+      display: block; width: 100%; background: rgba(252,238,12,.06);
+      border: 1px dashed rgba(252,238,12,.4); color: rgba(252,238,12,.7);
+      font-family: 'Courier New', monospace; font-size: clamp(11px,3vw,13px);
+      font-weight: bold; padding: 10px; cursor: pointer; letter-spacing: 1px;
+      margin-bottom: 14px; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-recalcular:active { background: rgba(252,238,12,.12); }
+
+    /* Percentual de hidratação */
+    .agua-pct { display: inline-block; color: var(--green); font-size: clamp(13px,3.5vw,16px); font-weight: bold; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -528,13 +571,7 @@
     <div class="corner-bl" style="border-color:var(--green)"></div>
     <div class="glitch" data-text="DIAS DA SEMANA" style="font-size:clamp(18px,5.5vw,26px);color:var(--green);margin-bottom:22px">DIAS DA SEMANA</div>
     
-    <button class="btn-sec" onclick="abrirDia('segunda')">SEGUNDA-FEIRA</button>
-    <button class="btn-sec" onclick="abrirDia('terca')">TERÇA-FEIRA</button>
-    <button class="btn-sec" onclick="abrirDia('quarta')">QUARTA-FEIRA</button>
-    <button class="btn-sec" onclick="abrirDia('quinta')">QUINTA-FEIRA</button>
-    <button class="btn-sec" onclick="abrirDia('sexta')">SEXTA-FEIRA</button>
-    <button class="btn-sec" onclick="abrirDia('sabado')">SÁBADO</button>
-    <button class="btn-sec" onclick="abrirDia('domingo')">DOMINGO</button>
+    <div id="lista-dias-semana"></div>
     
     <button class="btn-sec yellow" onclick="irPara('screen-home')" style="margin-top:20px">&lt; VOLTAR</button>
   </div>
@@ -899,11 +936,13 @@
         </select>
       </div>
 
+      <div class="dieta-erro" id="dieta-erro">⚠ Preencha Peso, Altura e Idade para calcular!</div>
       <button class="btn-sec yellow" style="margin-top:8px" onclick="calcularDieta()">▶ CALCULAR</button>
     </div>
 
     <!-- PAINEL: RESULTADOS (oculto até calcular) -->
     <div id="dieta-resultados" style="display:none;">
+      <button class="btn-recalcular" onclick="rolarParaForm()">↑ RECALCULAR / EDITAR DADOS</button>
 
       <!-- IMC -->
       <div class="panel" style="border-color:var(--yellow); margin-bottom:14px; padding:18px 18px 14px;">
@@ -961,7 +1000,7 @@
         <div class="corner-bl" style="border-color:var(--cyan)"></div>
         <div class="agua-titulo">💧 HIDRATAÇÃO DIÁRIA</div>
 
-        <div class="agua-progress" id="agua-display">0 / <span id="agua-total-copos">8</span></div>
+        <div class="agua-progress" id="agua-display">0 / <span id="agua-total-copos">8</span><span class="agua-pct" id="agua-pct">0%</span></div>
         <div class="agua-progress-sub" id="agua-ml-display">0 ml / 0 ml</div>
 
         <div class="agua-bar-wrap">
@@ -1105,12 +1144,20 @@ function runBootSequence() {
 }
 
 function darBoasVindas() {
-  const horaAtual = new Date().getHours();
-  let saudacaoTxt = "Boa noite";
-  if (horaAtual >= 5 && horaAtual < 12) saudacaoTxt = "Bom dia";
-  else if (horaAtual >= 12 && horaAtual < 18) saudacaoTxt = "Boa tarde";
-  const mensagem = saudacaoTxt + ", " + nomeUsuario + ".";
-  falar(mensagem + " Sistema pronto.", mensagem);
+  const agora    = new Date();
+  const hora     = agora.getHours();
+  const diaSem   = agora.getDay();
+  const nomesDiasSem = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  let saudacaoTxt = hora >= 5 && hora < 12 ? "Bom dia" : hora >= 12 && hora < 18 ? "Boa tarde" : "Boa noite";
+
+  const variacoes = [
+    `${saudacaoTxt}, ${nomeUsuario}! Sistema iniciado. Hoje é ${nomesDiasSem[diaSem]}. Pronto para o treino?`,
+    `${saudacaoTxt}, ${nomeUsuario}! Bem-vindo de volta. É ${nomesDiasSem[diaSem]}, hora de superar seus limites!`,
+    `${saudacaoTxt}, ${nomeUsuario}! Sistema on-line. Vamos fazer desta ${nomesDiasSem[diaSem]} um dia de evolução!`,
+    `${saudacaoTxt}, ${nomeUsuario}! Módulos carregados. ${nomesDiasSem[diaSem].charAt(0).toUpperCase()+nomesDiasSem[diaSem].slice(1)} é dia de conquistar!`,
+  ];
+  const msg = variacoes[Math.floor(Math.random() * variacoes.length)];
+  falar(msg, saudacaoTxt + ', ' + nomeUsuario + '!');
 }
 
 function carregarVozesNativas() {
@@ -1317,18 +1364,80 @@ function irParaVozConfig() { desbloquearAudio(); carregarVozesNativas(); detecta
 // ══════════════════════════════════════════════════════════════════════
 //  ROTINA SEMANAL (NOVO)
 // ══════════════════════════════════════════════════════════════════════
-function abrirSemana() { desbloquearAudio(); irPara('screen-semana'); }
+function abrirSemana() {
+  desbloquearAudio();
+  renderizarBotoesDias();
+  irPara('screen-semana');
+  const diaSemIdx  = new Date().getDay();
+  const nomesDiasFala = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const diaHoje    = nomesDiasFala[diaSemIdx];
+  const qtdHoje    = planejamentoSemanal[Object.keys(planejamentoSemanal)[diaSemIdx === 0 ? 6 : diaSemIdx - 1]]?.length || 0;
+  const chaveHoje  = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'][diaSemIdx];
+  const qtdHojeReal = planejamentoSemanal[chaveHoje]?.length || 0;
+  const frases = [
+    qtdHojeReal > 0
+      ? `Rotina semanal aberta. Hoje é ${diaHoje} e você tem ${qtdHojeReal} exercício${qtdHojeReal>1?'s':''} programados. Bora treinar, ${nomeUsuario}!`
+      : `Rotina semanal aberta. Hoje é ${diaHoje}. Ainda não há treinos programados para hoje. Configure sua semana!`,
+  ];
+  falar(frases[0], "Rotina Semanal");
+}
+
+function renderizarBotoesDias() {
+  const container = document.getElementById('lista-dias-semana');
+  if (!container) return;
+  const dias = [
+    { key: 'segunda', label: 'SEGUNDA-FEIRA' },
+    { key: 'terca',   label: 'TERÇA-FEIRA'  },
+    { key: 'quarta',  label: 'QUARTA-FEIRA' },
+    { key: 'quinta',  label: 'QUINTA-FEIRA' },
+    { key: 'sexta',   label: 'SEXTA-FEIRA'  },
+    { key: 'sabado',  label: 'SÁBADO'       },
+    { key: 'domingo', label: 'DOMINGO'      },
+  ];
+  const chaveHoje = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'][new Date().getDay()];
+  container.innerHTML = '';
+  dias.forEach(({ key, label }) => {
+    const qtd   = planejamentoSemanal[key]?.length || 0;
+    const hoje  = key === chaveHoje;
+    const wrap  = document.createElement('div');
+    wrap.className = 'btn-sec-dia-wrap';
+    const btn   = document.createElement('button');
+    btn.className = 'btn-sec' + (hoje ? ' hoje-btn' : '');
+    btn.textContent = (hoje ? '▶ ' : '') + label;
+    btn.onclick = () => abrirDia(key);
+    btn.style.textAlign = 'left';
+    btn.style.paddingLeft = '16px';
+    const badge = document.createElement('span');
+    badge.className = 'dia-badge' + (qtd === 0 ? ' vazio' : '');
+    badge.textContent = qtd === 0 ? 'VAZIO' : qtd + (qtd === 1 ? ' EX.' : ' EX.');
+    wrap.appendChild(btn);
+    wrap.appendChild(badge);
+    container.appendChild(wrap);
+  });
+}
 
 function abrirDia(dia) {
   clickBeep();
   diaSelecionado = dia;
-  const nomesDias = { segunda: 'SEGUNDA', terca: 'TERÇA', quarta: 'QUARTA', quinta: 'QUINTA', sexta: 'SEXTA', sabado: 'SÁBADO', domingo: 'DOMINGO' };
+  const nomesDias     = { segunda:'SEGUNDA', terca:'TERÇA', quarta:'QUARTA', quinta:'QUINTA', sexta:'SEXTA', sabado:'SÁBADO', domingo:'DOMINGO' };
+  const nomesDiasFala = { segunda:'segunda-feira', terca:'terça-feira', quarta:'quarta-feira', quinta:'quinta-feira', sexta:'sexta-feira', sabado:'sábado', domingo:'domingo' };
   
   document.getElementById('titulo-dia').textContent = "TREINOS - " + nomesDias[dia];
   document.getElementById('titulo-dia').setAttribute('data-text', "TREINOS - " + nomesDias[dia]);
   
   renderizarTreinosDoDia();
   irPara('screen-dia');
+
+  const qtd = planejamentoSemanal[dia]?.length || 0;
+  if (qtd === 0) {
+    falar(`${nomesDiasFala[dia]}: nenhum exercício cadastrado ainda. Adicione seus exercícios, ${nomeUsuario}!`, nomesDias[dia]);
+  } else {
+    const frases = [
+      `${nomesDiasFala[dia]} tem ${qtd} exercício${qtd>1?'s':''} programado${qtd>1?'s':''}. Pronto para começar, ${nomeUsuario}?`,
+      `Rotina de ${nomesDiasFala[dia]}: ${qtd} exercício${qtd>1?'s':''}. Vai ser um treino incrível, ${nomeUsuario}!`,
+    ];
+    falar(frases[Math.floor(Math.random()*frases.length)], nomesDias[dia] + ': ' + qtd + ' exercícios');
+  }
 }
 
 function renderizarTreinosDoDia() {
@@ -1338,6 +1447,7 @@ function renderizarTreinosDoDia() {
   const treinos = planejamentoSemanal[diaSelecionado];
   if (treinos.length === 0) {
     container.innerHTML = '<div class="empty-msg">NENHUM EXERCÍCIO CONFIGURADO PARA ESTE DIA.</div>';
+    renderizarBotoesDias(); // atualiza badges
     return;
   }
   
@@ -1356,6 +1466,7 @@ function renderizarTreinosDoDia() {
     `;
     container.appendChild(el);
   });
+  renderizarBotoesDias(); // atualiza badges
 }
 
 let idxTreinoEditando = -1; // -1 = modo adicionar, >=0 = modo editar
@@ -1401,11 +1512,12 @@ function salvarNovoTreino() {
   if (isNaN(series) || series <= 0) { alert("Digite uma quantidade válida de séries!"); return; }
   
   if (idxTreinoEditando >= 0) {
-    // Modo edição: atualiza o existente
     planejamentoSemanal[diaSelecionado][idxTreinoEditando] = { nome: nome, series: series };
+    falar(`Exercício atualizado: ${nome}, ${series} série${series>1?'s':''}. Treinando com precisão, ${nomeUsuario}!`, "Exercício editado.");
   } else {
-    // Modo adição: insere novo
     planejamentoSemanal[diaSelecionado].push({ nome: nome, series: series });
+    const qtd = planejamentoSemanal[diaSelecionado].length;
+    falar(`${nome} adicionado com ${series} série${series>1?'s':''}. Agora são ${qtd} exercício${qtd>1?'s':''} no dia!`, "Exercício adicionado.");
   }
   salvarPlanejamento();
   renderizarTreinosDoDia();
@@ -1414,9 +1526,17 @@ function salvarNovoTreino() {
 
 function removerTreino(idx) {
   clickBeep();
+  const nomeRemovido = planejamentoSemanal[diaSelecionado][idx]?.nome || 'Exercício';
   planejamentoSemanal[diaSelecionado].splice(idx, 1);
   salvarPlanejamento();
   renderizarTreinosDoDia();
+  const qtd = planejamentoSemanal[diaSelecionado].length;
+  falar(
+    qtd > 0
+      ? `${nomeRemovido} removido. Restam ${qtd} exercício${qtd>1?'s':''} no dia.`
+      : `${nomeRemovido} removido. O dia ficou sem exercícios. Adicione novos quando quiser.`,
+    "Exercício removido."
+  );
 }
 
 function iniciarTreinoDoDia() {
@@ -1434,7 +1554,15 @@ function iniciarTreinoDoDia() {
   modoTreino = 'musculacao';
   tempoAtual = tempoRotina;
   
-  falar("Iniciando rotina de " + diaSelecionado + ". Primeiro exercício: " + listaTreinosDia[0].nome, "Iniciando treino.");
+  const total = listaTreinosDia.length;
+  const nomesDiasFalaInit = { segunda:'segunda-feira', terca:'terça-feira', quarta:'quarta-feira', quinta:'quinta-feira', sexta:'sexta-feira', sabado:'sábado', domingo:'domingo' };
+  const diaFala = nomesDiasFalaInit[diaSelecionado] || diaSelecionado;
+  const frasesIniciar = [
+    `Iniciando rotina de ${diaFala}, ${nomeUsuario}! ${total} exercício${total>1?'s':''} no total. Primeiro: ${listaTreinosDia[0].nome}, ${listaTreinosDia[0].series} série${listaTreinosDia[0].series>1?'s':''}. Bora!`,
+    `Treino de ${diaFala} começando! ${total} exercício${total>1?'s':''} te esperam, ${nomeUsuario}. Primeiro exercício: ${listaTreinosDia[0].nome}. Foco total!`,
+    `Ativando rotina de ${diaFala}. ${total} exercício${total>1?'s':''} no programa. Começando com ${listaTreinosDia[0].nome}. Vai com tudo, ${nomeUsuario}!`,
+  ];
+  falar(frasesIniciar[Math.floor(Math.random()*frasesIniciar.length)], "Iniciando treino.");
   prepararTreinoAtual();
   irPara('screen-timer');
 }
@@ -1464,6 +1592,15 @@ function iniciarProximoTreino() {
   clickBeep();
   document.getElementById('modal-proximo-treino').classList.remove('active');
   idxTreinoAtual++;
+  const exercicio = listaTreinosDia[idxTreinoAtual];
+  const total     = listaTreinosDia.length;
+  const restantes = total - idxTreinoAtual - 1;
+  const frasesProx = [
+    `Exercício ${idxTreinoAtual+1} de ${total}: ${exercicio.nome}! ${exercicio.series} série${exercicio.series>1?'s':''}. Vamos lá, ${nomeUsuario}!`,
+    `Próximo: ${exercicio.nome}. ${exercicio.series} série${exercicio.series>1?'s':''}. ${restantes>0?`Ainda restam ${restantes} depois deste.`:' Último exercício do dia!'} Força, ${nomeUsuario}!`,
+    `Vez do ${exercicio.nome}! Mete ${exercicio.series} série${exercicio.series>1?'s':''} com tudo, ${nomeUsuario}. ${restantes>0?`Mais ${restantes} depois de você terminar!`:'É o último, deixa tudo em campo!'}`,
+  ];
+  falar(frasesProx[Math.floor(Math.random()*frasesProx.length)], exercicio.nome);
   prepararTreinoAtual();
 }
 
@@ -1620,17 +1757,35 @@ function iniciarTimer() {
         
         if (modoPlanejadoAtivo && idxTreinoAtual < listaTreinosDia.length - 1) {
             // SE TEM PRÓXIMO EXERCÍCIO NA ROTINA
-            falar("Exercício concluído! Prepare-se para o próximo.", "Exercício concluído!");
+            const proxNome = listaTreinosDia[idxTreinoAtual + 1].nome;
+            const frasesConc = [
+              `Exercício ${idxTreinoAtual+1} concluído! Descanse e prepare-se para ${proxNome}.`,
+              `Muito bem, ${nomeUsuario}! ${listaTreinosDia[idxTreinoAtual].nome} finalizado. A seguir: ${proxNome}!`,
+              `Série completa! Parabéns, ${nomeUsuario}! Próximo exercício é ${proxNome}. Respira e vai!`,
+            ];
+            falar(frasesConc[Math.floor(Math.random()*frasesConc.length)], "Exercício concluído!");
             setTimeout(mostrarProximoTreino, 1200);
         } else {
-            // FIM DO TREINO LIVRE OU DA ROTINA INTEIRA
             pararCronTreino();
-            falar("Parabéns! Treino concluído!", "Treino concluído!");
+            const frasesTermino = [
+              `Parabéns, ${nomeUsuario}! Rotina concluída com sucesso! Você é uma máquina!`,
+              `Treino finalizado, ${nomeUsuario}! Você deu o máximo hoje. Recupera-se bem!`,
+              `Missão cumprida, ${nomeUsuario}! Mais um treino dominado. Orgulho total!`,
+            ];
+            falar(frasesTermino[Math.floor(Math.random()*frasesTermino.length)], "Treino concluído!");
             setTimeout(mostrarResumo, 1200);
         }
 
       } else {
-        falar("Treine, " + nomeUsuario, "Treine!");
+        const frasesTreine = [
+          "Treine, " + nomeUsuario + "! Vai com tudo!",
+          "Bora, " + nomeUsuario + "! Mais uma série!",
+          "Força, " + nomeUsuario + "! Não para agora!",
+          "É hora, " + nomeUsuario + "! Supere seus limites!",
+          "Levanta e vai, " + nomeUsuario + "! Você consegue!",
+          "Mais uma, " + nomeUsuario + "! Cada série conta!",
+        ];
+        falar(frasesTreine[Math.floor(Math.random()*frasesTreine.length)], "Treine!");
         if (autoStartSeg > 0) {
           autoCountdown = autoStartSeg;
           document.getElementById('auto-countdown').textContent = '▶ PRÓXIMO EM ' + autoCountdown + 's...';
@@ -1726,14 +1881,25 @@ let totalCopos        = 8;   // definido após cálculo
 let coposConsumidos   = 0;
 const AGUA_KEY        = 'gym_agua_copos';
 const AGUA_DATA_KEY   = 'gym_agua_data';
-const DIETA_DADOS_KEY = 'gym_dieta_dados';
+const DIETA_DADOS_KEY   = 'gym_dieta_dados';
+const TOTAL_COPOS_KEY   = 'gym_total_copos';
 
 function abrirDieta() {
   desbloquearAudio();
+  // Restaura totalCopos persistido mesmo sem recalcular
+  const savedCopos = parseInt(localStorage.getItem(TOTAL_COPOS_KEY));
+  if (!isNaN(savedCopos) && savedCopos > 0) totalCopos = savedCopos;
   carregarDadosDieta();
   verificarResetAgua();
+  renderizarCopos();
+  atualizarDisplayAgua();
   irPara('screen-dieta');
-  falar("Módulo de dieta e hidratação ativado, " + nomeUsuario + ".", "Dieta e hidratação.");
+  const frasesDieta = [
+    "Módulo de dieta e hidratação ativado, " + nomeUsuario + ". Cuide do seu corpo por dentro também!",
+    "Painel nutricional on-line, " + nomeUsuario + ". Hidratação e dieta são parte do treino!",
+    "Módulo de saúde ativado! Lembre-se: " + nomeUsuario + ", alimentação é combustível de alto nível.",
+  ];
+  falar(frasesDieta[Math.floor(Math.random() * frasesDieta.length)], "Dieta e hidratação.");
 }
 
 function carregarDadosDieta() {
@@ -1767,13 +1933,15 @@ function calcularDieta(silencioso) {
   const fAtiv     = parseFloat(document.getElementById('dieta-atividade').value);
   const biotipo   = document.getElementById('dieta-biotipo').value;
 
+  const erroEl = document.getElementById('dieta-erro');
   if (!peso || !alturaCm || !idade || isNaN(fAtiv)) {
     if (!silencioso) {
-      alert('Preencha Peso, Altura e Idade para calcular!');
+      if (erroEl) { erroEl.classList.add('ativo'); setTimeout(()=>erroEl.classList.remove('ativo'), 3500); }
       falar("Preencha peso, altura e idade para continuar.", "Dados incompletos.");
     }
     return;
   }
+  if (erroEl) erroEl.classList.remove('ativo');
 
   salvarDadosDieta();
 
@@ -1862,6 +2030,7 @@ function calcularDieta(silencioso) {
   // Fórmula: 35ml/kg, mínimo 2L, máximo 5L
   const mlAgua   = Math.min(5000, Math.max(2000, Math.round(peso * 35)));
   totalCopos     = Math.round(mlAgua / 250);
+  localStorage.setItem(TOTAL_COPOS_KEY, String(totalCopos));
   document.getElementById('agua-meta-info').textContent =
     `// Meta: ${mlAgua}ml (${(mlAgua/1000).toFixed(1)}L) = ${totalCopos} copos de 250ml. ` +
     `Calculado por: 35ml × ${peso}kg. Reseta à meia-noite.`;
@@ -1978,6 +2147,13 @@ function toggleCopo(idx) {
   localStorage.setItem(AGUA_KEY, String(coposConsumidos));
   renderizarCopos();
   atualizarDisplayAgua();
+  // Anima o copo tocado
+  if (!eraConsumido) {
+    const grid = document.getElementById('copos-grid');
+    const btns = grid ? grid.querySelectorAll('.copo-btn') : [];
+    const alvo = btns[coposConsumidos - 1];
+    if (alvo) { alvo.classList.add('copo-pulse'); alvo.addEventListener('animationend', ()=>alvo.classList.remove('copo-pulse'), {once:true}); }
+  }
 
   // ── Falas da hidratação ──
   if (!eraConsumido) {
@@ -2013,15 +2189,23 @@ function resetarCopos() {
         "Contagem reiniciada.");
 }
 
+function rolarParaForm() {
+  document.getElementById('dieta-form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function atualizarDisplayAgua() {
   const mlConsumidos = coposConsumidos * 250;
   const mlTotal      = totalCopos * 250;
   const pct          = totalCopos > 0 ? Math.min(100, (coposConsumidos / totalCopos) * 100) : 0;
+  const pctTxt       = Math.round(pct) + '%';
   document.getElementById('agua-display').innerHTML =
-    coposConsumidos + ' / <span id="agua-total-copos">' + totalCopos + '</span>';
+    coposConsumidos + ' / <span id="agua-total-copos">' + totalCopos + '</span><span class="agua-pct" id="agua-pct">' + pctTxt + '</span>';
   document.getElementById('agua-ml-display').textContent =
     mlConsumidos + ' ml / ' + mlTotal + ' ml';
-  document.getElementById('agua-bar').style.width = pct + '%';
+  const bar = document.getElementById('agua-bar');
+  bar.style.width = pct + '%';
+  // Cor progressiva da barra
+  bar.className = 'agua-bar-fill ' + (pct >= 100 ? 'nivel-completo' : pct >= 60 ? 'nivel-alto' : pct >= 30 ? 'nivel-medio' : 'nivel-baixo');
 }
 
 // Reset automático da água à meia-noite
