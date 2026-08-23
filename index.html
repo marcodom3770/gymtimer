@@ -1111,6 +1111,9 @@ function iniciarBoot() {
     bootText.textContent = 'INICIALIZANDO SISTEMA...';
     bootText.setAttribute('data-text', 'INICIALIZANDO SISTEMA...');
   }
+
+  // Fala a saudação logo ao clicar — enquanto o boot carrega em 5s
+  setTimeout(darBoasVindas, 350);
   
   runBootSequence();
 }
@@ -1118,7 +1121,7 @@ function iniciarBoot() {
 function runBootSequence() {
   let progress = 0;
   const fill = document.getElementById('boot-fill');
-  const log = document.getElementById('boot-log');
+  const log  = document.getElementById('boot-log');
   
   tentarCarregarRV();
   
@@ -1126,21 +1129,24 @@ function runBootSequence() {
     progress += 10;
     if (fill) fill.style.width = progress + '%';
     
-    if (progress === 30 && log) log.textContent = "CARREGANDO SÍNTESE NATIVA...";
-    if (progress === 60 && log) {
-        log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
-        carregarVozesNativas();
+    if (progress === 10  && log) log.textContent = "INICIANDO KERNEL...";
+    if (progress === 20  && log) log.textContent = "CARREGANDO MÓDULOS DE VOZ...";
+    if (progress === 40  && log) log.textContent = "CARREGANDO SÍNTESE NATIVA...";
+    if (progress === 60  && log) {
+      log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
+      carregarVozesNativas();
     }
-    if (progress === 90 && log) log.textContent = "MÓDULOS DE VOZ PRONTOS.";
+    if (progress === 80  && log) log.textContent = "SINCRONIZANDO CONFIGURAÇÕES...";
+    if (progress === 90  && log) log.textContent = "MÓDULOS PRONTOS. ENTRANDO...";
     
     if (progress >= 100) {
       clearInterval(bootInt);
       initUI();
       irPara('screen-home');
-      detectarVozModo(); 
-      darBoasVindas();
+      detectarVozModo();
+      // darBoasVindas() foi movido para iniciarBoot() — já chamado ao clicar
     }
-  }, 100);
+  }, 500); // 10 passos × 500ms = 5 segundos exatos
 }
 
 function darBoasVindas() {
