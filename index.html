@@ -1733,6 +1733,7 @@ function abrirDieta() {
   carregarDadosDieta();
   verificarResetAgua();
   irPara('screen-dieta');
+  falar("Módulo de dieta e hidratação ativado, " + nomeUsuario + ".", "Dieta e hidratação.");
 }
 
 function carregarDadosDieta() {
@@ -1767,7 +1768,10 @@ function calcularDieta(silencioso) {
   const biotipo   = document.getElementById('dieta-biotipo').value;
 
   if (!peso || !alturaCm || !idade || isNaN(fAtiv)) {
-    if (!silencioso) alert('Preencha Peso, Altura e Idade para calcular!');
+    if (!silencioso) {
+      alert('Preencha Peso, Altura e Idade para calcular!');
+      falar("Preencha peso, altura e idade para continuar.", "Dados incompletos.");
+    }
     return;
   }
 
@@ -1874,6 +1878,41 @@ function calcularDieta(silencioso) {
   setTimeout(() => {
     document.getElementById('dieta-resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 150);
+
+  // ── Falas dos resultados ──
+  if (!silencioso) {
+    const mlAgua = totalCopos * 250;
+    const imcFala = imc.toFixed(1).replace('.', ' vírgula ');
+
+    // Monta fala do IMC/peso
+    let falaIMC = '';
+    if (Math.abs(diffPeso) < 2) {
+      falaIMC = `Parabéns, ${nomeUsuario}! Seu índice de massa corporal é ${imcFala}, você está no peso ideal!`;
+    } else if (diffPeso > 0) {
+      falaIMC = `Seu índice de massa corporal é ${imcFala}, com sobrepeso de ${diffPeso.toFixed(0)} quilos. Vamos trabalhar nisso!`;
+    } else {
+      falaIMC = `Seu índice de massa corporal é ${imcFala}. Você está ${Math.abs(diffPeso).toFixed(0)} quilos abaixo do peso ideal.`;
+    }
+
+    // Monta fala das calorias
+    const falaCaloria = `Para manter seu peso, consuma ${manutencao} calorias por dia. Para emagrecer, reduza para ${Math.max(1200, perca)} calorias.`;
+
+    // Monta fala da água
+    const falaAgua = `Sua meta de hidratação é ${totalCopos} copos de água, totalizando ${mlAgua} mililitros por dia. Beba com frequência!`;
+
+    // Fala biotipo (curta)
+    const falaBiotipo = {
+      ecto: ' Sendo ectomorfo, foque em comer mais.',
+      meso: ' Sendo mesomorfo, você tem ótima resposta ao treino.',
+      endo: ' Sendo endomorfo, controle o déficit calórico.'
+    };
+    const extraBiotipo = biotipo !== 'none' ? (falaBiotipo[biotipo] || '') : '';
+
+    setTimeout(() => {
+      falar(falaIMC + ' ' + falaCaloria + extraBiotipo + ' ' + falaAgua,
+            falaIMC);
+    }, 400);
+  }
 }
 
 // ── Copos de Água ──
@@ -1930,16 +1969,37 @@ function criarSVGCopo(cheio, idx) {
 
 function toggleCopo(idx) {
   clickBeep();
-  if (idx <= coposConsumidos) {
-    // Desfazer: clicou em um já cheio
+  const eraConsumido = idx <= coposConsumidos;
+  if (eraConsumido) {
     coposConsumidos = idx - 1;
   } else {
-    // Marcar até este
     coposConsumidos = idx;
   }
   localStorage.setItem(AGUA_KEY, String(coposConsumidos));
   renderizarCopos();
   atualizarDisplayAgua();
+
+  // ── Falas da hidratação ──
+  if (!eraConsumido) {
+    // Avançou um copo — marcos especiais
+    const metade   = Math.floor(totalCopos / 2);
+    const restante = totalCopos - coposConsumidos;
+
+    if (coposConsumidos === totalCopos) {
+      falar("Meta de hidratação completa! Muito bem, " + nomeUsuario + "! Você está bem hidratado hoje!",
+            "Meta de água completa!");
+    } else if (coposConsumidos === metade) {
+      falar("Metade da meta de água atingida! Continue assim, " + nomeUsuario + "! Ainda faltam " + restante + " copos.",
+            "Metade da água!");
+    } else if (coposConsumidos === 1) {
+      falar("Primeiro copo registrado. Bora se hidratar, " + nomeUsuario + "!",
+            "Primeiro copo!");
+    } else if (restante === 1) {
+      falar("Falta apenas um copo para completar sua meta! Vai " + nomeUsuario + "!",
+            "Último copo!");
+    }
+    // copos avulsos sem marco: sem fala (evita excesso)
+  }
 }
 
 function resetarCopos() {
@@ -1949,6 +2009,8 @@ function resetarCopos() {
   localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
   renderizarCopos();
   atualizarDisplayAgua();
+  falar("Contagem de água reiniciada. Beba seus " + totalCopos + " copos hoje, " + nomeUsuario + "!",
+        "Contagem reiniciada.");
 }
 
 function atualizarDisplayAgua() {
@@ -1973,6 +2035,8 @@ function agendarResetMeiaNoite() {
     localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
     renderizarCopos();
     atualizarDisplayAgua();
+    falar("Novo dia, nova meta de hidratação! Beba seus " + totalCopos + " copos de água hoje, " + nomeUsuario + ".",
+          "Nova meta de hidratação!");
     agendarResetMeiaNoite(); // reagenda para a próxima meia-noite
   }, msAte);
 }
