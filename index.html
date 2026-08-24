@@ -423,7 +423,12 @@
 <!-- TELA: LOADING BOOT -->
 <div class="screen active" id="screen-loading">
   <div class="glitch boot-text" data-text="MARCODOM_GYM // CYBER PRO">MARCODOM_GYM // CYBER PRO</div>
-  
+
+  <div id="boot-nome-container" style="width:93%;max-width:448px;margin-bottom:12px;">
+    <div style="color:var(--dim);font-size:clamp(10px,2.8vw,12px);text-align:center;margin-bottom:6px;font-weight:bold;letter-spacing:1px;">// IDENTIFICAÇÃO DO OPERADOR</div>
+    <input class="input-nome" id="input-nome-boot" type="text" maxlength="16" placeholder="SEU NOME" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+
   <button class="btn-boot-start" id="btn-iniciar-boot" onclick="iniciarBoot()">
     ▶ INICIAR SISTEMA
   </button>
@@ -1102,7 +1107,14 @@ let vozesNativasGlobais = [];
 
 function iniciarBoot() {
   desbloquearAudio();
+  // Lê o nome digitado na tela de boot e salva, se preenchido
+  const nomeBootInput = document.getElementById('input-nome-boot');
+  if (nomeBootInput && nomeBootInput.value.trim()) {
+    nomeUsuario = nomeBootInput.value.trim();
+    localStorage.setItem('gym_nome', nomeUsuario);
+  }
   document.getElementById('btn-iniciar-boot').style.display = 'none';
+  document.getElementById('boot-nome-container').style.display = 'none';
   document.getElementById('boot-container').style.display = 'block';
   document.getElementById('boot-log').style.display = 'block';
   
@@ -1112,8 +1124,8 @@ function iniciarBoot() {
     bootText.setAttribute('data-text', 'INICIALIZANDO SISTEMA...');
   }
 
-  // Fala a saudação logo ao clicar — enquanto o boot carrega em 5s
-  setTimeout(darBoasVindas, 350);
+  // Fala a saudação imediatamente ao clicar — enquanto o boot carrega em 8s
+  setTimeout(darBoasVindas, 0);
   
   runBootSequence();
 }
@@ -1146,7 +1158,7 @@ function runBootSequence() {
       detectarVozModo();
       // darBoasVindas() foi movido para iniciarBoot() — já chamado ao clicar
     }
-  }, 500); // 10 passos × 500ms = 5 segundos exatos
+  }, 800); // 10 passos × 800ms = 8 segundos exatos
 }
 
 function darBoasVindas() {
@@ -1617,6 +1629,12 @@ function abrirModalNome() { clickBeep(); document.getElementById('input-nome-mod
 function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').classList.remove('active'); }
 function salvarNome() { const raw = document.getElementById('input-nome-modal').value.trim(); if (raw) { nomeUsuario = raw; localStorage.setItem('gym_nome', nomeUsuario); atualizarDisplayNome(); } fecharModalNome(); desbloquearAudio(); }
 document.getElementById('input-nome-modal').addEventListener('keydown', e => { if (e.key === 'Enter') salvarNome(); if (e.key === 'Escape') fecharModalNome(); });
+// Preenche o campo de nome na tela de boot com o nome já salvo
+const _bootNomeEl = document.getElementById('input-nome-boot');
+if (_bootNomeEl) {
+  _bootNomeEl.value = nomeUsuario !== 'Marcos' || localStorage.getItem('gym_nome') ? nomeUsuario : '';
+  _bootNomeEl.addEventListener('keydown', e => { if (e.key === 'Enter') { document.getElementById('btn-iniciar-boot').click(); } });
+}
 
 function mostrarResumo() {
   let nomeModo = modoTreino.toUpperCase();
