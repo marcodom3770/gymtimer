@@ -19,6 +19,7 @@
       --green:  #00ff40;
       --orange: #ff8c00;
       --dim:    #8c9ea6;
+      --purple: #b026ff;
     }
     html, body {
       font-family: 'Courier New', monospace;
@@ -118,15 +119,17 @@
     .btn-sec.pink   { border-color:var(--pink);   color:var(--pink); }
     .btn-sec.yellow { border-color:var(--yellow); color:var(--yellow); }
     .btn-sec.green  { border-color:var(--green);  color:var(--green); }
+    .btn-sec.orange { border-color:var(--orange); color:var(--orange); }
+    .btn-sec.purple { border-color:var(--purple); color:var(--purple); }
     
     .mode-stats { display:block; font-size:clamp(10px,2.8vw,12px); color:var(--dim); margin-top:4px; font-weight:normal; letter-spacing:0.5px; }
 
-    #screen-home .btn-row { display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:4px; }
+    #screen-home .btn-row { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:4px; }
     .home-nome { color:var(--yellow); font-size:clamp(11px,3vw,14px); font-weight:bold; text-align:center; margin-bottom:4px; letter-spacing:1px; }
     
     #voz-status-chip {
       display:flex; align-items:center; justify-content:center;
-      gap:6px; margin:6px 0 2px;
+      gap:6px; margin:6px 0 12px;
       font-size:clamp(9px,2.5vw,11px); font-weight:bold;
       letter-spacing:.5px; cursor:pointer;
       padding: 4px 8px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 4px;
@@ -149,7 +152,16 @@
     .timer-header-icon { font-size:clamp(20px,5.5vw,26px); }
     .timer-header-label { font-size:clamp(18px,5vw,22px); font-weight:bold; color:var(--yellow); letter-spacing:1.5px; text-align:center; }
     
-    .lbl-status { color:var(--cyan); font-size:clamp(14px,4vw,18px); font-weight:bold; text-align:center; margin-bottom:12px; letter-spacing:1.5px; }
+    .lbl-status { color:var(--cyan); font-size:clamp(14px,4vw,18px); font-weight:bold; text-align:center; margin-bottom:8px; letter-spacing:1.5px; }
+
+    /* Área do Desenho do Exercício */
+    .timer-illustration-box {
+      width: 100%; max-width: 200px; margin: 0 auto 12px;
+      height: 80px; background: rgba(0,240,255,0.05);
+      border: 1px dashed rgba(0,240,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(35px, 10vw, 45px); border-radius: 8px;
+    }
     
     .lbl-series { font-size:clamp(50px,15vw,80px); font-weight:bold; text-align:center; color:var(--cyan); line-height:1; margin:0 0 10px; }
     .lbl-timer  { font-size:clamp(42px,12vw,62px); font-weight:bold; text-align:center; min-height:65px; line-height:1.1; margin-bottom:6px; letter-spacing:2px; }
@@ -244,8 +256,8 @@
     .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.85); }
     .modal-overlay.active { display:flex; }
     
-    #screen-config, #screen-voice-config, #screen-dia { justify-content:flex-start; padding-top:20px; }
-    .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:90vh; padding-bottom:10px; position:relative; margin-top:28px; }
+    #screen-config, #screen-voice-config, #screen-dia, #screen-personal-setup, #screen-personal-dash, #screen-agenda { justify-content:flex-start; padding-top:20px; }
+    .config-scroll { width:93%; max-width:448px; overflow-y:auto; max-height:92vh; padding-bottom:10px; position:relative; margin-top:28px; }
     
     .voz-modo-info {
       background:rgba(0,240,255,.05); border:1px solid rgba(0,240,255,.2);
@@ -282,7 +294,7 @@
       color: #000;
     }
 
-    /* ESTILOS PARA A ROTINA SEMANAL */
+    /* ESTILOS PARA A ROTINA SEMANAL / PERSONAL ONLINE */
     .treino-list-container { max-height: 40vh; overflow-y: auto; margin: 15px 0; border: 1px solid rgba(0,240,255,0.2); background: rgba(0,240,255,0.02); padding: 10px; }
     .treino-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,240,255,0.3); padding: 10px 5px; }
     .treino-item:last-child { border-bottom: none; }
@@ -292,9 +304,43 @@
     .btn-edit-treino { background: none; border: 1px solid var(--yellow); color: var(--yellow); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
     .empty-msg { text-align: center; color: var(--dim); font-size: 12px; padding: 20px 0; }
 
-    /* ── PAINEL DIETA & HIDRATAÇÃO ── */
-    #screen-dieta { justify-content: flex-start; padding-top: 20px; }
+    /* ESTILOS PERSONAL ONLINE */
+    .chat-bubble {
+      background: rgba(0, 240, 255, 0.1); border-left: 3px solid var(--cyan);
+      padding: 12px 14px; margin-bottom: 16px; font-size: clamp(11px, 3vw, 13px);
+      line-height: 1.4; color: white; border-radius: 0 4px 4px 0;
+    }
+    .chat-bubble span.highlight { color: var(--yellow); font-weight: bold; }
+    .dias-checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+    .dia-checkbox-lbl {
+      display: flex; align-items: center; gap: 8px; font-size: clamp(11px, 3vw, 13px); cursor: pointer;
+      color: var(--cyan); font-weight: bold; padding: 8px; border: 1px solid rgba(0,240,255,0.3); background: rgba(0,240,255,0.05);
+    }
+    .dia-checkbox-lbl input { accent-color: var(--cyan); transform: scale(1.2); }
+    .dia-checkbox-lbl:hover { background: rgba(0,240,255,0.1); }
+    
+    .personal-plan-card {
+      border: 1px solid rgba(0,240,255,0.3); background: rgba(0,240,255,0.02);
+      padding: 12px; margin-bottom: 10px; border-radius: 4px; position: relative;
+    }
+    .personal-plan-card.highlighted {
+      border-color: var(--green); background: rgba(0,255,64,0.05);
+      box-shadow: 0 0 10px rgba(0,255,64,0.2);
+    }
+    .plan-title { color: var(--yellow); font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+    .plan-desc { color: var(--dim); font-size: 11px; margin-bottom: 10px; }
+    .plan-start-btn { position: absolute; right: 12px; top: 12px; font-size: 11px; padding: 6px 12px; }
 
+    /* ESTILOS AGENDA HISTORICO */
+    .agenda-item {
+      border-left: 3px solid var(--purple); background: rgba(176,38,255,0.05);
+      padding: 10px 12px; margin-bottom: 10px; font-size: 12px;
+    }
+    .agenda-date { color: var(--dim); font-weight: bold; margin-bottom: 4px; font-size: 10px; }
+    .agenda-title { color: var(--purple); font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+    .agenda-meta { color: white; }
+
+    /* ── PAINEL DIETA & HIDRATAÇÃO ── */
     .dieta-input-group { margin-bottom: 14px; }
     .dieta-input-label { color: var(--dim); font-size: clamp(10px,2.8vw,12px); font-weight: bold; letter-spacing: .5px; margin-bottom: 5px; display: block; }
     .dieta-input {
@@ -389,15 +435,14 @@
     @keyframes cup-pulse { 0%{transform:scale(1)} 45%{transform:scale(1.22)} 100%{transform:scale(1)} }
     .copo-pulse { animation: cup-pulse .28s ease; }
 
-    /* Erro inline no formulário de dieta */
-    .dieta-erro {
+    /* Erro inline */
+    .inline-erro {
       display: none; color: var(--pink); font-size: clamp(11px,3vw,13px); font-weight: bold;
       text-align: center; padding: 9px 10px; margin: 4px 0 8px;
       border: 1px solid rgba(255,0,60,.35); background: rgba(255,0,60,.06); letter-spacing: .5px;
     }
-    .dieta-erro.ativo { display: block; }
+    .inline-erro.ativo { display: block; }
 
-    /* Botão recalcular nos resultados */
     .btn-recalcular {
       display: block; width: 100%; background: rgba(252,238,12,.06);
       border: 1px dashed rgba(252,238,12,.4); color: rgba(252,238,12,.7);
@@ -407,7 +452,6 @@
     }
     .btn-recalcular:active { background: rgba(252,238,12,.12); }
 
-    /* Percentual de hidratação */
     .agua-pct { display: inline-block; color: var(--green); font-size: clamp(13px,3.5vw,16px); font-weight: bold; margin-left: 8px; }
   </style>
 </head>
@@ -477,11 +521,11 @@
       </div>
     </div>
     
-    <button class="btn-sec green" style="margin-top:10px" onclick="fecharResumo()">▶ FINALIZAR</button>
+    <button class="btn-sec green" style="margin-top:10px" onclick="fecharResumo()">▶ FINALIZAR SESSÃO</button>
   </div>
 </div>
 
-<!-- MODAL: EXERCÍCIO CONCLUÍDO (PARA ROTINA SEMANAL) -->
+<!-- MODAL: EXERCÍCIO CONCLUÍDO (PARA ROTINA E PERSONAL) -->
 <div id="modal-proximo-treino" class="modal-overlay">
   <div class="panel" style="border-color:var(--yellow);width:90%;max-width:380px">
     <div class="corner-tr" style="border-color:var(--yellow)"></div>
@@ -530,13 +574,20 @@
       <span id="voz-status-txt">VOZ ONLINE</span>
     </div>
     <div class="btn-row">
-      <button class="btn-round sz-lg c-yellow" onclick="irParaSelecao()">TREINO LIVRE</button>
+      <!-- 1: TREINO LIVRE COMPACTO -->
+      <button class="btn-sec yellow" onclick="irParaSelecao()" style="font-size:14px;">💪 TREINO LIVRE</button>
       
-      <!-- NOVO BOTÃO: ROTINA SEMANAL -->
-      <button class="btn-sec green" onclick="abrirSemana()" style="margin-top:10px; font-size:14px;">📅 ROTINA SEMANAL</button>
+      <!-- ROTINA SEMANAL (Mantida original) -->
+      <button class="btn-sec green" onclick="abrirSemana()" style="font-size:14px;">📅 ROTINA SEMANAL</button>
+
+      <!-- 2: PERSONAL ONLINE (NOVO) -->
+      <button class="btn-sec cyan" onclick="abrirPersonalOnline()" style="font-size:14px;">🤖 PERSONAL ONLINE</button>
+
+      <!-- BOTÃO: HISTÓRICO / AGENDA -->
+      <button class="btn-sec purple" onclick="abrirAgenda()" style="font-size:14px;">📆 AGENDA DE TREINOS</button>
 
       <!-- BOTÃO: DIETA & HIDRATAÇÃO -->
-      <button class="btn-sec yellow" onclick="abrirDieta()" style="margin-top:4px; font-size:14px;">🥗 DIETA & HIDRATAÇÃO</button>
+      <button class="btn-sec orange" onclick="abrirDieta()" style="font-size:14px;">🥗 DIETA & HIDRATAÇÃO</button>
 
       <div style="display:flex;gap:12px; margin-top:10px;">
         <button class="btn-round sz-sm c-cyan"   onclick="irParaConfig()">⚙️</button>
@@ -569,7 +620,7 @@
   </div>
 </div>
 
-<!-- TELA: SELEÇÃO DE DIA DA SEMANA -->
+<!-- TELA: SELEÇÃO DE DIA DA SEMANA (ROTINA) -->
 <div class="screen" id="screen-semana">
   <div class="panel" style="border-color:var(--green)">
     <div class="corner-tr" style="border-color:var(--green)"></div>
@@ -582,7 +633,7 @@
   </div>
 </div>
 
-<!-- TELA: EXERCÍCIOS DO DIA -->
+<!-- TELA: EXERCÍCIOS DO DIA (ROTINA) -->
 <div class="screen" id="screen-dia">
   <button class="btn-back" onclick="irPara('screen-semana')" style="border-color:var(--cyan); color:var(--cyan)">&lt; Voltar</button>
   <div class="config-scroll">
@@ -598,11 +649,115 @@
       </div>
       
       <button class="btn-sec cyan" onclick="abrirModalAddTreino()">+ ADICIONAR EXERCÍCIO</button>
-      <button class="btn-sec green" onclick="iniciarTreinoDoDia()" style="margin-top:15px; font-size:18px; padding:15px;">▶ INICIAR TREINO DO DIA</button>
+      <button class="btn-sec green" onclick="iniciarTreinoDoDia(false)" style="margin-top:15px; font-size:18px; padding:15px;">▶ INICIAR TREINO DO DIA</button>
       
     </div>
   </div>
 </div>
+
+<!-- TELA: AGENDA / HISTÓRICO -->
+<div class="screen" id="screen-agenda">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--purple); color:var(--purple)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--purple)">
+      <div class="corner-tr" style="border-color:var(--purple)"></div>
+      <div class="corner-bl" style="border-color:var(--purple)"></div>
+      <div class="glitch" data-text="AGENDA DE TREINOS" style="font-size:clamp(18px,5.2vw,24px);color:var(--purple);margin-bottom:15px;">AGENDA DE TREINOS</div>
+      <div style="color:var(--dim);font-size:11px;text-align:center;margin-bottom:15px;">// HISTÓRICO DE SESSÕES FINALIZADAS</div>
+
+      <div id="lista-agenda">
+        <!-- Histórico injetado via JS -->
+      </div>
+      
+      <button class="btn-sec pink" onclick="limparAgenda()" style="margin-top:20px; font-size:12px;">✕ LIMPAR HISTÓRICO</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     TELA: PERSONAL ONLINE (SETUP / FORM)
+========================================================================== -->
+<div class="screen" id="screen-personal-setup">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--cyan); color:var(--cyan)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--cyan)">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+      
+      <div class="glitch" data-text="PERFIL DO TREINO" style="font-size:clamp(18px,5.2vw,24px);color:var(--cyan);margin-bottom:10px;">PERFIL DO TREINO</div>
+      <div style="color:var(--dim);font-size:11px;text-align:center;margin-bottom:20px;">// O PERSONAL ONLINE PRECISA DE DADOS PARA MONTAR SUA ROTINA</div>
+
+      <!-- OBJETIVO -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">🎯 OBJETIVO PRINCIPAL</span>
+        <select class="dieta-select" id="personal-objetivo">
+          <option value="hipertrofia">Hipertrofia (Ganho de Massa)</option>
+          <option value="emagrecimento">Emagrecimento (Perda de Gordura)</option>
+          <option value="manutencao">Manutenção (Manter Corpo Definido)</option>
+        </select>
+      </div>
+
+      <!-- NÍVEL -->
+      <div class="dieta-input-group">
+        <span class="dieta-input-label">🏋️ SEU NÍVEL ATUAL</span>
+        <select class="dieta-select" id="personal-nivel">
+          <option value="iniciante">Iniciante</option>
+          <option value="intermediario">Intermediário</option>
+          <option value="avancado">Avançado</option>
+          <option value="pro">PRO</option>
+        </select>
+      </div>
+
+      <!-- DIAS DISPONÍVEIS -->
+      <div class="dieta-input-group" style="margin-bottom: 20px;">
+        <span class="dieta-input-label">📅 QUAIS DIAS VOCÊ PODE TREINAR?</span>
+        <div class="dias-checkbox-grid">
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="segunda" class="cb-dias-personal"> Segunda</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="terca" class="cb-dias-personal"> Terça</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="quarta" class="cb-dias-personal"> Quarta</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="quinta" class="cb-dias-personal"> Quinta</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="sexta" class="cb-dias-personal"> Sexta</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="sabado" class="cb-dias-personal"> Sábado</label>
+          <label class="dia-checkbox-lbl"><input type="checkbox" value="domingo" class="cb-dias-personal"> Domingo</label>
+        </div>
+      </div>
+
+      <div class="inline-erro" id="personal-erro">⚠ Selecione pelo menos 2 dias para o Personal montar um treino!</div>
+      
+      <button class="btn-sec cyan" onclick="salvarPerfilPersonal()">▶ GERAR MEU TREINO</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     TELA: PERSONAL ONLINE (DASHBOARD)
+========================================================================== -->
+<div class="screen" id="screen-personal-dash">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--cyan); color:var(--cyan)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--cyan)">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+      
+      <div class="glitch" data-text="PERSONAL ONLINE" style="font-size:clamp(18px,5.2vw,24px);color:var(--cyan);margin-bottom:15px;">PERSONAL ONLINE</div>
+      
+      <!-- BUBBLE DO PERSONAL -->
+      <div class="chat-bubble" id="personal-chat-texto">
+        <!-- Texto injetado por JS -->
+      </div>
+      
+      <button class="btn-recalcular" onclick="reconfigurarPersonal()" style="border-color:var(--cyan); color:var(--cyan); background:rgba(0,240,255,0.05); margin-bottom:20px;">⚙️ RECONFIGURAR PERFIL</button>
+      
+      <div style="color:var(--yellow);font-size:12px;font-weight:bold;margin-bottom:10px;border-bottom:1px solid rgba(252,238,12,0.2);padding-bottom:5px;">📋 SUA ROTINA RECOMENDADA</div>
+      
+      <div id="personal-plan-container">
+        <!-- Planos Injetados por JS -->
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 <!-- TELA: CONFIGURAÇÃO GERAL -->
 <div class="screen" id="screen-config">
@@ -611,7 +766,6 @@
     <div class="panel" style="border-color:var(--cyan); padding-top:0;">
       <div class="corner-tr" style="border-color:var(--cyan)"></div>
       <div class="corner-bl" style="border-color:var(--cyan)"></div>
-      <!-- Configurações se mantêm idênticas... -->
       
       <div class="cfg-nav">
         <button onclick="scrollToCfg('sec-tempos')">TEMPOS</button>
@@ -641,7 +795,7 @@
             <button class="btn-preset-sm" onclick="definirTempoModo('musculacao',120)">2M</button>
           </div>
         </div>
-        <!-- (Cardio e Hiit omitidos visualmente aqui para brevidade, mas continuam existindo e iguais no layout) -->
+        
         <div class="meta-modo-block">
           <div class="meta-modo-label card">🏃 CARDIO</div>
           <div class="meta-mini-row">
@@ -693,9 +847,9 @@
       </div>
 
       <div class="cfg-section" id="sec-rotina">
-        <div class="cfg-section-title" style="color:var(--green); border-color:var(--green)">📅 TEMPO DE DESCANSO — ROTINA SEMANAL</div>
+        <div class="cfg-section-title" style="color:var(--green); border-color:var(--green)">📅 TEMPO DE DESCANSO — ROTINA/PERSONAL</div>
         <div class="meta-modo-block" style="border-color:rgba(0,255,64,0.25); background:rgba(0,255,64,0.03);">
-          <div class="meta-modo-label" style="color:var(--green);">📋 ROTINA SEMANAL</div>
+          <div class="meta-modo-label" style="color:var(--green);">📋 PROGRAMADOS</div>
           <div class="meta-mini-row">
             <button class="btn-round sz-xxs c-pink" onclick="mudarTempoRotina(-5)">-5</button>
             <button class="btn-round sz-xxs c-pink" onclick="mudarTempoRotina(-1)">-1</button>
@@ -710,7 +864,7 @@
             <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(90)">1M30</button>
             <button class="btn-preset-sm" style="border-color:var(--green);color:var(--green);" onclick="definirTempoRotina(120)">2M</button>
           </div>
-          <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;text-align:center;margin-top:8px;letter-spacing:.3px;">// DESCANSO USADO EM TODOS OS EXERCÍCIOS DA ROTINA</div>
+          <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;text-align:center;margin-top:8px;letter-spacing:.3px;">// DESCANSO USADO EM ROTINA SEMANAL E PERSONAL</div>
         </div>
       </div>
 
@@ -743,7 +897,7 @@
   </div>
 </div>
 
-<!-- TELA: CONFIGURAÇÃO DE VOZ (Sem alterações estruturais, apenas design mantido) -->
+<!-- TELA: CONFIGURAÇÃO DE VOZ -->
 <div class="screen" id="screen-voice-config">
   <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--green); color:var(--green)">&lt; Voltar</button>
   <div class="config-scroll">
@@ -826,6 +980,11 @@
     
     <div class="lbl-status" id="lbl-status">PRONTO PARA TREINAR</div>
     
+    <!-- ÁREA DE ILUSTRAÇÃO DO EXERCÍCIO -->
+    <div class="timer-illustration-box" id="timer-illustration">
+      🏋️‍♂️
+    </div>
+    
     <div class="lbl-series glitch" id="lbl-series" data-text="0">0</div>
     
     <div class="prog-wrap" style="margin-bottom:8px;">
@@ -876,9 +1035,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════════
+<!-- =========================================================================
      TELA: DIETA & HIDRATAÇÃO
-══════════════════════════════════════════════════════════════════ -->
+========================================================================== -->
 <div class="screen" id="screen-dieta">
   <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--yellow); color:var(--yellow)">&lt; Voltar</button>
   <div class="config-scroll" style="width:93%;max-width:448px;overflow-y:auto;max-height:92vh;padding-bottom:16px;position:relative;margin-top:28px;">
@@ -930,22 +1089,11 @@
         </select>
       </div>
 
-      <!-- BIOTIPO (OPCIONAL) -->
-      <div class="dieta-input-group">
-        <span class="dieta-input-label">🧬 BIOTIPO <span style="color:var(--dim);font-weight:normal">(opcional)</span></span>
-        <select class="dieta-select" id="dieta-biotipo">
-          <option value="none">Não sei / Prefiro não informar</option>
-          <option value="ecto">Ectomorfo — magro, dificuldade de ganhar massa</option>
-          <option value="meso">Mesomorfo — musculoso, ganha e perde facilmente</option>
-          <option value="endo">Endomorfo — tendência a acumular gordura</option>
-        </select>
-      </div>
-
-      <div class="dieta-erro" id="dieta-erro">⚠ Preencha Peso, Altura e Idade para calcular!</div>
+      <div class="inline-erro" id="dieta-erro">⚠ Preencha Peso, Altura e Idade para calcular!</div>
       <button class="btn-sec yellow" style="margin-top:8px" onclick="calcularDieta()">▶ CALCULAR</button>
     </div>
 
-    <!-- PAINEL: RESULTADOS (oculto até calcular) -->
+    <!-- PAINEL: RESULTADOS -->
     <div id="dieta-resultados" style="display:none;">
       <button class="btn-recalcular" onclick="rolarParaForm()">↑ RECALCULAR / EDITAR DADOS</button>
 
@@ -969,7 +1117,6 @@
           <div class="rc-val" id="res-peso-ideal">--</div>
           <div class="rc-sub" id="res-diff-peso">--</div>
         </div>
-        <div id="res-biotipo-info" style="display:none; margin-top:10px; padding:8px 10px; border:1px solid rgba(252,238,12,.2); background:rgba(252,238,12,.03); color:var(--dim); font-size:clamp(9px,2.5vw,11px); font-weight:bold; letter-spacing:.3px;"></div>
       </div>
 
       <!-- CALORIAS -->
@@ -994,9 +1141,6 @@
             <div class="rc-sub">−500 kcal</div>
           </div>
         </div>
-        <div style="margin-top:10px;padding:8px 10px;border:1px solid rgba(255,140,0,.2);background:rgba(255,140,0,.03);color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.3px;" id="res-cal-obs">
-          // Valores calculados pela fórmula de Harris-Benedict revisada (Mifflin-St Jeor).
-        </div>
       </div>
 
       <!-- HIDRATAÇÃO -->
@@ -1004,79 +1148,42 @@
         <div class="corner-tr" style="border-color:var(--cyan)"></div>
         <div class="corner-bl" style="border-color:var(--cyan)"></div>
         <div class="agua-titulo">💧 HIDRATAÇÃO DIÁRIA</div>
-
         <div class="agua-progress" id="agua-display">0 / <span id="agua-total-copos">8</span><span class="agua-pct" id="agua-pct">0%</span></div>
         <div class="agua-progress-sub" id="agua-ml-display">0 ml / 0 ml</div>
-
-        <div class="agua-bar-wrap">
-          <div class="agua-bar-bg"><div class="agua-bar-fill" id="agua-bar" style="width:0%"></div></div>
-        </div>
-
-        <div class="copos-wrapper">
-          <div class="copos-grid" id="copos-grid">
-            <!-- copos injetados por JS -->
-          </div>
-        </div>
-
+        <div class="agua-bar-wrap"><div class="agua-bar-bg"><div class="agua-bar-fill" id="agua-bar" style="width:0%"></div></div></div>
+        <div class="copos-wrapper"><div class="copos-grid" id="copos-grid"></div></div>
         <button class="agua-reset-btn" onclick="resetarCopos()">↺ REINICIAR CONTAGEM DO DIA</button>
-
-        <div style="margin-top:12px;padding:8px 10px;border:1px solid rgba(0,240,255,.2);background:rgba(0,240,255,.03);color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.3px;" id="agua-meta-info">
-          // Cada copo = 250ml. A contagem reseta automaticamente à meia-noite.
-        </div>
       </div>
 
-    </div><!-- fim resultados -->
+    </div>
   </div>
-</div><!-- fim screen-dieta -->
+</div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════
-//  ATUALIZAÇÃO DO RELÓGIO GLOBAL
-// ══════════════════════════════════════════════════════════════════════
-function atualizarRelogio() {
-  const relogio = document.getElementById('global-clock');
-  if (!relogio) return;
-  const agora = new Date();
-  const horas = String(agora.getHours()).padStart(2, '0');
-  const minutos = String(agora.getMinutes()).padStart(2, '0');
-  relogio.textContent = horas + ':' + minutos;
-}
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
-
-// ══════════════════════════════════════════════════════════════════════
-//  ESTADO & CONFIGURAÇÕES GERAIS
-// ══════════════════════════════════════════════════════════════════════
+// =======================================================================
+// ESTRUTURAS DE DADOS & ESTADO GLOBAL
+// =======================================================================
 let nomeUsuario    = localStorage.getItem('gym_nome')    || 'Marcos';
 let alertaSegundos = parseInt(localStorage.getItem('gym_alerta')) || 5;
 let autoStartSeg   = parseInt(localStorage.getItem('gym_auto'))   || 0;
 let vibAtivada     = localStorage.getItem('gym_vib')   !== 'false';
 
-let tempoPorModo = {
-  musculacao: parseInt(localStorage.getItem('gym_tempo_musculacao')) || 60,
-  cardio:     parseInt(localStorage.getItem('gym_tempo_cardio'))     || 30,
-  hiit:       parseInt(localStorage.getItem('gym_tempo_hiit'))       || 20
-};
-let metaPorModo = {
-  musculacao: parseInt(localStorage.getItem('gym_meta_musculacao')) || 6,
-  cardio:     parseInt(localStorage.getItem('gym_meta_cardio'))     || 3,
-  hiit:       parseInt(localStorage.getItem('gym_meta_hiit'))       || 4
-};
-let tempoRotina = parseInt(localStorage.getItem('gym_tempo_rotina')) || 60;
+let tempoPorModo = { musculacao: parseInt(localStorage.getItem('gym_tempo_musculacao')) || 60, cardio: parseInt(localStorage.getItem('gym_tempo_cardio')) || 30, hiit: parseInt(localStorage.getItem('gym_tempo_hiit')) || 20 };
+let metaPorModo  = { musculacao: parseInt(localStorage.getItem('gym_meta_musculacao')) || 6, cardio: parseInt(localStorage.getItem('gym_meta_cardio')) || 3, hiit: parseInt(localStorage.getItem('gym_meta_hiit')) || 4 };
+let tempoRotina  = parseInt(localStorage.getItem('gym_tempo_rotina')) || 60;
 
 const iconesModos = { musculacao: '💪', cardio: '🏃', hiit: '⚡' };
-let modoTreino      = localStorage.getItem('gym_last_mode') || 'musculacao';
-let metaSeries      = metaPorModo[modoTreino];
-let tempoAtual      = tempoPorModo[modoTreino];
-let contador        = 0, tempoRestante = 0, segundosTreino = 0;
+let modoTreino = localStorage.getItem('gym_last_mode') || 'musculacao';
+let metaSeries = metaPorModo[modoTreino];
+let tempoAtual = tempoPorModo[modoTreino];
+let contador = 0, tempoRestante = 0, segundosTreino = 0;
 let intervalo = null, intervaloTreino = null, autoTimer = null, autoCountdown = 0;
 let historicoDescanso = [];
 let audioCtx = null, wakeLock = null, timerRodando = false;
 
-// ══════════════════════════════════════════════════════════════════════
-//  ESTADO: ROTINA SEMANAL
-// ══════════════════════════════════════════════════════════════════════
+// ROTINA SEMANAL
 let modoPlanejadoAtivo = false;
+let tipoPlanejadoAtual = ''; // 'rotina' ou 'personal'
 let diaSelecionado = '';
 let idxTreinoAtual = 0;
 let listaTreinosDia = [];
@@ -1084,118 +1191,94 @@ let listaTreinosDia = [];
 let planejamentoSemanal = JSON.parse(localStorage.getItem('gym_plan')) || {
   segunda: [], terca: [], quarta: [], quinta: [], sexta: [], sabado: [], domingo: []
 };
+function salvarPlanejamento() { localStorage.setItem('gym_plan', JSON.stringify(planejamentoSemanal)); }
 
-function salvarPlanejamento() {
-  localStorage.setItem('gym_plan', JSON.stringify(planejamentoSemanal));
-}
+// PERSONAL ONLINE
+let perfilPersonal = JSON.parse(localStorage.getItem('gym_personal_perfil')) || null;
+let treinosPersonal = JSON.parse(localStorage.getItem('gym_personal_treinos')) || {}; 
+// agenda
+let historicoAgenda = JSON.parse(localStorage.getItem('gym_agenda')) || [];
 
-// ══════════════════════════════════════════════════════════════════════
-//  SISTEMA DE VOZ - ESTADOS & CARREGAMENTO
-// ══════════════════════════════════════════════════════════════════════
+// VOZ
 const VOZ_MODOS = { RV: 'rv', NATIVE: 'native', BEEP: 'beep' };
 let vozModoAtual  = VOZ_MODOS.BEEP;
 let vozAtivada    = localStorage.getItem('gym_voz') !== 'false';
-
 let volVoz        = parseInt(localStorage.getItem('gym_vol')); if (isNaN(volVoz)) volVoz = 100;
 let rateVoz       = parseInt(localStorage.getItem('gym_rate')); if (isNaN(rateVoz)) rateVoz = 100;
 let pitchVoz      = parseFloat(localStorage.getItem('gym_pitch')); if (isNaN(pitchVoz)) pitchVoz = 1.0;
-
 let engineVozPref   = localStorage.getItem('gym_voz_engine') || 'auto';
 let uriVozEscolhida = localStorage.getItem('gym_voz_uri')    || '';
 let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
+// =======================================================================
+// FUNÇÕES BASE / UI
+// =======================================================================
+function atualizarRelogio() {
+  const relogio = document.getElementById('global-clock'); if (!relogio) return;
+  const agora = new Date(); relogio.textContent = String(agora.getHours()).padStart(2, '0') + ':' + String(agora.getMinutes()).padStart(2, '0');
+}
+setInterval(atualizarRelogio, 1000); atualizarRelogio();
+
+function clickBeep() { tocarTom(600, 0.05, 0.2, 'square'); }
+function irPara(id) {
+  clickBeep();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function irParaSelecao() { desbloquearAudio(); irPara('screen-mode'); }
+function irParaConfig()  { desbloquearAudio(); irPara('screen-config'); }
+function irParaVozConfig() { desbloquearAudio(); carregarVozesNativas(); detectarVozModo(); irPara('screen-voice-config'); }
+
+function getAC() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+function tocarTom(freq, dur, vol, tipo = 'sine') {
+  if (vozModoAtual !== VOZ_MODOS.BEEP && tipo !== 'square') return;
+  const ac = getAC(); const osc = ac.createOscillator(); const gain = ac.createGain();
+  osc.type = tipo; osc.frequency.setValueAtTime(freq, ac.currentTime);
+  gain.gain.setValueAtTime(vol, ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+  osc.connect(gain); gain.connect(ac.destination); osc.start(); osc.stop(ac.currentTime + dur);
+}
+function tocarProcessamento(cb) { const ac = getAC(); const o = ac.createOscillator(); const g = ac.createGain(); o.type = 'square'; o.frequency.setValueAtTime(800, ac.currentTime); o.frequency.exponentialRampToValueAtTime(1200, ac.currentTime + 0.1); g.gain.setValueAtTime(0.05, ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.1); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.1); setTimeout(() => { if (cb) cb(); }, 100); }
+
+// =======================================================================
+// VOZ E BOOT
+// =======================================================================
 function iniciarBoot() {
   desbloquearAudio();
-  // Lê o nome digitado na tela de boot e salva, se preenchido
   const nomeBootInput = document.getElementById('input-nome-boot');
-  if (nomeBootInput && nomeBootInput.value.trim()) {
-    nomeUsuario = nomeBootInput.value.trim();
-    localStorage.setItem('gym_nome', nomeUsuario);
-  }
+  if (nomeBootInput && nomeBootInput.value.trim()) { nomeUsuario = nomeBootInput.value.trim(); localStorage.setItem('gym_nome', nomeUsuario); }
   document.getElementById('btn-iniciar-boot').style.display = 'none';
   document.getElementById('boot-nome-container').style.display = 'none';
   document.getElementById('boot-container').style.display = 'block';
   document.getElementById('boot-log').style.display = 'block';
-  
-  const bootText = document.querySelector('#screen-loading .boot-text');
-  if (bootText) {
-    bootText.textContent = 'INICIALIZANDO SISTEMA...';
-    bootText.setAttribute('data-text', 'INICIALIZANDO SISTEMA...');
-  }
-
-  // Fala a saudação imediatamente ao clicar — enquanto o boot carrega em 8s
-  setTimeout(darBoasVindas, 0);
-  
-  runBootSequence();
+  setTimeout(darBoasVindas, 0); runBootSequence();
 }
 
 function runBootSequence() {
-  let progress = 0;
-  const fill = document.getElementById('boot-fill');
-  const log  = document.getElementById('boot-log');
-  
+  let progress = 0; const fill = document.getElementById('boot-fill'); const log  = document.getElementById('boot-log');
   tentarCarregarRV();
-  
   const bootInt = setInterval(() => {
-    progress += 10;
-    if (fill) fill.style.width = progress + '%';
-    
-    if (progress === 10  && log) log.textContent = "INICIANDO KERNEL...";
-    if (progress === 20  && log) log.textContent = "CARREGANDO MÓDULOS DE VOZ...";
-    if (progress === 40  && log) log.textContent = "CARREGANDO SÍNTESE NATIVA...";
-    if (progress === 60  && log) {
-      log.textContent = "VERIFICANDO MOTORES DE ÁUDIO...";
-      carregarVozesNativas();
+    progress += 10; if (fill) fill.style.width = progress + '%';
+    if (progress === 20 && log) log.textContent = "CARREGANDO MÓDULOS DE VOZ...";
+    if (progress === 60 && log) { log.textContent = "VERIFICANDO MOTORES DE ÁUDIO..."; carregarVozesNativas(); }
+    if (progress === 100) {
+      clearInterval(bootInt); initUI(); irPara('screen-home'); detectarVozModo();
     }
-    if (progress === 80  && log) log.textContent = "SINCRONIZANDO CONFIGURAÇÕES...";
-    if (progress === 90  && log) log.textContent = "MÓDULOS PRONTOS. ENTRANDO...";
-    
-    if (progress >= 100) {
-      clearInterval(bootInt);
-      initUI();
-      irPara('screen-home');
-      detectarVozModo();
-      // darBoasVindas() foi movido para iniciarBoot() — já chamado ao clicar
-    }
-  }, 800); // 10 passos × 800ms = 8 segundos exatos
+  }, 800);
 }
 
 function darBoasVindas() {
-  const agora    = new Date();
-  const hora     = agora.getHours();
-  const diaSem   = agora.getDay();
-  const nomesDiasSem = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  let saudacaoTxt = hora >= 5 && hora < 12 ? "Bom dia" : hora >= 12 && hora < 18 ? "Boa tarde" : "Boa noite";
-
-  const variacoes = [
-    `${saudacaoTxt}, ${nomeUsuario}! Sistema iniciado. Hoje é ${nomesDiasSem[diaSem]}. Pronto para o treino?`,
-    `${saudacaoTxt}, ${nomeUsuario}! Bem-vindo de volta. É ${nomesDiasSem[diaSem]}, hora de superar seus limites!`,
-    `${saudacaoTxt}, ${nomeUsuario}! Sistema on-line. Vamos fazer desta ${nomesDiasSem[diaSem]} um dia de evolução!`,
-    `${saudacaoTxt}, ${nomeUsuario}! Módulos carregados. ${nomesDiasSem[diaSem].charAt(0).toUpperCase()+nomesDiasSem[diaSem].slice(1)} é dia de conquistar!`,
-  ];
-  const msg = variacoes[Math.floor(Math.random() * variacoes.length)];
-  falar(msg, saudacaoTxt + ', ' + nomeUsuario + '!');
+  const hr = new Date().getHours(); let saud = hr < 12 ? "Bom dia" : hr < 18 ? "Boa tarde" : "Boa noite";
+  falar(`${saud}, ${nomeUsuario}! Sistema iniciado e pronto para o treino.`, saud + ', ' + nomeUsuario + '!');
 }
 
-function carregarVozesNativas() {
-  if (!('speechSynthesis' in window)) return;
-  vozesNativasGlobais = window.speechSynthesis.getVoices();
-  popularSeletorDeVozes();
-  detectarVozModo();
-}
-
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); };
-}
+function carregarVozesNativas() { if (!('speechSynthesis' in window)) return; vozesNativasGlobais = window.speechSynthesis.getVoices(); popularSeletorDeVozes(); detectarVozModo(); }
+if ('speechSynthesis' in window) { window.speechSynthesis.onvoiceschanged = () => { carregarVozesNativas(); }; }
 
 function tentarCarregarRV() {
   if (!navigator.onLine || window.RV_LOADED) return;
-  const script = document.createElement('script');
-  script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=FREE';
-  script.async = true;
-  script.onload  = () => { window.RV_LOADED = true; detectarVozModo(); };
-  script.onerror = () => { window.RV_LOADED = false; detectarVozModo(); };
+  const script = document.createElement('script'); script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=FREE';
+  script.async = true; script.onload = () => { window.RV_LOADED = true; detectarVozModo(); }; script.onerror = () => { window.RV_LOADED = false; detectarVozModo(); };
   document.head.appendChild(script);
 }
 
@@ -1208,125 +1291,56 @@ function detectarVozModo() {
     else if (vozesNativasGlobais.length > 0) vozModoAtual = VOZ_MODOS.NATIVE;
     else vozModoAtual = VOZ_MODOS.BEEP;
   }
-  const selVoz = document.getElementById('cfg-voz-seletor');
-  if (selVoz) selVoz.disabled = (vozModoAtual !== VOZ_MODOS.NATIVE);
   atualizarChipVoz();
 }
 
 function popularSeletorDeVozes() {
-  const sel = document.getElementById('cfg-voz-seletor');
-  if (!sel) return;
-  sel.innerHTML = '';
-  
+  const sel = document.getElementById('cfg-voz-seletor'); if (!sel) return; sel.innerHTML = '';
   if (vozesNativasGlobais.length === 0) { sel.innerHTML = '<option value="">Sem vozes nativas detectadas</option>'; return; }
-  
   let vozesPT = vozesNativasGlobais.filter(v => v.lang.includes('pt') || v.lang.includes('BR'));
   let vozesParaMostrar = vozesPT.length > 0 ? vozesPT : vozesNativasGlobais;
-  
-  vozesParaMostrar.forEach(v => {
-    const opt = document.createElement('option'); opt.value = v.voiceURI; opt.textContent = `${v.name} (${v.lang})`; sel.appendChild(opt);
-  });
-
-  if (uriVozEscolhida) sel.value = uriVozEscolhida;
-  else if (sel.options.length > 0) uriVozEscolhida = sel.options[0].value;
+  vozesParaMostrar.forEach(v => { const opt = document.createElement('option'); opt.value = v.voiceURI; opt.textContent = `${v.name} (${v.lang})`; sel.appendChild(opt); });
+  if (uriVozEscolhida) sel.value = uriVozEscolhida; else if (sel.options.length > 0) uriVozEscolhida = sel.options[0].value;
 }
 
 function atualizarChipVoz() {
   const dot = document.getElementById('voz-status-dot'); const txt = document.getElementById('voz-status-txt');
-  const tag = document.getElementById('cfg-voz-tag'); const desc = document.getElementById('cfg-voz-desc');
-  
-  if (!vozAtivada) {
-    if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ OFF'; }
-    if (tag) { tag.className = 'tag tag-beep'; tag.textContent = 'DESATIVADA'; desc.textContent = 'Sistema de voz desligado.'; }
-    return;
-  }
-  
-  const labels = {
-    [VOZ_MODOS.RV]:     { c:'var(--green)', t:'ONLINE (GOOGLE)', tagClass:'tag-online', tagTxt:'RV ONLINE', desc:'Usando Google Speech Cloud.' },
-    [VOZ_MODOS.NATIVE]: { c:'var(--orange)',t:'NATIVA (OFFLINE)',tagClass:'tag-offline', tagTxt:'NATIVO',  desc:'Usando voz local do dispositivo.' },
-    [VOZ_MODOS.BEEP]:   { c:'var(--pink)',  t:'SOMENTE BEEP',   tagClass:'tag-beep',    tagTxt:'BEEP',    desc:'Sem motor falado. Apenas toques.' }
-  };
+  if (!vozAtivada) { if (dot) { dot.style.color = 'var(--dim)'; txt.textContent = 'VOZ OFF'; } return; }
+  const labels = { [VOZ_MODOS.RV]: {c:'var(--green)',t:'VOZ CLOUD'}, [VOZ_MODOS.NATIVE]: {c:'var(--orange)',t:'VOZ LOCAL'}, [VOZ_MODOS.BEEP]: {c:'var(--pink)',t:'SÓ BEEP'} };
   const l = labels[vozModoAtual] || labels[VOZ_MODOS.BEEP];
   if (dot) { dot.style.color = l.c; txt.textContent = l.t; }
-  if (tag) { tag.className = 'tag ' + l.tagClass; tag.textContent = l.tagTxt; desc.textContent = l.desc; }
 }
-
-function mostrarIndicador(a) { const ind = document.getElementById("voz-indicator"); if (ind) ind.classList.toggle("ativo", a); }
 
 function falar(textoCompleto, textoCurto = "") {
   if (!vozAtivada) return;
-  const textoParaFalar = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
-  if (!textoParaFalar) return;
-  if (vozModoAtual === VOZ_MODOS.RV)     { falarComRV(textoParaFalar); return; }
-  if (vozModoAtual === VOZ_MODOS.NATIVE) { falarNativo(textoParaFalar); return; }
-  tocarProcessamento(null);
+  const t = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
+  if (!t) return;
+  if (vozModoAtual === VOZ_MODOS.RV) {
+    if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(t, 'Brazilian Portuguese Female', {rate:rateVoz/100, volume:volVoz/100, pitch:pitchVoz});
+  } else if (vozModoAtual === VOZ_MODOS.NATIVE) {
+    if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang='pt-BR'; u.rate=rateVoz/100; u.pitch=pitchVoz; u.volume=volVoz/100; window.speechSynthesis.speak(u); }
+  } else { tocarProcessamento(null); }
 }
-
-function testarVoz() {
-  desbloquearAudio();
-  engineVozPref = document.getElementById('cfg-voz-engine').value; uriVozEscolhida = document.getElementById('cfg-voz-seletor').value;
-  nivelVozPref = document.getElementById('cfg-voz-nivel').value;
-  detectarVozModo();
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
-  falar("Sistema de voz operacional. Volume em " + volVoz + " por cento.", "Sistema de voz operacional.");
-}
-
-function falarComRV(texto) {
-  try {
-    if (typeof responsiveVoice === 'undefined') { falarNativo(texto); return; }
-    mostrarIndicador(true);
-    tocarProcessamento(() => {
-      responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {
-        rate: rateVoz/100, volume: volVoz/100, pitch: pitchVoz,
-        onstart: () => mostrarIndicador(true), onend: () => mostrarIndicador(false),
-        onerror: () => { mostrarIndicador(false); falarNativo(texto); }
-      });
-    });
-  } catch(e) { mostrarIndicador(false); }
-}
-
-function falarNativo(texto) {
-  if (!('speechSynthesis' in window)) { tocarProcessamento(null); return; }
-  try {
-    window.speechSynthesis.cancel();
-    tocarProcessamento(() => {
-      const u = new SpeechSynthesisUtterance(texto);
-      u.lang = 'pt-BR'; u.rate = rateVoz/100; u.pitch = pitchVoz; u.volume = volVoz/100;
-      if (uriVozEscolhida && vozesNativasGlobais.length > 0) {
-        const vozExata = vozesNativasGlobais.find(v => v.voiceURI === uriVozEscolhida);
-        if (vozExata) u.voice = vozExata;
-      }
-      u.onstart = () => mostrarIndicador(true); u.onend = () => mostrarIndicador(false); u.onerror = () => mostrarIndicador(false);
-      window.speechSynthesis.speak(u);
-    });
-  } catch(e) { mostrarIndicador(false); }
-}
-
-async function solicitarWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
 
 function desbloquearAudio() {
   const ac = getAC(); if (ac.state === 'suspended') ac.resume().catch(() => {});
-  if ('speechSynthesis' in window) {
-     window.speechSynthesis.cancel(); let warmUp = new SpeechSynthesisUtterance(''); warmUp.volume = 0; window.speechSynthesis.speak(warmUp);
-  }
+  if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); let warmUp = new SpeechSynthesisUtterance(''); warmUp.volume = 0; window.speechSynthesis.speak(warmUp); }
   if (typeof responsiveVoice !== 'undefined') { responsiveVoice.speak("", "Brazilian Portuguese Female", {volume: 0}); }
   solicitarWakeLock();
 }
+async function solicitarWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
 
-// ══════════════════════════════════════════════════════════════════════
-//  MATRIX RAIN (Visuals)
-// ══════════════════════════════════════════════════════════════════════
+// =======================================================================
+// MATRIX EFFECT
+// =======================================================================
 const canvas = document.getElementById('matrix'); const ctx2d = canvas.getContext('2d');
 const CHARS = '01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%&*+-/<>=?';
 const N_COLS = window.innerWidth < 600 ? 15 : 26;
-const CELL_H = 22, TRAIL = 10, FSIZE = 14;
-let colunas = [], lastTime = 0;
-
+const CELL_H = 22, TRAIL = 10, FSIZE = 14; let colunas = [], lastTime = 0;
 function initMatrix() {
   canvas.width = window.innerWidth; canvas.height = window.innerHeight; colunas = [];
-  for (let c = 0; c < N_COLS; c++) colunas.push({ x:((c+.5)/N_COLS)*canvas.width, headY:Math.random()*canvas.height*1.5, vel:80+Math.random()*130, chars:Array.from({length:TRAIL},()=>rnd(CHARS)) });
+  for (let c = 0; c < N_COLS; c++) colunas.push({ x:((c+.5)/N_COLS)*canvas.width, headY:Math.random()*canvas.height*1.5, vel:80+Math.random()*130, chars:Array.from({length:TRAIL},()=>CHARS[Math.floor(Math.random()*CHARS.length)]) });
 }
-function rnd(s) { return s[Math.floor(Math.random()*s.length)]; }
 function animarMatrix(now) {
   requestAnimationFrame(animarMatrix); const dt = Math.min((now-lastTime)/1000,.05); lastTime = now;
   ctx2d.clearRect(0,0,canvas.width,canvas.height); ctx2d.font = `bold ${FSIZE}px monospace`;
@@ -1335,922 +1349,668 @@ function animarMatrix(now) {
     for (let t=0; t<TRAIL; t++) {
       const y = col.headY-t*CELL_H; if (y<-CELL_H||y>canvas.height+CELL_H) continue;
       ctx2d.fillStyle = t===0?'rgba(200,255,215,0.95)':`rgba(0,255,64,${Math.max(.04,1-t/TRAIL)*.80})`;
-      if (Math.random()<.015) col.chars[t]=rnd(CHARS);
+      if (Math.random()<.015) col.chars[t]=CHARS[Math.floor(Math.random()*CHARS.length)];
       ctx2d.fillText(col.chars[t],col.x,y);
     }
   }
 }
 window.addEventListener('resize', initMatrix); initMatrix(); requestAnimationFrame(animarMatrix);
 
-// ══════════════════════════════════════════════════════════════════════
-//  UI & CONTROLES (NAVEGAÇÃO)
-// ══════════════════════════════════════════════════════════════════════
+// =======================================================================
+// UI SETUP INICIAL
+// =======================================================================
 function initUI() {
-  atualizarDisplayNome(); atualizarStatsModo();
-  atualizarDisplayTempoModo('musculacao'); atualizarDisplayTempoModo('cardio'); atualizarDisplayTempoModo('hiit');
-  atualizarDisplayMetaModo('musculacao'); atualizarDisplayMetaModo('cardio'); atualizarDisplayMetaModo('hiit');
-  atualizarDisplayTempoRotina();
-  
-  document.getElementById('slider-vol').value = volVoz; document.getElementById('val-vol').textContent = volVoz + '%';
-  document.getElementById('slider-rate').value = rateVoz; document.getElementById('val-rate').textContent = rateVoz + '%';
-  document.getElementById('slider-pitch').value = pitchVoz * 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1);
-  
-  document.getElementById('cfg-voz-engine').value = engineVozPref; document.getElementById('cfg-voz-nivel').value = nivelVozPref;
-  sincToggle('toggle-voz', vozAtivada); sincToggle('toggle-vib', vibAtivada);
-  document.getElementById('cfg-alerta').value = alertaSegundos; document.getElementById('cfg-autostart').value = autoStartSeg;
-}
-
-function atualizarDisplayNome() { document.getElementById('home-nome-display').textContent = '// OPERADOR: ' + nomeUsuario.toUpperCase(); }
-function atualizarStatsModo() {
+  document.getElementById('home-nome-display').textContent = '// OPERADOR: ' + nomeUsuario.toUpperCase();
   document.getElementById('stat-musc').textContent = `[ ${tempoPorModo.musculacao}s / ${metaPorModo.musculacao}x ]`;
   document.getElementById('stat-cardio').textContent = `[ ${tempoPorModo.cardio}s / ${metaPorModo.cardio}x ]`;
   document.getElementById('stat-hiit').textContent = `[ ${tempoPorModo.hiit}s / ${metaPorModo.hiit}x ]`;
 }
 
-function scrollToCfg(id) { const el = document.getElementById(id); if(el) document.getElementById('config-scroll-area').scrollTo({ top: el.offsetTop - 50, behavior: 'smooth' }); }
-
-function clickBeep() { tocarTom(600, 0.05, 0.2, 'square'); }
-function irPara(id) {
-  clickBeep();
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+// =======================================================================
+// PERSONAL ONLINE
+// =======================================================================
+function abrirPersonalOnline() {
+  desbloquearAudio();
+  if (perfilPersonal) {
+    renderizarDashPersonal();
+    irPara('screen-personal-dash');
+    const msg = `Seu painel Personal está pronto, ${nomeUsuario}. Vamos focar na meta de ${perfilPersonal.objetivo}!`;
+    falar(msg, "Painel Personal Online aberto.");
+  } else {
+    irPara('screen-personal-setup');
+    falar(`Bem-vindo ao módulo Personal Online, ${nomeUsuario}. Configure seu perfil para eu montar sua rotina!`, "Configure seu Personal.");
+  }
 }
-function irParaSelecao() { desbloquearAudio(); irPara('screen-mode'); }
-function irParaConfig()  { desbloquearAudio(); irPara('screen-config'); }
-function irParaVozConfig() { desbloquearAudio(); carregarVozesNativas(); detectarVozModo(); irPara('screen-voice-config'); }
 
-// ══════════════════════════════════════════════════════════════════════
-//  ROTINA SEMANAL (NOVO)
-// ══════════════════════════════════════════════════════════════════════
+function salvarPerfilPersonal() {
+  const objetivo = document.getElementById('personal-objetivo').value;
+  const nivel    = document.getElementById('personal-nivel').value;
+  const cbDias   = document.querySelectorAll('.cb-dias-personal:checked');
+  
+  if (cbDias.length < 2) {
+    document.getElementById('personal-erro').classList.add('ativo');
+    return;
+  }
+  document.getElementById('personal-erro').classList.remove('ativo');
+  
+  let dias = [];
+  cbDias.forEach(cb => dias.push(cb.value));
+  
+  perfilPersonal = { objetivo: objetivo, nivel: nivel, dias: dias };
+  localStorage.setItem('gym_personal_perfil', JSON.stringify(perfilPersonal));
+  
+  gerarTreinosPersonal(dias, nivel, objetivo);
+  abrirPersonalOnline();
+}
+
+function reconfigurarPersonal() {
+  if (confirm("Deseja criar um novo plano? Seu plano atual será substituído.")) {
+    irPara('screen-personal-setup');
+    // Marca checkboxes que já estavam
+    if (perfilPersonal && perfilPersonal.dias) {
+      document.querySelectorAll('.cb-dias-personal').forEach(cb => {
+        cb.checked = perfilPersonal.dias.includes(cb.value);
+      });
+      document.getElementById('personal-objetivo').value = perfilPersonal.objetivo;
+      document.getElementById('personal-nivel').value = perfilPersonal.nivel;
+    }
+  }
+}
+
+// Lógica de Geração do Treino pelo Personal
+function gerarTreinosPersonal(dias, nivel, objetivo) {
+  // Base de exercícios fictícia
+  const baseEx = {
+    peito:   [{n:"Supino Reto",s:4},{n:"Crucifixo",s:3},{n:"Flexão",s:4}],
+    costas:  [{n:"Puxada Alta",s:4},{n:"Remada Curvada",s:4},{n:"Pulldown",s:3}],
+    perna:   [{n:"Agachamento",s:4},{n:"Leg Press",s:4},{n:"Cadeira Extensora",s:3},{n:"Mesa Flexora",s:3}],
+    ombro:   [{n:"Desenvolvimento",s:4},{n:"Elevação Lateral",s:4}],
+    braco:   [{n:"Rosca Direta",s:3},{n:"Tríceps Testa",s:3}],
+    core:    [{n:"Prancha",s:3},{n:"Abdominal",s:4}],
+    cardio:  [{n:"Esteira HIIT",s:5},{n:"Bicicleta",s:4}]
+  };
+
+  let numDias = dias.length;
+  let split = [];
+  
+  // Define o Split baseado nos dias
+  if (numDias === 2) split = [{t:"A", m:["peito","costas","perna"]}, {t:"B", m:["ombro","braco","core"]}];
+  else if (numDias === 3) split = [{t:"A", m:["peito","ombro","triceps"]}, {t:"B", m:["costas","biceps","core"]}, {t:"C", m:["perna"]}];
+  else if (numDias === 4) split = [{t:"A", m:["peito","triceps"]}, {t:"B", m:["costas","biceps"]}, {t:"C", m:["perna"]}, {t:"D", m:["ombro","core"]}];
+  else split = [{t:"A", m:["peito"]}, {t:"B", m:["costas"]}, {t:"C", m:["perna"]}, {t:"D", m:["ombro","core"]}, {t:"E", m:["braco","cardio"]}];
+  
+  treinosPersonal = {};
+  
+  dias.forEach((diaStr, i) => {
+    let s = split[i % split.length]; // Distribui as letras A, B, C... nos dias
+    let exs = [];
+    s.m.forEach(musc => {
+      let grupo = baseEx[musc];
+      if (grupo) {
+        // Pega 2 exercicios se for nivel avancado, senão 1 principal e 1 sec (simplificado aqui)
+        let q = nivel === 'iniciante' ? 1 : 2; 
+        for(let j=0; j<Math.min(q, grupo.length); j++){
+          // Ajusta series por objetivo
+          let meta = grupo[j].s;
+          if (objetivo === 'hipertrofia') meta += 1;
+          exs.push({ nome: grupo[j].n, series: meta });
+        }
+      }
+    });
+    // Se for emagrecimento, forçar cardio no fim
+    if (objetivo === 'emagrecimento' && !s.m.includes('cardio')) exs.push({ nome: "Esteira", series: 3 });
+
+    treinosPersonal[diaStr] = { letra: s.t, exs: exs };
+  });
+
+  localStorage.setItem('gym_personal_treinos', JSON.stringify(treinosPersonal));
+}
+
+function renderizarDashPersonal() {
+  const chatBubble = document.getElementById('personal-chat-texto');
+  const planContainer = document.getElementById('personal-plan-container');
+  
+  let txtNivel = perfilPersonal.nivel.toUpperCase();
+  let txtObj = perfilPersonal.objetivo.toUpperCase();
+  
+  const chaveHoje = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'][new Date().getDay()];
+  let diaTemTreino = perfilPersonal.dias.includes(chaveHoje);
+
+  let msg = `Olá, <span class="highlight">${nomeUsuario}</span>! Com base no seu nível ${txtNivel} e objetivo de ${txtObj}, montei um protocolo para seus ${perfilPersonal.dias.length} dias semanais. `;
+  
+  if (diaTemTreino) {
+    msg += `Hoje é seu dia de treino! Siga a recomendação abaixo para melhores resultados.`;
+  } else {
+    msg += `Hoje é seu dia de descanso. Aproveite para se recuperar!`;
+  }
+  chatBubble.innerHTML = msg;
+
+  planContainer.innerHTML = '';
+  
+  const nomesDiasBr = { segunda:'Segunda-Feira', terca:'Terça-Feira', quarta:'Quarta-Feira', quinta:'Quinta-Feira', sexta:'Sexta-Feira', sabado:'Sábado', domingo:'Domingo' };
+
+  perfilPersonal.dias.forEach(dia => {
+    let t = treinosPersonal[dia];
+    let isHoje = (dia === chaveHoje);
+    
+    let div = document.createElement('div');
+    div.className = 'personal-plan-card' + (isHoje ? ' highlighted' : '');
+    
+    let exListStr = t.exs.map(e => e.nome).join(', ');
+
+    div.innerHTML = `
+      <div class="plan-title">TREINO ${t.letra} // ${nomesDiasBr[dia].toUpperCase()}</div>
+      <div class="plan-desc">Foco: ${exListStr}</div>
+      <button class="btn-sec cyan plan-start-btn" onclick="iniciarTreinoDoDia(true, '${dia}')" style="margin:0; width:auto;">${isHoje ? '▶ INICIAR HOJE' : '▶ VER TREINO'}</button>
+    `;
+    planContainer.appendChild(div);
+  });
+}
+
+// =======================================================================
+// ROTINA SEMANAL (Telas originais)
+// =======================================================================
 function abrirSemana() {
   desbloquearAudio();
   renderizarBotoesDias();
   irPara('screen-semana');
-  const diaSemIdx  = new Date().getDay();
-  const nomesDiasFala = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  const diaHoje    = nomesDiasFala[diaSemIdx];
-  const qtdHoje    = planejamentoSemanal[Object.keys(planejamentoSemanal)[diaSemIdx === 0 ? 6 : diaSemIdx - 1]]?.length || 0;
-  const chaveHoje  = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'][diaSemIdx];
-  const qtdHojeReal = planejamentoSemanal[chaveHoje]?.length || 0;
-  const frases = [
-    qtdHojeReal > 0
-      ? `Rotina semanal aberta. Hoje é ${diaHoje} e você tem ${qtdHojeReal} exercício${qtdHojeReal>1?'s':''} programados. Bora treinar, ${nomeUsuario}!`
-      : `Rotina semanal aberta. Hoje é ${diaHoje}. Ainda não há treinos programados para hoje. Configure sua semana!`,
-  ];
-  falar(frases[0], "Rotina Semanal");
+  falar(`Rotina semanal aberta. Configure seus dias de treino livremente.`, "Rotina Semanal");
 }
 
 function renderizarBotoesDias() {
-  const container = document.getElementById('lista-dias-semana');
-  if (!container) return;
-  const dias = [
-    { key: 'segunda', label: 'SEGUNDA-FEIRA' },
-    { key: 'terca',   label: 'TERÇA-FEIRA'  },
-    { key: 'quarta',  label: 'QUARTA-FEIRA' },
-    { key: 'quinta',  label: 'QUINTA-FEIRA' },
-    { key: 'sexta',   label: 'SEXTA-FEIRA'  },
-    { key: 'sabado',  label: 'SÁBADO'       },
-    { key: 'domingo', label: 'DOMINGO'      },
-  ];
+  const container = document.getElementById('lista-dias-semana'); if (!container) return;
+  const dias = [{k:'segunda',l:'SEGUNDA-FEIRA'},{k:'terca',l:'TERÇA-FEIRA'},{k:'quarta',l:'QUARTA-FEIRA'},{k:'quinta',l:'QUINTA-FEIRA'},{k:'sexta',l:'SEXTA-FEIRA'},{k:'sabado',l:'SÁBADO'},{k:'domingo',l:'DOMINGO'}];
   const chaveHoje = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'][new Date().getDay()];
   container.innerHTML = '';
-  dias.forEach(({ key, label }) => {
-    const qtd   = planejamentoSemanal[key]?.length || 0;
-    const hoje  = key === chaveHoje;
-    const wrap  = document.createElement('div');
-    wrap.className = 'btn-sec-dia-wrap';
-    const btn   = document.createElement('button');
-    btn.className = 'btn-sec' + (hoje ? ' hoje-btn' : '');
-    btn.textContent = (hoje ? '▶ ' : '') + label;
-    btn.onclick = () => abrirDia(key);
-    btn.style.textAlign = 'left';
-    btn.style.paddingLeft = '16px';
-    const badge = document.createElement('span');
-    badge.className = 'dia-badge' + (qtd === 0 ? ' vazio' : '');
-    badge.textContent = qtd === 0 ? 'VAZIO' : qtd + (qtd === 1 ? ' EX.' : ' EX.');
-    wrap.appendChild(btn);
-    wrap.appendChild(badge);
-    container.appendChild(wrap);
+  dias.forEach(d => {
+    const qtd = planejamentoSemanal[d.k]?.length || 0;
+    const hoje = d.k === chaveHoje;
+    const wrap = document.createElement('div'); wrap.className = 'btn-sec-dia-wrap';
+    const btn = document.createElement('button'); btn.className = 'btn-sec' + (hoje ? ' hoje-btn' : ''); btn.textContent = (hoje ? '▶ ' : '') + d.l; btn.onclick = () => abrirDia(d.k); btn.style.textAlign = 'left'; btn.style.paddingLeft = '16px';
+    const badge = document.createElement('span'); badge.className = 'dia-badge' + (qtd === 0 ? ' vazio' : ''); badge.textContent = qtd === 0 ? 'VAZIO' : qtd + ' EX.';
+    wrap.appendChild(btn); wrap.appendChild(badge); container.appendChild(wrap);
   });
 }
 
 function abrirDia(dia) {
-  clickBeep();
-  diaSelecionado = dia;
-  const nomesDias     = { segunda:'SEGUNDA', terca:'TERÇA', quarta:'QUARTA', quinta:'QUINTA', sexta:'SEXTA', sabado:'SÁBADO', domingo:'DOMINGO' };
-  const nomesDiasFala = { segunda:'segunda-feira', terca:'terça-feira', quarta:'quarta-feira', quinta:'quinta-feira', sexta:'sexta-feira', sabado:'sábado', domingo:'domingo' };
-  
-  document.getElementById('titulo-dia').textContent = "TREINOS - " + nomesDias[dia];
-  document.getElementById('titulo-dia').setAttribute('data-text', "TREINOS - " + nomesDias[dia]);
-  
-  renderizarTreinosDoDia();
-  irPara('screen-dia');
-
-  const qtd = planejamentoSemanal[dia]?.length || 0;
-  if (qtd === 0) {
-    falar(`${nomesDiasFala[dia]}: nenhum exercício cadastrado ainda. Adicione seus exercícios, ${nomeUsuario}!`, nomesDias[dia]);
-  } else {
-    const frases = [
-      `${nomesDiasFala[dia]} tem ${qtd} exercício${qtd>1?'s':''} programado${qtd>1?'s':''}. Pronto para começar, ${nomeUsuario}?`,
-      `Rotina de ${nomesDiasFala[dia]}: ${qtd} exercício${qtd>1?'s':''}. Vai ser um treino incrível, ${nomeUsuario}!`,
-    ];
-    falar(frases[Math.floor(Math.random()*frases.length)], nomesDias[dia] + ': ' + qtd + ' exercícios');
-  }
+  clickBeep(); diaSelecionado = dia;
+  const n = { segunda:'SEGUNDA', terca:'TERÇA', quarta:'QUARTA', quinta:'QUINTA', sexta:'SEXTA', sabado:'SÁBADO', domingo:'DOMINGO' };
+  document.getElementById('titulo-dia').textContent = "TREINOS - " + n[dia];
+  document.getElementById('titulo-dia').setAttribute('data-text', "TREINOS - " + n[dia]);
+  renderizarTreinosDoDia(); irPara('screen-dia');
 }
 
 function renderizarTreinosDoDia() {
-  const container = document.getElementById('lista-treinos-dia');
-  container.innerHTML = '';
-  
+  const container = document.getElementById('lista-treinos-dia'); container.innerHTML = '';
   const treinos = planejamentoSemanal[diaSelecionado];
-  if (treinos.length === 0) {
-    container.innerHTML = '<div class="empty-msg">NENHUM EXERCÍCIO CONFIGURADO PARA ESTE DIA.</div>';
-    renderizarBotoesDias(); // atualiza badges
-    return;
-  }
-  
-  treinos.forEach((treino, idx) => {
-    const el = document.createElement('div');
-    el.className = 'treino-item';
+  if (treinos.length === 0) { container.innerHTML = '<div class="empty-msg">NENHUM EXERCÍCIO CONFIGURADO PARA ESTE DIA.</div>'; renderizarBotoesDias(); return; }
+  treinos.forEach((t, idx) => {
+    const el = document.createElement('div'); el.className = 'treino-item';
     el.innerHTML = `
       <div style="flex:1; min-width:0;">
-        <div class="treino-nome-lbl">${idx + 1}. ${treino.nome.toUpperCase()}</div>
-        <div class="treino-series-lbl">${treino.series} SÉRIES</div>
+        <div class="treino-nome-lbl">${idx + 1}. ${t.nome.toUpperCase()}</div>
+        <div class="treino-series-lbl">${t.series} SÉRIES</div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
-        <button class="btn-edit-treino" onclick="abrirModalEditTreino(${idx})" title="Editar">✏</button>
-        <button class="btn-del-treino"  onclick="removerTreino(${idx})"         title="Excluir">✕</button>
-      </div>
-    `;
+        <button class="btn-del-treino" onclick="removerTreino(${idx})">✕</button>
+      </div>`;
     container.appendChild(el);
   });
-  renderizarBotoesDias(); // atualiza badges
+  renderizarBotoesDias();
 }
-
-let idxTreinoEditando = -1; // -1 = modo adicionar, >=0 = modo editar
 
 function abrirModalAddTreino() {
-  clickBeep();
-  idxTreinoEditando = -1;
-  document.getElementById('input-treino-nome').value = '';
-  document.getElementById('input-treino-series').value = '';
-  const titulo = document.getElementById('modal-treino-titulo');
-  titulo.textContent = 'NOVO EXERCÍCIO';
-  titulo.setAttribute('data-text', 'NOVO EXERCÍCIO');
-  document.getElementById('btn-confirmar-treino').textContent = '✔ ADICIONAR';
+  clickBeep(); document.getElementById('input-treino-nome').value = ''; document.getElementById('input-treino-series').value = '';
   document.getElementById('modal-add-treino').classList.add('active');
-  setTimeout(()=>document.getElementById('input-treino-nome').focus(), 200);
 }
-
-function abrirModalEditTreino(idx) {
-  clickBeep();
-  idxTreinoEditando = idx;
-  const treino = planejamentoSemanal[diaSelecionado][idx];
-  document.getElementById('input-treino-nome').value = treino.nome;
-  document.getElementById('input-treino-series').value = treino.series;
-  const titulo = document.getElementById('modal-treino-titulo');
-  titulo.textContent = 'EDITAR EXERCÍCIO';
-  titulo.setAttribute('data-text', 'EDITAR EXERCÍCIO');
-  document.getElementById('btn-confirmar-treino').textContent = '✔ SALVAR';
-  document.getElementById('modal-add-treino').classList.add('active');
-  setTimeout(()=>document.getElementById('input-treino-nome').focus(), 200);
-}
-
-function fecharModalAddTreino() {
-  clickBeep();
-  document.getElementById('modal-add-treino').classList.remove('active');
-  idxTreinoEditando = -1;
-}
+function fecharModalAddTreino() { clickBeep(); document.getElementById('modal-add-treino').classList.remove('active'); }
 
 function salvarNovoTreino() {
-  const nome = document.getElementById('input-treino-nome').value.trim();
-  const series = parseInt(document.getElementById('input-treino-series').value);
+  const n = document.getElementById('input-treino-nome').value.trim(); const s = parseInt(document.getElementById('input-treino-series').value);
+  if (!n || isNaN(s) || s <= 0) return;
+  planejamentoSemanal[diaSelecionado].push({ nome: n, series: s }); salvarPlanejamento(); renderizarTreinosDoDia(); fecharModalAddTreino();
+}
+function removerTreino(idx) { clickBeep(); planejamentoSemanal[diaSelecionado].splice(idx, 1); salvarPlanejamento(); renderizarTreinosDoDia(); }
+
+
+// =======================================================================
+// TIMER E EXECUÇÃO
+// =======================================================================
+function selecionarModo(modo) {
+  clickBeep();
+  modoPlanejadoAtivo = false;
+  modoTreino = modo; tempoAtual = tempoPorModo[modo]; metaSeries = metaPorModo[modo];
+  document.getElementById('timer-modo-icon').textContent = iconesModos[modo];
+  document.getElementById('timer-modo-label').textContent = modo.toUpperCase();
+  document.getElementById('timer-modo-label').setAttribute('data-text', modo.toUpperCase());
   
-  if (!nome) { alert("Digite o nome do exercício!"); return; }
-  if (isNaN(series) || series <= 0) { alert("Digite uma quantidade válida de séries!"); return; }
-  
-  if (idxTreinoEditando >= 0) {
-    planejamentoSemanal[diaSelecionado][idxTreinoEditando] = { nome: nome, series: series };
-    falar(`Exercício atualizado: ${nome}, ${series} série${series>1?'s':''}. Treinando com precisão, ${nomeUsuario}!`, "Exercício editado.");
-  } else {
-    planejamentoSemanal[diaSelecionado].push({ nome: nome, series: series });
-    const qtd = planejamentoSemanal[diaSelecionado].length;
-    falar(`${nome} adicionado com ${series} série${series>1?'s':''}. Agora são ${qtd} exercício${qtd>1?'s':''} no dia!`, "Exercício adicionado.");
-  }
-  salvarPlanejamento();
-  renderizarTreinosDoDia();
-  fecharModalAddTreino();
+  // Limpa imagem se for treino livre genérico
+  document.getElementById('timer-illustration').textContent = iconesModos[modo];
+
+  resetTimer(true); irPara('screen-timer');
+  const fr = { musculacao: "Modo Musculação.", cardio: "Modo Cardio.", hiit: "Modo HIIT." };
+  falar(fr[modo]);
 }
 
-function removerTreino(idx) {
+// Inicia tanto a rotina semanal quanto o personal
+function iniciarTreinoDoDia(isPersonal = false, diaPersonal = null) {
   clickBeep();
-  const nomeRemovido = planejamentoSemanal[diaSelecionado][idx]?.nome || 'Exercício';
-  planejamentoSemanal[diaSelecionado].splice(idx, 1);
-  salvarPlanejamento();
-  renderizarTreinosDoDia();
-  const qtd = planejamentoSemanal[diaSelecionado].length;
-  falar(
-    qtd > 0
-      ? `${nomeRemovido} removido. Restam ${qtd} exercício${qtd>1?'s':''} no dia.`
-      : `${nomeRemovido} removido. O dia ficou sem exercícios. Adicione novos quando quiser.`,
-    "Exercício removido."
-  );
-}
-
-function iniciarTreinoDoDia() {
-  clickBeep();
-  if (planejamentoSemanal[diaSelecionado].length === 0) {
-    alert("Adicione pelo menos um exercício neste dia!");
-    return;
-  }
+  let diaAlvo = isPersonal ? diaPersonal : diaSelecionado;
+  
+  let lista = isPersonal ? treinosPersonal[diaAlvo].exs : planejamentoSemanal[diaAlvo];
+  
+  if (!lista || lista.length === 0) { alert("Nenhum exercício encontrado!"); return; }
   
   modoPlanejadoAtivo = true;
-  listaTreinosDia = planejamentoSemanal[diaSelecionado];
+  tipoPlanejadoAtual = isPersonal ? 'personal' : 'rotina';
+  listaTreinosDia = lista;
   idxTreinoAtual = 0;
   
-  // Usar o tempo configurado separadamente para a rotina semanal
-  modoTreino = 'musculacao';
+  modoTreino = 'musculacao'; // Usa modo musculação pra UI do timer
   tempoAtual = tempoRotina;
   
-  const total = listaTreinosDia.length;
-  const nomesDiasFalaInit = { segunda:'segunda-feira', terca:'terça-feira', quarta:'quarta-feira', quinta:'quinta-feira', sexta:'sexta-feira', sabado:'sábado', domingo:'domingo' };
-  const diaFala = nomesDiasFalaInit[diaSelecionado] || diaSelecionado;
-  const frasesIniciar = [
-    `Iniciando rotina de ${diaFala}, ${nomeUsuario}! ${total} exercício${total>1?'s':''} no total. Primeiro: ${listaTreinosDia[0].nome}, ${listaTreinosDia[0].series} série${listaTreinosDia[0].series>1?'s':''}. Bora!`,
-    `Treino de ${diaFala} começando! ${total} exercício${total>1?'s':''} te esperam, ${nomeUsuario}. Primeiro exercício: ${listaTreinosDia[0].nome}. Foco total!`,
-    `Ativando rotina de ${diaFala}. ${total} exercício${total>1?'s':''} no programa. Começando com ${listaTreinosDia[0].nome}. Vai com tudo, ${nomeUsuario}!`,
-  ];
-  falar(frasesIniciar[Math.floor(Math.random()*frasesIniciar.length)], "Iniciando treino.");
+  falar("Iniciando rotina. Primeiro exercício: " + listaTreinosDia[0].nome, "Iniciando treino");
   prepararTreinoAtual();
   irPara('screen-timer');
+}
+
+// Definir o ícone baseando-se no nome do exercício
+function obterIconeExercicio(nome) {
+  let n = nome.toLowerCase();
+  if (n.includes('supino') || n.includes('peito') || n.includes('crucifixo') || n.includes('flexão')) return '🛌🏋️‍♂️';
+  if (n.includes('agachamento') || n.includes('leg press') || n.includes('perna') || n.includes('extensora')) return '🦵🏋️‍♂️';
+  if (n.includes('puxada') || n.includes('remada') || n.includes('costas')) return '🔙🏋️‍♂️';
+  if (n.includes('rosca') || n.includes('triceps') || n.includes('braco') || n.includes('braço')) return '💪🏋️‍♂️';
+  if (n.includes('esteira') || n.includes('bike') || n.includes('bicicleta') || n.includes('cardio')) return '🏃‍♂️💦';
+  if (n.includes('abdominal') || n.includes('prancha') || n.includes('core')) return '🤸‍♂️';
+  return '🏋️‍♂️';
 }
 
 function prepararTreinoAtual() {
-  const exercicio = listaTreinosDia[idxTreinoAtual];
-  metaSeries = exercicio.series;
+  const ex = listaTreinosDia[idxTreinoAtual];
+  metaSeries = ex.series;
   
   document.getElementById('timer-modo-icon').textContent = '📋';
-  document.getElementById('timer-modo-label').textContent = exercicio.nome.toUpperCase();
-  document.getElementById('timer-modo-label').setAttribute('data-text', exercicio.nome.toUpperCase());
+  document.getElementById('timer-modo-label').textContent = ex.nome.toUpperCase();
+  document.getElementById('timer-modo-label').setAttribute('data-text', ex.nome.toUpperCase());
   
+  document.getElementById('timer-illustration').textContent = obterIconeExercicio(ex.nome);
+
+  document.getElementById('lbl-status').textContent = `EX. ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
   resetTimer(true);
-  
-  // Atualiza a Label status indicando em qual exercicio estamos
-  document.getElementById('lbl-status').textContent = `EXERCÍCIO ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
 }
 
-function mostrarProximoTreino() {
-  const proxExercicio = listaTreinosDia[idxTreinoAtual + 1];
-  document.getElementById('proximo-treino-nome').textContent = proxExercicio.nome.toUpperCase();
-  document.getElementById('proximo-treino-series').textContent = proxExercicio.series + " SÉRIES";
-  document.getElementById('modal-proximo-treino').classList.add('active');
-}
-
-function iniciarProximoTreino() {
-  clickBeep();
-  document.getElementById('modal-proximo-treino').classList.remove('active');
-  idxTreinoAtual++;
-  const exercicio = listaTreinosDia[idxTreinoAtual];
-  const total     = listaTreinosDia.length;
-  const restantes = total - idxTreinoAtual - 1;
-  const frasesProx = [
-    `Exercício ${idxTreinoAtual+1} de ${total}: ${exercicio.nome}! ${exercicio.series} série${exercicio.series>1?'s':''}. Vamos lá, ${nomeUsuario}!`,
-    `Próximo: ${exercicio.nome}. ${exercicio.series} série${exercicio.series>1?'s':''}. ${restantes>0?`Ainda restam ${restantes} depois deste.`:' Último exercício do dia!'} Força, ${nomeUsuario}!`,
-    `Vez do ${exercicio.nome}! Mete ${exercicio.series} série${exercicio.series>1?'s':''} com tudo, ${nomeUsuario}. ${restantes>0?`Mais ${restantes} depois de você terminar!`:'É o último, deixa tudo em campo!'}`,
-  ];
-  falar(frasesProx[Math.floor(Math.random()*frasesProx.length)], exercicio.nome);
-  prepararTreinoAtual();
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  MODAIS (NOME E RESUMO)
-// ══════════════════════════════════════════════════════════════════════
-function abrirModalNome() { clickBeep(); document.getElementById('input-nome-modal').value = nomeUsuario; document.getElementById('modal-nome').classList.add('active'); setTimeout(()=>document.getElementById('input-nome-modal').focus(), 200); }
-function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').classList.remove('active'); }
-function salvarNome() { const raw = document.getElementById('input-nome-modal').value.trim(); if (raw) { nomeUsuario = raw; localStorage.setItem('gym_nome', nomeUsuario); atualizarDisplayNome(); } fecharModalNome(); desbloquearAudio(); }
-document.getElementById('input-nome-modal').addEventListener('keydown', e => { if (e.key === 'Enter') salvarNome(); if (e.key === 'Escape') fecharModalNome(); });
-// Preenche o campo de nome na tela de boot com o nome já salvo
-const _bootNomeEl = document.getElementById('input-nome-boot');
-if (_bootNomeEl) {
-  _bootNomeEl.value = nomeUsuario !== 'Marcos' || localStorage.getItem('gym_nome') ? nomeUsuario : '';
-  _bootNomeEl.addEventListener('keydown', e => { if (e.key === 'Enter') { document.getElementById('btn-iniciar-boot').click(); } });
-}
-
-function mostrarResumo() {
-  let nomeModo = modoTreino.toUpperCase();
-  if (modoPlanejadoAtivo) {
-    nomeModo = `ROTINA DE ${diaSelecionado.toUpperCase()}`;
-  }
-  
-  document.getElementById('resumo-modo').textContent = nomeModo;
-  document.getElementById('resumo-tempo').textContent = document.getElementById('ib-tempo-treino').textContent;
-  
-  if (modoPlanejadoAtivo) {
-    // No modo planejado ele conta os exercícios feitos
-    document.getElementById('resumo-series').textContent = `${idxTreinoAtual + 1} EXERCÍCIOS`;
-  } else {
-    document.getElementById('resumo-series').textContent = contador + ' / ' + metaSeries;
-  }
-  
-  document.getElementById('modal-resumo').classList.add('active');
-}
-function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').classList.remove('active'); voltarDoTimer(); }
-
-// ══════════════════════════════════════════════════════════════════════
-//  LÓGICA DO CRONÔMETRO
-// ══════════════════════════════════════════════════════════════════════
-function selecionarModo(modo) {
-  clickBeep();
-  modoPlanejadoAtivo = false; // Desativa o modo de rotina
-  modoTreino = modo; metaSeries = metaPorModo[modo]; tempoAtual = tempoPorModo[modo];
-  localStorage.setItem('gym_last_mode', modo);
-  
-  const modoNomes = { musculacao:'MUSCULAÇÃO', cardio:'CARDIO', hiit:'H I I T' };
-  document.getElementById('timer-modo-label').textContent = modoNomes[modo] || modo.toUpperCase();
-  document.getElementById('timer-modo-label').setAttribute('data-text', modoNomes[modo] || modo.toUpperCase());
-  document.getElementById('timer-modo-icon').textContent = iconesModos[modo] || '💪';
-  
-  const tempoLabel = tempoAtual >= 60 ? Math.floor(tempoAtual/60) + 'min' + (tempoAtual%60 ? (tempoAtual%60)+'s' : '') : tempoAtual + 's';
-  falar("Modo " + (modoNomes[modo]||modo) + ". Descanso: " + tempoLabel + ". Meta: " + metaSeries + " séries.", "Modo " + (modoNomes[modo]||modo));
-  
-  resetTimer(true);
-  irPara('screen-timer');
-}
+function formatTempo(s) { const min = Math.floor(s/60); const seg = s%60; return String(min).padStart(2,'0') + ':' + String(seg).padStart(2,'0'); }
 
 function voltarDoTimer() {
-  pararTimer(); pararAutoStart(); pararCronTreino();
-  timerRodando = false;
-  modoPlanejadoAtivo = false;
-  irPara('screen-home');
-}
-
-function setTimer(txt, cls) {
-  const el = document.getElementById('lbl-timer');
-  el.textContent = txt; el.setAttribute('data-text', txt);
-  el.className = 'lbl-timer glitch ' + cls;
-}
-function setSeries(n) {
-  const el = document.getElementById('lbl-series');
-  el.textContent = String(n); el.setAttribute('data-text', String(n));
-  document.getElementById('prog-fill').style.width = Math.min(100, (n / metaSeries) * 100) + '%';
-  document.getElementById('prog-txt-dir').textContent  = n + ' / ' + metaSeries;
-  document.getElementById('ib-meta').textContent = metaSeries;
-}
-function atualizarBarraTempo(segundosRestantes) {
-  const elFill = document.getElementById('countdown-fill');
-  document.getElementById('prog-txt-tempo').textContent = segundosRestantes + 's / ' + tempoAtual + 's';
-  const pct = Math.max(0, (segundosRestantes / tempoAtual) * 100);
-  elFill.style.width = pct + '%';
-  if (pct > 50) elFill.style.backgroundColor = 'var(--cyan)';
-  else if (pct > 20) elFill.style.backgroundColor = 'var(--yellow)';
-  else elFill.style.backgroundColor = 'var(--pink)';
-}
-
-function resetTimer(silencioso) {
-  if (!silencioso) clickBeep();
-  pararTimer(); pararAutoStart();
-  contador = 0; tempoRestante = tempoAtual; timerRodando = false; historicoDescanso = [];
-  
+  clickBeep();
+  if (timerRodando) { if (!confirm("Sair irá cancelar o descanso atual. Continuar?")) return; }
+  resetTimer(false);
   if (modoPlanejadoAtivo) {
-    document.getElementById('lbl-status').textContent = `EXERCÍCIO ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
+    irPara(tipoPlanejadoAtual === 'personal' ? 'screen-personal-dash' : 'screen-dia');
   } else {
-    document.getElementById('lbl-status').textContent = `PRONTO: ${tempoAtual}s`;
-    segundosTreino = 0;
-    pararCronTreino();
-    document.getElementById('ib-tempo-treino').textContent = '00:00';
+    irPara('screen-mode');
   }
-
-  document.getElementById('btn-play-icon').className = 'play-icon';
-  setTimer(String(tempoAtual), 't-white'); setSeries(0); atualizarBarraTempo(tempoAtual);
-  document.getElementById('ib-ultima').textContent = '--s';
-  document.getElementById('hist-wrap').style.display = 'none'; document.getElementById('hist-list').innerHTML = '';
-  document.getElementById('auto-countdown').textContent = '';
 }
 
 function togglePlayPause() {
   clickBeep();
-  if (timerRodando) {
-    pararTimer(); pararAutoStart(); timerRodando = false;
-    document.getElementById('btn-play-icon').className = 'play-icon';
-    document.getElementById('lbl-status').textContent = 'TIMER PAUSADO';
-  } else {
-    if (tempoRestante <= 0) tempoRestante = tempoAtual;
-    iniciarTimer();
-    document.getElementById('btn-play-icon').className = 'pause-icon';
-  }
+  if (timerRodando) pausarDescanso();
+  else iniciarDescanso();
 }
 
-function iniciarTimer() {
-  pararTimer(); pararAutoStart();
-  document.getElementById('auto-countdown').textContent = '';
-  if (!intervaloTreino) iniciarCronTreino();
-  
-  document.getElementById('lbl-status').textContent = 'DESCANSANDO...';
-  setTimer(String(tempoRestante), 't-white');
-  atualizarBarraTempo(tempoRestante);
-  solicitarWakeLock();
-  timerRodando = true;
-
+function iniciarDescanso() {
+  if (intervaloTreino) clearInterval(intervaloTreino);
+  document.getElementById('lbl-status').textContent = 'DESCANSO EM ANDAMENTO'; document.getElementById('lbl-status').style.color = 'var(--pink)';
+  document.getElementById('btn-play-icon').className = 'pause-icon';
+  tempoRestante = tempoAtual; atualizaDisplay(); timerRodando = true;
+  if (autoTimer) { clearTimeout(autoTimer); document.getElementById('auto-countdown').textContent = ''; }
   intervalo = setInterval(() => {
-    tempoRestante--;
-    atualizarBarraTempo(tempoRestante);
-    
-    if (tempoRestante <= 0) {
-      pararTimer(); timerRodando = false;
-      document.getElementById('btn-play-icon').className = 'play-icon';
-      
-      setTimer('TREINE!', 't-green'); document.getElementById('lbl-status').textContent = 'VAI TREINAR!';
-      contador++; setSeries(contador);
-      
-      historicoDescanso.push(tempoAtual);
-      if (historicoDescanso.length > 8) historicoDescanso.shift();
-      document.getElementById('hist-wrap').style.display = 'block';
-      const list = document.getElementById('hist-list'); list.innerHTML = '';
-      historicoDescanso.forEach((s, i) => {
-        const tag = document.createElement('div');
-        tag.className = 'hist-tag' + (i === historicoDescanso.length-1 ? ' last' : '');
-        tag.textContent = 'S' + (i+1) + ': ' + s + 's';
-        list.appendChild(tag);
-      });
-      document.getElementById('ib-ultima').textContent = tempoAtual + 's';
-      
-      tocarBeepFim(); if (vibAtivada && navigator.vibrate) navigator.vibrate([200, 100, 200]);
-      
-      // CHECAGEM DE TÉRMINO DA META
-      if (contador >= metaSeries) {
-        
-        if (modoPlanejadoAtivo && idxTreinoAtual < listaTreinosDia.length - 1) {
-            // SE TEM PRÓXIMO EXERCÍCIO NA ROTINA
-            const proxNome = listaTreinosDia[idxTreinoAtual + 1].nome;
-            const frasesConc = [
-              `Exercício ${idxTreinoAtual+1} concluído! Descanse e prepare-se para ${proxNome}.`,
-              `Muito bem, ${nomeUsuario}! ${listaTreinosDia[idxTreinoAtual].nome} finalizado. A seguir: ${proxNome}!`,
-              `Série completa! Parabéns, ${nomeUsuario}! Próximo exercício é ${proxNome}. Respira e vai!`,
-            ];
-            falar(frasesConc[Math.floor(Math.random()*frasesConc.length)], "Exercício concluído!");
-            setTimeout(mostrarProximoTreino, 1200);
-        } else {
-            pararCronTreino();
-            const frasesTermino = [
-              `Parabéns, ${nomeUsuario}! Rotina concluída com sucesso! Você é uma máquina!`,
-              `Treino finalizado, ${nomeUsuario}! Você deu o máximo hoje. Recupera-se bem!`,
-              `Missão cumprida, ${nomeUsuario}! Mais um treino dominado. Orgulho total!`,
-            ];
-            falar(frasesTermino[Math.floor(Math.random()*frasesTermino.length)], "Treino concluído!");
-            setTimeout(mostrarResumo, 1200);
-        }
-
-      } else {
-        const frasesTreine = [
-          "Treine, " + nomeUsuario + "! Vai com tudo!",
-          "Bora, " + nomeUsuario + "! Mais uma série!",
-          "Força, " + nomeUsuario + "! Não para agora!",
-          "É hora, " + nomeUsuario + "! Supere seus limites!",
-          "Levanta e vai, " + nomeUsuario + "! Você consegue!",
-          "Mais uma, " + nomeUsuario + "! Cada série conta!",
-        ];
-        falar(frasesTreine[Math.floor(Math.random()*frasesTreine.length)], "Treine!");
-        if (autoStartSeg > 0) {
-          autoCountdown = autoStartSeg;
-          document.getElementById('auto-countdown').textContent = '▶ PRÓXIMO EM ' + autoCountdown + 's...';
-          autoTimer = setInterval(() => {
-            autoCountdown--;
-            if (autoCountdown <= 0) { pararAutoStart(); tempoRestante = tempoAtual; iniciarTimer(); document.getElementById('btn-play-icon').className = 'pause-icon'; }
-            else { document.getElementById('auto-countdown').textContent = '▶ PRÓXIMO EM ' + autoCountdown + 's...'; }
-          }, 1000);
-        }
-      }
-    } else {
-      const emAlerta = alertaSegundos > 0 && tempoRestante <= alertaSegundos;
-      setTimer(String(tempoRestante), emAlerta ? 't-pink' : 't-white');
-      if (emAlerta) tocarBeepNormal();
-    }
+    tempoRestante--; atualizaDisplay();
+    if (tempoRestante === alertaSegundos && alertaSegundos > 0) falar(`Atenção, preparando. Faltam ${alertaSegundos} segundos.`, "Preparar");
+    if (tempoRestante > 0 && tempoRestante <= 3) tocarTom(1000, 0.1, 0.5, 'sine');
+    if (tempoRestante <= 0) finalizarDescanso();
   }, 1000);
 }
 
-function pararTimer() { if (intervalo) { clearInterval(intervalo); intervalo = null; } }
-function pararAutoStart() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } document.getElementById('auto-countdown').textContent = ''; }
-function iniciarCronTreino() {
-  if (segundosTreino === 0) segundosTreino = 0; // Só zera se for início absoluto
-  intervaloTreino = setInterval(() => {
-    segundosTreino++;
-    document.getElementById('ib-tempo-treino').textContent = String(Math.floor(segundosTreino/60)).padStart(2,'0') + ':' + String(segundosTreino%60).padStart(2,'0');
-  }, 1000);
-}
-function pararCronTreino() { if (intervaloTreino) { clearInterval(intervaloTreino); intervaloTreino = null; } }
-
-// ══════════════════════════════════════════════════════════════════════
-//  ÁUDIO E RESTANTE DAS CONFIGURAÇÕES
-// ══════════════════════════════════════════════════════════════════════
-function sincToggle(id, estado) { document.getElementById(id).classList.toggle('on', estado); }
-function toggleVoz() { vozAtivada = !vozAtivada; sincToggle('toggle-voz', vozAtivada); localStorage.setItem('gym_voz', vozAtivada); detectarVozModo(); if (vozAtivada) falar("Voz ativada."); }
-function aoMudarEngine() { clickBeep(); engineVozPref = document.getElementById('cfg-voz-engine').value; detectarVozModo(); }
-function aoMudarSeletorVoz() { clickBeep(); uriVozEscolhida = document.getElementById('cfg-voz-seletor').value; }
-function aoMudarNivelVoz() { clickBeep(); nivelVozPref = document.getElementById('cfg-voz-nivel').value; }
-function atualizarVol(v)   { volVoz = parseInt(v); document.getElementById('val-vol').textContent = v+'%'; }
-function atualizarRate(v)  { rateVoz = parseInt(v); document.getElementById('val-rate').textContent = v+'%'; }
-function atualizarPitch(v) { pitchVoz = parseInt(v)/10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
-function salvarConfigVoz() {
-  clickBeep();
-  engineVozPref = document.getElementById('cfg-voz-engine').value; uriVozEscolhida = document.getElementById('cfg-voz-seletor').value; nivelVozPref = document.getElementById('cfg-voz-nivel').value;
-  localStorage.setItem('gym_voz_engine', engineVozPref); localStorage.setItem('gym_voz_uri', uriVozEscolhida); localStorage.setItem('gym_voz_nivel', nivelVozPref); localStorage.setItem('gym_vol', volVoz); localStorage.setItem('gym_rate', rateVoz); localStorage.setItem('gym_pitch', pitchVoz);
-  detectarVozModo(); irPara('screen-home');
-}
-function mudarTempoRotina(d) { clickBeep(); tempoRotina = Math.max(5, tempoRotina + d); atualizarDisplayTempoRotina(); }
-function definirTempoRotina(v) { clickBeep(); tempoRotina = v; atualizarDisplayTempoRotina(); }
-function atualizarDisplayTempoRotina() { const seg = tempoRotina; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-rotina'); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
-function mudarTempoModo(m, d) { clickBeep(); tempoPorModo[m] = Math.max(5, tempoPorModo[m] + d); atualizarDisplayTempoModo(m); atualizarStatsModo(); }
-function definirTempoModo(m, v) { clickBeep(); tempoPorModo[m] = v; atualizarDisplayTempoModo(m); atualizarStatsModo(); }
-function atualizarDisplayTempoModo(m) { const seg = tempoPorModo[m]; const txt = seg >= 60 ? (Math.floor(seg/60) + 'M' + (seg%60 ? (seg%60)+'S' : '')) : seg + 's'; const el = document.getElementById('cfg-tempo-' + m); if (el) { el.textContent = txt; el.setAttribute('data-text', txt); } }
-function mudarMetaModo(m, d) { clickBeep(); metaPorModo[m] = Math.max(1, Math.min(20, metaPorModo[m] + d)); atualizarDisplayMetaModo(m); atualizarStatsModo(); }
-function atualizarDisplayMetaModo(m) { const val = String(metaPorModo[m]); const el = document.getElementById('cfg-meta-' + m); if (el) { el.textContent = val; el.setAttribute('data-text', val); } }
-function salvarAlerta()    { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value); localStorage.setItem('gym_alerta', alertaSegundos); }
-function salvarAutoStart() { autoStartSeg   = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
-function toggleVib()       { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); if (vibAtivada && navigator.vibrate) navigator.vibrate(80); }
-function salvarConfigGeral() {
-  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit);
-  localStorage.setItem('gym_tempo_rotina', tempoRotina);
-  localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
-  tempoAtual = tempoPorModo[modoTreino]; metaSeries = metaPorModo[modoTreino];
-  irPara('screen-home');
-}
-
-function getAC() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
-function tocarTom(freq, dur, vol, tipo, t0) {
-  try {
-    const ac = getAC(), osc = ac.createOscillator(), gain = ac.createGain();
-    osc.connect(gain); gain.connect(ac.destination); osc.type = tipo||'sine'; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol||0.7, t0||ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, (t0||ac.currentTime)+dur);
-    osc.start(t0||ac.currentTime); osc.stop((t0||ac.currentTime)+dur);
-  } catch(e) {}
-}
-function tocarBeepNormal() { tocarTom(800, 0.20, 0.7, 'sine'); }
-function tocarBeepFim()    { tocarTom(1400, 1.20, 0.9, 'sine'); }
-function tocarProcessamento(cb) {
-  try {
-    const ac  = getAC();
-    const seq = [{f:120,d:.06},{f:90,d:.04},{f:200,d:.05},{f:80,d:.06},{f:160,d:.04},{f:100,d:.07}];
-    let t = ac.currentTime + 0.02;
-    seq.forEach(({f,d}) => { tocarTom(f,d,0.18,'square',t); t+=d+.01; });
-    if (cb) cb();
-  } catch(e) { if (cb) cb(); }
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  MÓDULO: DIETA & HIDRATAÇÃO
-// ══════════════════════════════════════════════════════════════════════
-
-// --- Estado da água ---
-let totalCopos        = 8;   // definido após cálculo
-let coposConsumidos   = 0;
-const AGUA_KEY        = 'gym_agua_copos';
-const AGUA_DATA_KEY   = 'gym_agua_data';
-const DIETA_DADOS_KEY   = 'gym_dieta_dados';
-const TOTAL_COPOS_KEY   = 'gym_total_copos';
-
-function abrirDieta() {
-  desbloquearAudio();
-  // Restaura totalCopos persistido mesmo sem recalcular
-  const savedCopos = parseInt(localStorage.getItem(TOTAL_COPOS_KEY));
-  if (!isNaN(savedCopos) && savedCopos > 0) totalCopos = savedCopos;
-  carregarDadosDieta();
-  verificarResetAgua();
-  renderizarCopos();
-  atualizarDisplayAgua();
-  irPara('screen-dieta');
-  const frasesDieta = [
-    "Módulo de dieta e hidratação ativado, " + nomeUsuario + ". Cuide do seu corpo por dentro também!",
-    "Painel nutricional on-line, " + nomeUsuario + ". Hidratação e dieta são parte do treino!",
-    "Módulo de saúde ativado! Lembre-se: " + nomeUsuario + ", alimentação é combustível de alto nível.",
-  ];
-  falar(frasesDieta[Math.floor(Math.random() * frasesDieta.length)], "Dieta e hidratação.");
-}
-
-function carregarDadosDieta() {
-  const saved = JSON.parse(localStorage.getItem(DIETA_DADOS_KEY) || 'null');
-  if (!saved) return;
-  const ids = ['dieta-peso','dieta-altura','dieta-idade','dieta-sexo','dieta-atividade','dieta-biotipo'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && saved[id] !== undefined) el.value = saved[id];
-  });
-  // Se já havia dados salvos, recalcula e exibe
-  if (saved['dieta-peso'] && saved['dieta-altura']) {
-    calcularDieta(true);
+function pausarDescanso() {
+  clearInterval(intervalo); timerRodando = false;
+  document.getElementById('lbl-status').textContent = 'DESCANSO PAUSADO'; document.getElementById('lbl-status').style.color = 'var(--yellow)';
+  document.getElementById('btn-play-icon').className = 'play-icon';
+  if (!modoPlanejadoAtivo) {
+     if (segundosTreino === 0) iniciarTempoTreino();
   }
 }
 
-function salvarDadosDieta() {
-  const ids = ['dieta-peso','dieta-altura','dieta-idade','dieta-sexo','dieta-atividade','dieta-biotipo'];
-  const obj = {};
-  ids.forEach(id => { obj[id] = document.getElementById(id).value; });
-  localStorage.setItem(DIETA_DADOS_KEY, JSON.stringify(obj));
+function iniciarTempoTreino() {
+  if (intervaloTreino) clearInterval(intervaloTreino);
+  intervaloTreino = setInterval(() => { segundosTreino++; document.getElementById('ib-tempo-treino').textContent = formatTempo(segundosTreino); }, 1000);
 }
 
-function calcularDieta(silencioso) {
-  if (!silencioso) clickBeep();
-
-  const peso      = parseFloat(document.getElementById('dieta-peso').value);
-  const alturaCm  = parseFloat(document.getElementById('dieta-altura').value);
-  const idade     = parseInt(document.getElementById('dieta-idade').value);
-  const sexo      = document.getElementById('dieta-sexo').value;
-  const fAtiv     = parseFloat(document.getElementById('dieta-atividade').value);
-  const biotipo   = document.getElementById('dieta-biotipo').value;
-
-  const erroEl = document.getElementById('dieta-erro');
-  if (!peso || !alturaCm || !idade || isNaN(fAtiv)) {
-    if (!silencioso) {
-      if (erroEl) { erroEl.classList.add('ativo'); setTimeout(()=>erroEl.classList.remove('ativo'), 3500); }
-      falar("Preencha peso, altura e idade para continuar.", "Dados incompletos.");
+function finalizarDescanso() {
+  clearInterval(intervalo); timerRodando = false;
+  tocarTom(1500, 0.4, 0.8, 'square');
+  if (vibAtivada && 'vibrate' in navigator) navigator.vibrate([200,100,200]);
+  
+  contador++; document.getElementById('lbl-series').textContent = contador; document.getElementById('lbl-series').setAttribute('data-text', contador);
+  
+  if (contador === 1) iniciarTempoTreino();
+  
+  const pct = Math.min((contador / metaSeries) * 100, 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-txt-dir').textContent = `${contador} / ${metaSeries}`;
+  
+  historicoDescanso.push(tempoAtual); renderizarHist();
+  
+  document.getElementById('ib-ultima').textContent = tempoAtual + 's';
+  document.getElementById('lbl-status').textContent = 'TREINO EM ANDAMENTO'; document.getElementById('lbl-status').style.color = 'var(--green)';
+  document.getElementById('btn-play-icon').className = 'play-icon';
+  
+  if (contador >= metaSeries) {
+    if (modoPlanejadoAtivo) {
+      if (idxTreinoAtual < listaTreinosDia.length - 1) mostrarProximoTreino();
+      else mostrarResumoFinal(true);
+    } else {
+      falar("Meta concluída. Excelente trabalho!", "Meta concluída");
+      mostrarResumoFinal(false);
     }
+  } else {
+    falar("Fim do descanso! Série " + (contador + 1) + " iniciada.", "Série " + (contador+1));
+    resetTimerUI(); agendarAutoStart();
+  }
+}
+
+function mostrarProximoTreino() {
+  const prox = listaTreinosDia[idxTreinoAtual + 1];
+  document.getElementById('proximo-treino-nome').textContent = prox.nome.toUpperCase();
+  document.getElementById('proximo-treino-series').textContent = prox.series + " SÉRIES";
+  document.getElementById('modal-proximo-treino').classList.add('active');
+  falar(`Fim das séries. Próximo: ${prox.nome}.`, `Próximo: ${prox.nome}`);
+}
+
+function iniciarProximoTreino() {
+  clickBeep(); document.getElementById('modal-proximo-treino').classList.remove('active');
+  idxTreinoAtual++;
+  falar(`Série do ${listaTreinosDia[idxTreinoAtual].nome}. Vamos lá!`, `Vai!`);
+  prepararTreinoAtual();
+}
+
+function mostrarResumoFinal(isRotina) {
+  clearInterval(intervaloTreino);
+  document.getElementById('resumo-modo').textContent = isRotina ? "ROTINA/PERSONAL CONCLUÍDA" : document.getElementById('timer-modo-label').textContent;
+  document.getElementById('resumo-tempo').textContent = formatTempo(segundosTreino);
+  document.getElementById('resumo-series').textContent = `${contador} / ${metaSeries}`;
+  document.getElementById('modal-resumo').classList.add('active');
+}
+
+function fecharResumo() {
+  clickBeep(); 
+  document.getElementById('modal-resumo').classList.remove('active');
+  
+  // Salvar no histórico
+  let d = new Date();
+  let dataStr = d.toLocaleDateString() + " às " + d.toLocaleTimeString().substring(0,5);
+  let titulo = modoPlanejadoAtivo 
+    ? (tipoPlanejadoAtual === 'personal' ? 'PERSONAL ONLINE - ' + perfilPersonal.objetivo.toUpperCase() : 'ROTINA SEMANAL')
+    : document.getElementById('timer-modo-label').textContent;
+
+  historicoAgenda.unshift({ data: dataStr, titulo: titulo, stats: `${contador} SÉRIES • ${formatTempo(segundosTreino)} MIN` });
+  if (historicoAgenda.length > 30) historicoAgenda.pop();
+  localStorage.setItem('gym_agenda', JSON.stringify(historicoAgenda));
+  
+  resetTimer(false);
+  
+  if (modoPlanejadoAtivo) {
+    irPara(tipoPlanejadoAtual === 'personal' ? 'screen-personal-dash' : 'screen-dia');
+  } else {
+    irPara('screen-mode');
+  }
+}
+
+function agendarAutoStart() {
+  if (autoStartSeg <= 0) return;
+  autoCountdown = autoStartSeg;
+  const el = document.getElementById('auto-countdown'); el.textContent = `Auto-iniciar em ${autoCountdown}s...`;
+  autoTimer = setInterval(() => {
+    autoCountdown--; el.textContent = `Auto-iniciar em ${autoCountdown}s...`;
+    if (autoCountdown <= 0) { clearInterval(autoTimer); el.textContent = ''; iniciarDescanso(); }
+  }, 1000);
+}
+
+function atualizaDisplay() {
+  document.getElementById('lbl-timer').textContent = formatTempo(tempoRestante);
+  document.getElementById('lbl-timer').setAttribute('data-text', formatTempo(tempoRestante));
+  const el = document.getElementById('lbl-timer'); el.className = 'lbl-timer glitch ' + (tempoRestante <= alertaSegundos && alertaSegundos > 0 ? 't-pink' : 't-white');
+  document.getElementById('prog-txt-tempo').textContent = formatTempo(tempoRestante) + ' / ' + formatTempo(tempoAtual);
+  document.getElementById('countdown-fill').style.width = ((tempoRestante / tempoAtual) * 100) + '%';
+}
+
+function resetTimerUI() {
+  tempoRestante = tempoAtual; atualizaDisplay();
+  document.getElementById('btn-play-icon').className = 'play-icon';
+}
+
+function resetTimer(fullReset) {
+  clearInterval(intervalo); if (fullReset) clearInterval(intervaloTreino);
+  if (autoTimer) { clearTimeout(autoTimer); document.getElementById('auto-countdown').textContent = ''; }
+  timerRodando = false; tempoRestante = tempoAtual;
+  if (fullReset) { contador = 0; segundosTreino = 0; historicoDescanso = []; document.getElementById('hist-list').innerHTML = ''; document.getElementById('hist-wrap').style.display = 'none'; document.getElementById('ib-tempo-treino').textContent = '00:00'; document.getElementById('ib-ultima').textContent = '--s'; document.getElementById('lbl-series').textContent = '0'; document.getElementById('lbl-series').setAttribute('data-text', '0'); document.getElementById('prog-fill').style.width = '0%'; document.getElementById('prog-txt-dir').textContent = `0 / ${metaSeries}`; }
+  document.getElementById('ib-meta').textContent = metaSeries; document.getElementById('lbl-status').textContent = 'PRONTO PARA TREINAR'; document.getElementById('lbl-status').style.color = 'var(--cyan)';
+  resetTimerUI();
+}
+
+function renderizarHist() {
+  const w = document.getElementById('hist-wrap'); const l = document.getElementById('hist-list');
+  if (historicoDescanso.length > 0) { w.style.display = 'block'; l.innerHTML = '';
+    historicoDescanso.forEach((v, i) => { const el = document.createElement('span'); el.className = 'hist-tag' + (i === historicoDescanso.length - 1 ? ' last' : ''); el.textContent = v + 's'; l.appendChild(el); });
+  } else { w.style.display = 'none'; }
+}
+
+// =======================================================================
+// AGENDA
+// =======================================================================
+function abrirAgenda() {
+  desbloquearAudio();
+  renderizarAgenda();
+  irPara('screen-agenda');
+}
+
+function renderizarAgenda() {
+  const cont = document.getElementById('lista-agenda');
+  cont.innerHTML = '';
+  if (historicoAgenda.length === 0) {
+    cont.innerHTML = '<div class="empty-msg">NENHUMA SESSÃO REGISTRADA.</div>';
     return;
   }
-  if (erroEl) erroEl.classList.remove('ativo');
+  historicoAgenda.forEach(item => {
+    let div = document.createElement('div');
+    div.className = 'agenda-item';
+    div.innerHTML = `
+      <div class="agenda-date">${item.data}</div>
+      <div class="agenda-title">${item.titulo}</div>
+      <div class="agenda-meta">${item.stats}</div>
+    `;
+    cont.appendChild(div);
+  });
+}
 
-  salvarDadosDieta();
+function limparAgenda() {
+  if (confirm("Apagar todo o histórico de treinos?")) {
+    historicoAgenda = [];
+    localStorage.setItem('gym_agenda', JSON.stringify([]));
+    renderizarAgenda();
+  }
+}
 
-  const alturaM = alturaCm / 100;
+// =======================================================================
+// CONFIGURAÇÕES
+// =======================================================================
+function mudarTempoModo(modo, delta) { tempoPorModo[modo] = Math.max(10, tempoPorModo[modo] + delta); atualizarDisplayTempoModo(modo); }
+function definirTempoModo(modo, val) { tempoPorModo[modo] = val; atualizarDisplayTempoModo(modo); }
+function mudarMetaModo(modo, delta)  { metaPorModo[modo] = Math.max(1, metaPorModo[modo] + delta); atualizarDisplayMetaModo(modo); }
+function mudarTempoRotina(delta)     { tempoRotina = Math.max(10, tempoRotina + delta); atualizarDisplayTempoRotina(); }
+function definirTempoRotina(val)     { tempoRotina = val; atualizarDisplayTempoRotina(); }
 
-  // --- IMC ---
-  const imc = peso / (alturaM * alturaM);
+function atualizarDisplayTempoModo(modo) {
+  const el = document.getElementById(`cfg-tempo-${modo}`);
+  if(el) { el.textContent = tempoPorModo[modo] + 's'; el.setAttribute('data-text', tempoPorModo[modo] + 's'); }
+}
+function atualizarDisplayMetaModo(modo) {
+  const el = document.getElementById(`cfg-meta-${modo}`);
+  if(el) { el.textContent = metaPorModo[modo]; el.setAttribute('data-text', metaPorModo[modo]); }
+}
+function atualizarDisplayTempoRotina() {
+  const el = document.getElementById('cfg-tempo-rotina');
+  if (el) { el.textContent = tempoRotina + 's'; el.setAttribute('data-text', tempoRotina + 's'); }
+}
 
-  // Status IMC
-  let statusIMC, corIMC, badgeColor;
-  if      (imc < 18.5) { statusIMC='ABAIXO DO PESO'; corIMC='cyan-card';   badgeColor='var(--cyan)'; }
-  else if (imc < 25)   { statusIMC='PESO NORMAL ✓';  corIMC='green-card';  badgeColor='var(--green)'; }
-  else if (imc < 30)   { statusIMC='SOBREPESO';       corIMC='';            badgeColor='var(--yellow)'; }
-  else if (imc < 35)   { statusIMC='OBE. GRAU I';     corIMC='pink-card';   badgeColor='var(--orange)'; }
-  else                 { statusIMC='OBE. GRAU II+';   corIMC='pink-card';   badgeColor='var(--pink)'; }
+function salvarConfigGeral() {
+  clickBeep();
+  localStorage.setItem('gym_tempo_musculacao', tempoPorModo.musculacao); localStorage.setItem('gym_meta_musculacao', metaPorModo.musculacao);
+  localStorage.setItem('gym_tempo_cardio', tempoPorModo.cardio); localStorage.setItem('gym_meta_cardio', metaPorModo.cardio);
+  localStorage.setItem('gym_tempo_hiit', tempoPorModo.hiit); localStorage.setItem('gym_meta_hiit', metaPorModo.hiit);
+  localStorage.setItem('gym_tempo_rotina', tempoRotina);
+  atualizarStatsModo(); alert("Configurações Salvas!");
+}
+
+function salvarAlerta() { alertaSegundos = parseInt(document.getElementById('cfg-alerta').value); localStorage.setItem('gym_alerta', alertaSegundos); }
+function salvarAutoStart() { autoStartSeg = parseInt(document.getElementById('cfg-autostart').value); localStorage.setItem('gym_auto', autoStartSeg); }
+function toggleVib() { vibAtivada = !vibAtivada; sincToggle('toggle-vib', vibAtivada); localStorage.setItem('gym_vib', vibAtivada); }
+function toggleVoz() { vozAtivada = !vozAtivada; sincToggle('toggle-voz', vozAtivada); localStorage.setItem('gym_voz', vozAtivada); detectarVozModo(); }
+function sincToggle(id, state) { const el = document.getElementById(id); if (el) { if (state) el.classList.add('on'); else el.classList.remove('on'); } }
+function atualizarVol(v) { volVoz = v; document.getElementById('val-vol').textContent = v + '%'; }
+function atualizarRate(v) { rateVoz = v; document.getElementById('val-rate').textContent = v + '%'; }
+function atualizarPitch(v) { pitchVoz = v / 10; document.getElementById('val-pitch').textContent = pitchVoz.toFixed(1); }
+function aoMudarEngine() { engineVozPref = document.getElementById('cfg-voz-engine').value; detectarVozModo(); }
+function aoMudarNivelVoz() { nivelVozPref = document.getElementById('cfg-voz-nivel').value; }
+function aoMudarSeletorVoz() { uriVozEscolhida = document.getElementById('cfg-voz-seletor').value; }
+
+function salvarConfigVoz() {
+  clickBeep();
+  localStorage.setItem('gym_vol', volVoz); localStorage.setItem('gym_rate', rateVoz); localStorage.setItem('gym_pitch', pitchVoz);
+  localStorage.setItem('gym_voz_engine', engineVozPref); localStorage.setItem('gym_voz_uri', uriVozEscolhida); localStorage.setItem('gym_voz_nivel', nivelVozPref);
+  alert("Voz Salva!");
+}
+
+function abrirModalNome() { clickBeep(); document.getElementById('input-nome-modal').value = nomeUsuario; document.getElementById('modal-nome').classList.add('active'); }
+function fecharModalNome() { clickBeep(); document.getElementById('modal-nome').classList.remove('active'); }
+function salvarNome() { const n = document.getElementById('input-nome-modal').value.trim(); if(n) { nomeUsuario = n; localStorage.setItem('gym_nome', nomeUsuario); atualizarDisplayNome(); } fecharModalNome(); }
+
+// =======================================================================
+// DIETA & HIDRATAÇÃO 
+// =======================================================================
+let hojeCoposKey = 'gym_agua_data';
+let aguaDataStorage = localStorage.getItem(hojeCoposKey);
+let dataAtualStr = new Date().toDateString();
+if (aguaDataStorage !== dataAtualStr) { localStorage.setItem('gym_agua_copos', '0'); localStorage.setItem(hojeCoposKey, dataAtualStr); }
+let totalCoposMarcados = parseInt(localStorage.getItem('gym_agua_copos')) || 0;
+const ML_POR_COPO = 250;
+
+function abrirDieta() { desbloquearAudio(); carregarDadosDieta(); atualizarUIHidratacao(); irPara('screen-dieta'); }
+
+function carregarDadosDieta() {
+  const d = JSON.parse(localStorage.getItem('gym_dieta')) || {};
+  if(d.peso) document.getElementById('dieta-peso').value = d.peso;
+  if(d.altura) document.getElementById('dieta-altura').value = d.altura;
+  if(d.idade) document.getElementById('dieta-idade').value = d.idade;
+  if(d.sexo) document.getElementById('dieta-sexo').value = d.sexo;
+  if(d.atividade) document.getElementById('dieta-atividade').value = d.atividade;
+  if (d.peso && d.altura && d.idade) { calcularDieta(); document.getElementById('dieta-resultados').style.display = 'block'; document.getElementById('dieta-form-panel').style.display = 'none'; }
+}
+
+function calcularDieta() {
+  const peso = parseFloat(document.getElementById('dieta-peso').value);
+  const altura = parseFloat(document.getElementById('dieta-altura').value);
+  const idade = parseInt(document.getElementById('dieta-idade').value);
+  const sexo = document.getElementById('dieta-sexo').value;
+  const ativ = parseFloat(document.getElementById('dieta-atividade').value);
+
+  if (!peso || !altura || !idade) { document.getElementById('dieta-erro').classList.add('ativo'); return; }
+  document.getElementById('dieta-erro').classList.remove('ativo');
+  
+  localStorage.setItem('gym_dieta', JSON.stringify({ peso, altura, idade, sexo, atividade: ativ }));
+
+  const altM = altura / 100; const imc = peso / (altM * altM);
+  let statusImc = ''; let corImc = '';
+  if (imc < 18.5) { statusImc = 'Abaixo do peso'; corImc = 'var(--cyan)'; }
+  else if (imc < 24.9) { statusImc = 'Peso normal'; corImc = 'var(--green)'; }
+  else if (imc < 29.9) { statusImc = 'Sobrepeso'; corImc = 'var(--yellow)'; }
+  else { statusImc = 'Obesidade'; corImc = 'var(--pink)'; }
 
   document.getElementById('res-imc').textContent = imc.toFixed(1);
-  document.getElementById('res-imc').style.color = badgeColor;
-  document.getElementById('res-status-imc').textContent = statusIMC;
-  document.getElementById('res-status-imc').style.color  = badgeColor;
   const cardStatus = document.getElementById('card-status-imc');
-  cardStatus.className = 'resultado-card ' + corIMC;
+  cardStatus.style.borderColor = corImc.replace('var(','rgba(').replace(')',',0.3)');
+  cardStatus.style.background = corImc.replace('var(','rgba(').replace(')',',0.05)');
+  document.getElementById('res-status-imc').textContent = statusImc;
+  document.getElementById('res-status-imc').style.color = corImc;
 
-  // --- Peso ideal (Fórmula de Devine) ---
-  const alturaPolegadas = alturaCm / 2.54;
-  const polegadasAcima5pes = alturaPolegadas - 60;
-  let pesoIdeal = sexo === 'm'
-    ? 50 + 2.3 * Math.max(0, polegadasAcima5pes)
-    : 45.5 + 2.3 * Math.max(0, polegadasAcima5pes);
-  pesoIdeal = Math.max(pesoIdeal, 40); // mínimo razoável
-  const diffPeso = peso - pesoIdeal;
+  const pesoIdeal = 22 * (altM * altM);
   document.getElementById('res-peso-ideal').textContent = pesoIdeal.toFixed(1) + ' kg';
-  if (Math.abs(diffPeso) < 2) {
-    document.getElementById('res-diff-peso').textContent = '✔ Você está no peso ideal!';
-    document.getElementById('res-diff-peso').style.color = 'var(--green)';
-  } else if (diffPeso > 0) {
-    document.getElementById('res-diff-peso').textContent = '▲ ' + diffPeso.toFixed(1) + ' kg acima do ideal';
-    document.getElementById('res-diff-peso').style.color = 'var(--yellow)';
-  } else {
-    document.getElementById('res-diff-peso').textContent = '▼ ' + Math.abs(diffPeso).toFixed(1) + ' kg abaixo do ideal';
-    document.getElementById('res-diff-peso').style.color = 'var(--cyan)';
-  }
+  const diff = peso - pesoIdeal;
+  document.getElementById('res-diff-peso').textContent = (diff > 0 ? '−' : '+') + Math.abs(diff).toFixed(1) + ' kg para o ideal';
 
-  // --- Biotipo ---
-  const biotipoInfo = document.getElementById('res-biotipo-info');
-  if (biotipo !== 'none') {
-    const biotipoTextos = {
-      ecto: '🧬 ECTOMORFO — Metabolismo acelerado. Foco em superávit calórico (+400~600 kcal) e alta ingestão de carboidratos complexos. Treinos de força com menor cardio.',
-      meso: '🧬 MESOMORFO — Responde bem a qualquer protocolo. Distribua macros: ~40% carbo / 30% proteína / 30% gordura. Treinos variados funcionam muito.',
-      endo: '🧬 ENDOMORFO — Metabolismo mais lento. Prefira déficit calórico moderado (−300~500 kcal) com ênfase em proteínas e gorduras boas. Cardio regular é aliado.'
-    };
-    biotipoInfo.textContent = biotipoTextos[biotipo] || '';
-    biotipoInfo.style.display = 'block';
-  } else {
-    biotipoInfo.style.display = 'none';
-  }
+  let tmb = (10 * peso) + (6.25 * altura) - (5 * idade);
+  tmb = sexo === 'm' ? tmb + 5 : tmb - 161;
+  const caloriasManutencao = Math.round(tmb * ativ);
+  document.getElementById('res-cal-manutencao').textContent = caloriasManutencao + ' kcal';
+  const prot = Math.round(peso * 2); const gord = Math.round(peso * 0.8);
+  const calRestantes = caloriasManutencao - (prot * 4) - (gord * 9);
+  const carb = Math.max(0, Math.round(calRestantes / 4));
+  document.getElementById('res-cal-macro').textContent = `Macros aprox: ${prot}g Prot | ${carb}g Carb | ${gord}g Gord`;
+  document.getElementById('res-cal-ganho').textContent = (caloriasManutencao + 400) + ' kcal';
+  document.getElementById('res-cal-perca').textContent = (caloriasManutencao - 500) + ' kcal';
 
-  // --- TMB (Mifflin-St Jeor) ---
-  let tmb = sexo === 'm'
-    ? 10 * peso + 6.25 * alturaCm - 5 * idade + 5
-    : 10 * peso + 6.25 * alturaCm - 5 * idade - 161;
-
-  const manutencao = Math.round(tmb * fAtiv);
-  const ganho      = manutencao + 400;
-  const perca      = manutencao - 500;
-
-  // Ajuste por biotipo nas calorias
-  let obsExtra = '';
-  if (biotipo === 'ecto') obsExtra = ' // Ectomorfo: considere +100 kcal extra no ganho de massa.';
-  else if (biotipo === 'endo') obsExtra = ' // Endomorfo: evite superávit, mantenha déficit moderado.';
-
-  document.getElementById('res-cal-manutencao').textContent = manutencao + ' kcal';
-  document.getElementById('res-cal-ganho').textContent      = ganho + ' kcal';
-  document.getElementById('res-cal-perca').textContent      = Math.max(1200, perca) + ' kcal';
-
-  // Macros estimados (manutenção)
-  const prot = Math.round(peso * 1.8);         // 1.8g/kg (atleta)
-  const gord = Math.round((manutencao * 0.25) / 9);
-  const carb = Math.round((manutencao - prot*4 - gord*9) / 4);
-  document.getElementById('res-cal-macro').textContent =
-    `Proteína ~${prot}g · Carbo ~${carb}g · Gordura ~${gord}g`;
-  document.getElementById('res-cal-obs').textContent =
-    '// Mifflin-St Jeor · macros estimados para atleta (1.8g prot/kg).' + obsExtra;
-
-  // --- ÁGUA ---
-  // Fórmula: 35ml/kg, mínimo 2L, máximo 5L
-  const mlAgua   = Math.min(5000, Math.max(2000, Math.round(peso * 35)));
-  totalCopos     = Math.round(mlAgua / 250);
-  localStorage.setItem(TOTAL_COPOS_KEY, String(totalCopos));
-  document.getElementById('agua-meta-info').textContent =
-    `// Meta: ${mlAgua}ml (${(mlAgua/1000).toFixed(1)}L) = ${totalCopos} copos de 250ml. ` +
-    `Calculado por: 35ml × ${peso}kg. Reseta à meia-noite.`;
-
-  // Recarrega contagem salva
-  verificarResetAgua();
-  renderizarCopos();
-  atualizarDisplayAgua();
-
-  // Exibir painel de resultados
+  document.getElementById('dieta-form-panel').style.display = 'none';
   document.getElementById('dieta-resultados').style.display = 'block';
-
-  // Scroll até resultados
-  setTimeout(() => {
-    document.getElementById('dieta-resultados').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 150);
-
-  // ── Falas dos resultados ──
-  if (!silencioso) {
-    const mlAgua = totalCopos * 250;
-    const imcFala = imc.toFixed(1).replace('.', ' vírgula ');
-
-    // Monta fala do IMC/peso
-    let falaIMC = '';
-    if (Math.abs(diffPeso) < 2) {
-      falaIMC = `Parabéns, ${nomeUsuario}! Seu índice de massa corporal é ${imcFala}, você está no peso ideal!`;
-    } else if (diffPeso > 0) {
-      falaIMC = `Seu índice de massa corporal é ${imcFala}, com sobrepeso de ${diffPeso.toFixed(0)} quilos. Vamos trabalhar nisso!`;
-    } else {
-      falaIMC = `Seu índice de massa corporal é ${imcFala}. Você está ${Math.abs(diffPeso).toFixed(0)} quilos abaixo do peso ideal.`;
-    }
-
-    // Monta fala das calorias
-    const falaCaloria = `Para manter seu peso, consuma ${manutencao} calorias por dia. Para emagrecer, reduza para ${Math.max(1200, perca)} calorias.`;
-
-    // Monta fala da água
-    const falaAgua = `Sua meta de hidratação é ${totalCopos} copos de água, totalizando ${mlAgua} mililitros por dia. Beba com frequência!`;
-
-    // Fala biotipo (curta)
-    const falaBiotipo = {
-      ecto: ' Sendo ectomorfo, foque em comer mais.',
-      meso: ' Sendo mesomorfo, você tem ótima resposta ao treino.',
-      endo: ' Sendo endomorfo, controle o déficit calórico.'
-    };
-    const extraBiotipo = biotipo !== 'none' ? (falaBiotipo[biotipo] || '') : '';
-
-    setTimeout(() => {
-      falar(falaIMC + ' ' + falaCaloria + extraBiotipo + ' ' + falaAgua,
-            falaIMC);
-    }, 400);
-  }
+  clickBeep();
 }
 
-// ── Copos de Água ──
-function verificarResetAgua() {
-  const hoje       = new Date().toDateString();
-  const dataGuarda = localStorage.getItem(AGUA_DATA_KEY);
-  if (dataGuarda !== hoje) {
-    coposConsumidos = 0;
-    localStorage.setItem(AGUA_DATA_KEY, hoje);
-    localStorage.setItem(AGUA_KEY, '0');
-  } else {
-    coposConsumidos = parseInt(localStorage.getItem(AGUA_KEY) || '0');
-  }
+function rolarParaForm() {
+  clickBeep();
+  document.getElementById('dieta-resultados').style.display = 'none';
+  document.getElementById('dieta-form-panel').style.display = 'block';
 }
 
-function renderizarCopos() {
-  const grid = document.getElementById('copos-grid');
-  grid.innerHTML = '';
-  for (let i = 1; i <= totalCopos; i++) {
-    const cheio = i <= coposConsumidos;
-    const btn = document.createElement('button');
-    btn.className = 'copo-btn';
-    btn.setAttribute('aria-label', 'Copo ' + i);
-    btn.onclick = () => toggleCopo(i);
-    btn.innerHTML = `
-      ${criarSVGCopo(cheio, i)}
-      <span class="copo-numero">${i}</span>
-    `;
+function atualizarUIHidratacao() {
+  const d = JSON.parse(localStorage.getItem('gym_dieta')) || {};
+  let metaLitros = 2.5; if (d.peso) metaLitros = (d.peso * 35) / 1000;
+  let totalCoposMeta = Math.ceil((metaLitros * 1000) / ML_POR_COPO);
+  if (totalCoposMeta < 8) totalCoposMeta = 8;
+  document.getElementById('agua-total-copos').textContent = totalCoposMeta;
+
+  const totalMlMarcado = totalCoposMarcados * ML_POR_COPO;
+  document.getElementById('agua-display').innerHTML = `${totalCoposMarcados} / <span id="agua-total-copos">${totalCoposMeta}</span><span class="agua-pct" id="agua-pct"></span>`;
+  document.getElementById('agua-ml-display').textContent = `${totalMlMarcado} ml consumidos de ${(totalCoposMeta*ML_POR_COPO)} ml`;
+
+  let pct = Math.min((totalCoposMarcados / totalCoposMeta) * 100, 100);
+  document.getElementById('agua-pct').textContent = Math.round(pct) + '%';
+  const bar = document.getElementById('agua-bar');
+  bar.style.width = pct + '%';
+  bar.className = 'agua-bar-fill';
+  if (pct < 30) bar.classList.add('nivel-baixo'); else if (pct < 60) bar.classList.add('nivel-medio'); else if (pct < 100) bar.classList.add('nivel-alto'); else bar.classList.add('nivel-completo');
+
+  const grid = document.getElementById('copos-grid'); grid.innerHTML = '';
+  for (let i = 1; i <= totalCoposMeta; i++) {
+    const btn = document.createElement('button'); btn.className = 'copo-btn'; btn.onclick = () => toggleCopo(i, totalCoposMeta);
+    let color = i <= totalCoposMarcados ? 'var(--cyan)' : 'rgba(0,240,255,0.1)';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="${color}" stroke="var(--cyan)" stroke-width="1.5"><path d="M5 2h14l-2 18H7L5 2zm2 2l1.5 14h7L17 4H7z"/></svg><div class="copo-numero">${i}</div>`;
     grid.appendChild(btn);
   }
 }
 
-function criarSVGCopo(cheio, idx) {
-  const corBorda  = cheio ? '#00f0ff' : 'rgba(0,240,255,0.35)';
-  const corAgua   = '#00f0ff';
-  const opacAgua  = cheio ? '0.85' : '0';
-  const brilho    = cheio ? '0 0 12px rgba(0,240,255,0.6)' : 'none';
-  return `<svg viewBox="0 0 50 66" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(${brilho})">
-    <!-- corpo do copo -->
-    <path d="M8 10 L6 62 Q6 64 8 64 L42 64 Q44 64 44 62 L42 10 Z"
-          fill="rgba(0,240,255,0.04)" stroke="${corBorda}" stroke-width="2" stroke-linejoin="round"/>
-    <!-- aba do copo -->
-    <path d="M6 10 L44 10" stroke="${corBorda}" stroke-width="2" stroke-linecap="round"/>
-    <!-- água -->
-    <clipPath id="clip-copo-${idx}">
-      <path d="M8.5 11 L7 62 Q7 63 8.5 63 L41.5 63 Q43 63 43 62 L41.5 11 Z"/>
-    </clipPath>
-    <rect x="0" y="22" width="50" height="42" fill="${corAgua}" opacity="${opacAgua}" clip-path="url(#clip-copo-${idx})"/>
-    <!-- marcação de 250ml -->
-    <line x1="35" y1="28" x2="42" y2="28" stroke="${corBorda}" stroke-width="1" opacity="0.5"/>
-    <text x="36" y="26" font-size="6" fill="${corBorda}" opacity="0.5" font-family="monospace">250</text>
-  </svg>`;
-}
-
-function toggleCopo(idx) {
+function toggleCopo(indice, meta) {
   clickBeep();
-  const eraConsumido = idx <= coposConsumidos;
-  if (eraConsumido) {
-    coposConsumidos = idx - 1;
-  } else {
-    coposConsumidos = idx;
-  }
-  localStorage.setItem(AGUA_KEY, String(coposConsumidos));
-  renderizarCopos();
-  atualizarDisplayAgua();
-  // Anima o copo tocado
-  if (!eraConsumido) {
-    const grid = document.getElementById('copos-grid');
-    const btns = grid ? grid.querySelectorAll('.copo-btn') : [];
-    const alvo = btns[coposConsumidos - 1];
-    if (alvo) { alvo.classList.add('copo-pulse'); alvo.addEventListener('animationend', ()=>alvo.classList.remove('copo-pulse'), {once:true}); }
-  }
-
-  // ── Falas da hidratação ──
-  if (!eraConsumido) {
-    // Avançou um copo — marcos especiais
-    const metade   = Math.floor(totalCopos / 2);
-    const restante = totalCopos - coposConsumidos;
-
-    if (coposConsumidos === totalCopos) {
-      falar("Meta de hidratação completa! Muito bem, " + nomeUsuario + "! Você está bem hidratado hoje!",
-            "Meta de água completa!");
-    } else if (coposConsumidos === metade) {
-      falar("Metade da meta de água atingida! Continue assim, " + nomeUsuario + "! Ainda faltam " + restante + " copos.",
-            "Metade da água!");
-    } else if (coposConsumidos === 1) {
-      falar("Primeiro copo registrado. Bora se hidratar, " + nomeUsuario + "!",
-            "Primeiro copo!");
-    } else if (restante === 1) {
-      falar("Falta apenas um copo para completar sua meta! Vai " + nomeUsuario + "!",
-            "Último copo!");
-    }
-    // copos avulsos sem marco: sem fala (evita excesso)
+  if (indice <= totalCoposMarcados) totalCoposMarcados = indice - 1; else totalCoposMarcados = indice;
+  localStorage.setItem('gym_agua_copos', totalCoposMarcados);
+  atualizarUIHidratacao();
+  const grid = document.getElementById('copos-grid');
+  if (grid.children[indice - 1]) {
+    grid.children[indice - 1].classList.remove('copo-pulse'); void grid.children[indice - 1].offsetWidth; grid.children[indice - 1].classList.add('copo-pulse');
   }
 }
 
-function resetarCopos() {
-  clickBeep();
-  coposConsumidos = 0;
-  localStorage.setItem(AGUA_KEY, '0');
-  localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
-  renderizarCopos();
-  atualizarDisplayAgua();
-  falar("Contagem de água reiniciada. Beba seus " + totalCopos + " copos hoje, " + nomeUsuario + "!",
-        "Contagem reiniciada.");
-}
+function resetarCopos() { clickBeep(); if(confirm('Zerar contagem de água de hoje?')) { totalCoposMarcados = 0; localStorage.setItem('gym_agua_copos', '0'); atualizarUIHidratacao(); } }
 
-function rolarParaForm() {
-  document.getElementById('dieta-form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function atualizarDisplayAgua() {
-  const mlConsumidos = coposConsumidos * 250;
-  const mlTotal      = totalCopos * 250;
-  const pct          = totalCopos > 0 ? Math.min(100, (coposConsumidos / totalCopos) * 100) : 0;
-  const pctTxt       = Math.round(pct) + '%';
-  document.getElementById('agua-display').innerHTML =
-    coposConsumidos + ' / <span id="agua-total-copos">' + totalCopos + '</span><span class="agua-pct" id="agua-pct">' + pctTxt + '</span>';
-  document.getElementById('agua-ml-display').textContent =
-    mlConsumidos + ' ml / ' + mlTotal + ' ml';
-  const bar = document.getElementById('agua-bar');
-  bar.style.width = pct + '%';
-  // Cor progressiva da barra
-  bar.className = 'agua-bar-fill ' + (pct >= 100 ? 'nivel-completo' : pct >= 60 ? 'nivel-alto' : pct >= 30 ? 'nivel-medio' : 'nivel-baixo');
-}
-
-// Reset automático da água à meia-noite
-function agendarResetMeiaNoite() {
-  const agora   = new Date();
-  const amanha  = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1, 0, 0, 5);
-  const msAte   = amanha - agora;
-  setTimeout(() => {
-    coposConsumidos = 0;
-    localStorage.setItem(AGUA_KEY, '0');
-    localStorage.setItem(AGUA_DATA_KEY, new Date().toDateString());
-    renderizarCopos();
-    atualizarDisplayAgua();
-    falar("Novo dia, nova meta de hidratação! Beba seus " + totalCopos + " copos de água hoje, " + nomeUsuario + ".",
-          "Nova meta de hidratação!");
-    agendarResetMeiaNoite(); // reagenda para a próxima meia-noite
-  }, msAte);
-}
-agendarResetMeiaNoite();
-
-window.onload = () => { tentarCarregarRV(); };
 </script>
 </body>
 </html>
