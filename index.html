@@ -409,6 +409,66 @@
 
     /* Percentual de hidratação */
     .agua-pct { display: inline-block; color: var(--green); font-size: clamp(13px,3.5vw,16px); font-weight: bold; margin-left: 8px; }
+
+    /* ── GUIA ALIMENTAR POR OBJETIVO ── */
+    .objetivo-btns {
+      display: flex; flex-direction: column; gap: 9px; margin-top: 16px; margin-bottom: 4px;
+    }
+    .btn-objetivo {
+      display: block; width: 100%;
+      background: rgba(12,14,24,.94);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(12px,3.3vw,15px); text-transform: uppercase;
+      padding: clamp(12px,3.5vw,15px) 14px;
+      cursor: pointer; letter-spacing: 1.5px; border: 2px solid;
+      transition: opacity .1s, background .2s;
+      -webkit-tap-highlight-color: transparent;
+      text-align: left;
+    }
+    .btn-objetivo:active { opacity: .65; }
+    .btn-objetivo.ob-manter  { border-color: var(--cyan);   color: var(--cyan);   }
+    .btn-objetivo.ob-manter.ativo  { background: rgba(0,240,255,.12); box-shadow: 0 0 12px rgba(0,240,255,.25); }
+    .btn-objetivo.ob-emagrec { border-color: var(--pink);   color: var(--pink);   }
+    .btn-objetivo.ob-emagrec.ativo { background: rgba(255,0,60,.12);  box-shadow: 0 0 12px rgba(255,0,60,.25);  }
+    .btn-objetivo.ob-massa   { border-color: var(--green);  color: var(--green);  }
+    .btn-objetivo.ob-massa.ativo   { background: rgba(0,255,64,.12);  box-shadow: 0 0 12px rgba(0,255,64,.25);  }
+
+    .guia-alimentar {
+      display: none; margin-top: 12px;
+      border: 2px solid; padding: 14px 12px 10px;
+      background: rgba(8,10,18,.97); position: relative;
+    }
+    .guia-alimentar.vis { display: block; }
+    .guia-titulo {
+      font-size: clamp(11px,3vw,13px); font-weight: bold; letter-spacing: 1px;
+      margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid;
+    }
+    .guia-obs {
+      font-size: clamp(9px,2.4vw,10px); font-weight: bold; color: var(--dim);
+      letter-spacing: .3px; margin-top: 10px; padding: 7px 9px;
+      border: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.3);
+      line-height: 1.5;
+    }
+
+    .alimento-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.07);
+    }
+    .alimento-item:last-of-type { border-bottom: none; }
+    .alimento-icone {
+      font-size: clamp(20px,5.5vw,26px); line-height: 1; flex-shrink: 0; margin-top: 1px;
+    }
+    .alimento-corpo { flex: 1; min-width: 0; }
+    .alimento-nome {
+      font-size: clamp(12px,3.3vw,15px); font-weight: bold; letter-spacing: .5px; line-height: 1.2;
+    }
+    .alimento-gramas {
+      font-size: clamp(10px,2.7vw,12px); font-weight: bold; margin-top: 2px; letter-spacing: .5px;
+    }
+    .alimento-ref {
+      font-size: clamp(9px,2.4vw,11px); color: var(--dim); font-weight: bold;
+      margin-top: 3px; letter-spacing: .3px; line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -1023,6 +1083,42 @@
         <div style="margin-top:12px;padding:8px 10px;border:1px solid rgba(0,240,255,.2);background:rgba(0,240,255,.03);color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.3px;" id="agua-meta-info">
           // Cada copo = 250ml. A contagem reseta automaticamente à meia-noite.
         </div>
+      </div>
+
+      <!-- GUIA ALIMENTAR POR OBJETIVO -->
+      <div class="panel" style="border-color:var(--yellow); margin-top:16px; padding:18px 18px 16px;">
+        <div class="corner-tr" style="border-color:var(--yellow)"></div>
+        <div class="corner-bl" style="border-color:var(--yellow)"></div>
+        <div style="color:var(--yellow);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(252,238,12,.2);padding-bottom:6px;margin-bottom:4px;">🥗 GUIA DE ALIMENTOS POR OBJETIVO</div>
+        <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-bottom:4px;letter-spacing:.3px;">// Selecione seu objetivo para ver os alimentos recomendados</div>
+
+        <div class="objetivo-btns">
+          <button class="btn-objetivo ob-manter"  onclick="abrirGuiaAlimentar('manter')">⚖️ &nbsp;MANTER PESO</button>
+          <button class="btn-objetivo ob-emagrec" onclick="abrirGuiaAlimentar('emagrec')">🔥 &nbsp;FOCO EM EMAGRECIMENTO</button>
+          <button class="btn-objetivo ob-massa"   onclick="abrirGuiaAlimentar('massa')">💪 &nbsp;FOCO EM GANHO DE MASSA</button>
+        </div>
+
+        <!-- PAINEL: MANTER PESO -->
+        <div class="guia-alimentar" id="guia-manter" style="border-color:var(--cyan);">
+          <div class="guia-titulo" style="color:var(--cyan); border-color:rgba(0,240,255,.25);">⚖️ ALIMENTOS PARA MANTER O PESO</div>
+          <div id="lista-manter"></div>
+          <div class="guia-obs">// Dieta equilibrada. Distribua em 4–5 refeições ao dia. Priorize comida de verdade e evite ultraprocessados.</div>
+        </div>
+
+        <!-- PAINEL: EMAGRECIMENTO -->
+        <div class="guia-alimentar" id="guia-emagrec" style="border-color:var(--pink);">
+          <div class="guia-titulo" style="color:var(--pink); border-color:rgba(255,0,60,.25);">🔥 ALIMENTOS PARA EMAGRECER</div>
+          <div id="lista-emagrec"></div>
+          <div class="guia-obs">// Alta proteína + baixo carboidrato. Priorize vegetais crus e proteínas magras. Beba bastante água entre as refeições.</div>
+        </div>
+
+        <!-- PAINEL: GANHO DE MASSA -->
+        <div class="guia-alimentar" id="guia-massa" style="border-color:var(--green);">
+          <div class="guia-titulo" style="color:var(--green); border-color:rgba(0,255,64,.25);">💪 ALIMENTOS PARA GANHO DE MASSA</div>
+          <div id="lista-massa"></div>
+          <div class="guia-obs">// Superávit calórico moderado. Distribua proteínas em todas as refeições. Carboidratos são aliados antes e depois do treino.</div>
+        </div>
+
       </div>
 
     </div><!-- fim resultados -->
@@ -2261,6 +2357,113 @@ function agendarResetMeiaNoite() {
 agendarResetMeiaNoite();
 
 window.onload = () => { tentarCarregarRV(); };
+
+// ══════════════════════════════════════════════════════════════════════
+//  GUIA ALIMENTAR POR OBJETIVO
+// ══════════════════════════════════════════════════════════════════════
+const GUIA_DADOS = {
+  manter: [
+    { ic:'🍚', nome:'Arroz branco cozido',     g:'180g',  cor:'var(--cyan)',  ref:'1 escumadeira bem cheia — equivale a 4 colheres de servir' },
+    { ic:'🍠', nome:'Batata-doce cozida',       g:'200g',  cor:'var(--cyan)',  ref:'2 batatas médias, ou 1 grande inteira' },
+    { ic:'🥩', nome:'Frango grelhado (peito)',  g:'150g',  cor:'var(--cyan)',  ref:'1 filé médio — tamanho da palma da mão' },
+    { ic:'🥚', nome:'Ovos inteiros',            g:'110g',  cor:'var(--cyan)',  ref:'2 ovos grandes (refeição completa)' },
+    { ic:'🫘', nome:'Feijão cozido',            g:'180g',  cor:'var(--cyan)',  ref:'1 concha grande bem cheia' },
+    { ic:'🥦', nome:'Brócolis cozido',          g:'150g',  cor:'var(--cyan)',  ref:'1 xícara de chá cheia (bem compactado)' },
+    { ic:'🍌', nome:'Banana',                   g:'120g',  cor:'var(--cyan)',  ref:'1 banana média — 15cm de comprimento aprox.' },
+    { ic:'🥛', nome:'Iogurte natural integral', g:'200g',  cor:'var(--cyan)',  ref:'1 pote médio (copo de requeijão cheio)' },
+    { ic:'🥑', nome:'Abacate',                  g:'80g',   cor:'var(--cyan)',  ref:'½ abacate pequeno ou ¼ de um grande' },
+    { ic:'🫒', nome:'Azeite de oliva',          g:'15ml',  cor:'var(--cyan)',  ref:'1 colher de sopa — regue saladas e carnes' },
+    { ic:'🌾', nome:'Aveia em flocos',          g:'40g',   cor:'var(--cyan)',  ref:'4 colheres de sopa — ótima no café da manhã' },
+    { ic:'🥕', nome:'Cenoura crua',             g:'100g',  cor:'var(--cyan)',  ref:'1 cenoura média inteira' },
+  ],
+  emagrec: [
+    { ic:'🥩', nome:'Peito de frango grelhado', g:'200g',  cor:'var(--pink)',  ref:'1 filé grande ou 2 filés pequenos' },
+    { ic:'🐟', nome:'Atum em lata (água)',       g:'120g',  cor:'var(--pink)',  ref:'1 lata pequena drenada (130g bruto)' },
+    { ic:'🥚', nome:'Claras de ovo',             g:'165g',  cor:'var(--pink)',  ref:'5 claras — separe as gemas, frite ou cozinhe' },
+    { ic:'🥦', nome:'Brócolis cozido',           g:'250g',  cor:'var(--pink)',  ref:'2 xícaras de chá cheias — coma à vontade' },
+    { ic:'🥬', nome:'Folhas verdes (alface, rúcula, agrião)', g:'à vontade', cor:'var(--pink)', ref:'Sem limite — tempere com limão e azeite mínimo' },
+    { ic:'🥒', nome:'Pepino',                    g:'à vontade', cor:'var(--pink)', ref:'Fatie e use como petisco entre refeições' },
+    { ic:'🍅', nome:'Tomate',                    g:'150g',  cor:'var(--pink)',  ref:'2 tomates médios — ótimo em saladas' },
+    { ic:'🥕', nome:'Cenoura crua',              g:'100g',  cor:'var(--pink)',  ref:'1 cenoura média — petisco saudável' },
+    { ic:'🫙', nome:'Iogurte natural (0% gordura)', g:'170g', cor:'var(--pink)', ref:'1 pote — prefira sem açúcar adicionado' },
+    { ic:'🌾', nome:'Aveia em flocos',           g:'30g',   cor:'var(--pink)',  ref:'3 colheres de sopa — deixa saciado por mais tempo' },
+    { ic:'🍠', nome:'Batata-doce cozida',        g:'120g',  cor:'var(--pink)',  ref:'1 batata pequena — carboidrato de baixo índice glicêmico' },
+    { ic:'🍋', nome:'Limão (suco)',              g:'à vontade', cor:'var(--pink)', ref:'Use como tempero — acelera o metabolismo' },
+  ],
+  massa: [
+    { ic:'🍚', nome:'Arroz branco cozido',      g:'300g',  cor:'var(--green)', ref:'2 escumadeiras cheias — base de energia do treino' },
+    { ic:'🍠', nome:'Batata-doce cozida',        g:'300g',  cor:'var(--green)', ref:'3 batatas médias, ou 1 grande + 1 média' },
+    { ic:'🥩', nome:'Frango grelhado (peito)',   g:'250g',  cor:'var(--green)', ref:'1 filé bem grande ou 1 médio + ½ pequeno' },
+    { ic:'🥚', nome:'Ovos inteiros',             g:'220g',  cor:'var(--green)', ref:'4 ovos grandes — divida em 2 refeições' },
+    { ic:'🫘', nome:'Feijão cozido',             g:'250g',  cor:'var(--green)', ref:'1 concha e meia generosa' },
+    { ic:'🍌', nome:'Banana',                    g:'200g',  cor:'var(--green)', ref:'2 bananas médias — ótima pré e pós-treino' },
+    { ic:'🥜', nome:'Amendoim ou pasta de amendoim', g:'50g', cor:'var(--green)', ref:'1 punhado generoso ou 2 colheres de sopa de pasta' },
+    { ic:'🥛', nome:'Leite integral',            g:'300ml', cor:'var(--green)', ref:'1 copo grande — tome antes de dormir' },
+    { ic:'🍞', nome:'Pão integral',              g:'80g',   cor:'var(--green)', ref:'2 fatias médias — prefira de grãos inteiros' },
+    { ic:'🥑', nome:'Abacate',                   g:'120g',  cor:'var(--green)', ref:'½ abacate médio — gordura boa para hormônios' },
+    { ic:'🧀', nome:'Queijo minas frescal',      g:'60g',   cor:'var(--green)', ref:'2 fatias médias — proteína + cálcio' },
+    { ic:'🫙', nome:'Whey protein (se usar)',    g:'30g',   cor:'var(--green)', ref:'1 scoop — dissolva em água ou leite pós-treino' },
+  ]
+};
+
+let guiaAtivoAtual = null;
+
+function abrirGuiaAlimentar(objetivo) {
+  clickBeep();
+
+  // Fechar se clicar no mesmo
+  if (guiaAtivoAtual === objetivo) {
+    document.getElementById('guia-' + objetivo).classList.remove('vis');
+    document.querySelector('.btn-objetivo.ob-' + (objetivo === 'emagrec' ? 'emagrec' : objetivo === 'massa' ? 'massa' : 'manter')).classList.remove('ativo');
+    guiaAtivoAtual = null;
+    return;
+  }
+
+  // Fechar o anterior
+  if (guiaAtivoAtual) {
+    document.getElementById('guia-' + guiaAtivoAtual).classList.remove('vis');
+    const mapClasse = { manter:'ob-manter', emagrec:'ob-emagrec', massa:'ob-massa' };
+    const btnAnt = document.querySelector('.btn-objetivo.' + mapClasse[guiaAtivoAtual]);
+    if (btnAnt) btnAnt.classList.remove('ativo');
+  }
+
+  // Renderizar lista se ainda não foi feito
+  const listaEl = document.getElementById('lista-' + objetivo);
+  if (listaEl && listaEl.innerHTML.trim() === '') {
+    const alimentos = GUIA_DADOS[objetivo] || [];
+    listaEl.innerHTML = alimentos.map(a => `
+      <div class="alimento-item">
+        <div class="alimento-icone">${a.ic}</div>
+        <div class="alimento-corpo">
+          <div class="alimento-nome" style="color:${a.cor}">${a.nome}</div>
+          <div class="alimento-gramas" style="color:${a.cor}; opacity:.75">${a.g} por dia</div>
+          <div class="alimento-ref">↳ ${a.ref}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Abrir o novo
+  document.getElementById('guia-' + objetivo).classList.add('vis');
+  const mapClasse2 = { manter:'ob-manter', emagrec:'ob-emagrec', massa:'ob-massa' };
+  const btnNovo = document.querySelector('.btn-objetivo.' + mapClasse2[objetivo]);
+  if (btnNovo) btnNovo.classList.add('ativo');
+
+  guiaAtivoAtual = objetivo;
+
+  // Scroll suave até o painel
+  setTimeout(() => {
+    document.getElementById('guia-' + objetivo).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+
+  // Fala sobre o objetivo
+  const falas = {
+    manter:  'Guia para manutenção de peso. Alimentação equilibrada com proteínas, carboidratos e gorduras boas.',
+    emagrec: 'Guia para emagrecimento. Foco em proteínas magras e vegetais. Reduza carboidratos e gorduras.',
+    massa:   'Guia para ganho de massa. Aumente a ingestão de carboidratos e proteínas. Coma mais vezes ao dia.'
+  };
+  falar(falas[objetivo], objetivo === 'manter' ? 'Manutenção.' : objetivo === 'emagrec' ? 'Emagrecimento.' : 'Ganho de massa.');
+}
 </script>
 </body>
 </html>
