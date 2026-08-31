@@ -1751,6 +1751,16 @@ function iniciarTimer() {
   solicitarWakeLock();
   timerRodando = true;
 
+  // Fala de aquecimento: apenas no primeiro tempo (antes da série 1 ser contada)
+  if (contador === 0 && tempoRestante === tempoAtual) {
+    setTimeout(() => {
+      falar(
+        "Use esse primeiro tempo para se aquecer ou se alongar, " + nomeUsuario + "!",
+        "Aquecimento!"
+      );
+    }, 600);
+  }
+
   intervalo = setInterval(() => {
     tempoRestante--;
     atualizarBarraTempo(tempoRestante);
