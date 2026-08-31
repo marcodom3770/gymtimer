@@ -2849,7 +2849,7 @@ Responda SOMENTE com um JSON válido, sem texto antes ou depois, sem markdown, s
 Monte apenas os dias selecionados: ${diasStr}. Cada dia deve ter de 4 a 6 exercícios adequados ao nível ${ptNivelSelecionado}. Não prescreva exercícios inadequados se houver limitações relatadas.`;
 
   try {
-    const resposta = await fetch('https://api.anthropic.com/v1/messages', {
+    const resposta = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -3095,7 +3095,7 @@ Responda SOMENTE com JSON válido, mesmo formato de antes:
 }`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
