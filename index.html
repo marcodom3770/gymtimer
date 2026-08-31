@@ -469,6 +469,163 @@
       font-size: clamp(9px,2.4vw,11px); color: var(--dim); font-weight: bold;
       margin-top: 3px; letter-spacing: .3px; line-height: 1.4;
     }
+
+    /* ══════════════════════════════════════════
+       PERSONAL TRAINER IA — ESTILOS
+    ══════════════════════════════════════════ */
+    #screen-personal { justify-content: flex-start; padding-top: 16px; }
+    #screen-pt-treino { justify-content: flex-start; padding-top: 16px; }
+
+    .pt-label {
+      color: var(--dim); font-size: clamp(10px,2.8vw,12px); font-weight: bold;
+      letter-spacing: .5px; margin-bottom: 5px; display: block;
+    }
+    .pt-input {
+      width: 100%; background: rgba(255,0,60,.05);
+      border: 2px solid var(--pink); color: var(--pink);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(15px,4.2vw,19px); text-align: center;
+      padding: 10px; letter-spacing: 1px; outline: none; margin-bottom: 12px;
+    }
+    .pt-input::placeholder { color: rgba(255,0,60,.3); }
+    .pt-input:focus { box-shadow: 0 0 10px rgba(255,0,60,.25); }
+    .pt-select {
+      width: 100%; background: rgba(255,0,60,.05);
+      border: 2px solid var(--pink); color: var(--pink);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(12px,3.2vw,14px); padding: 10px;
+      cursor: pointer; outline: none; margin-bottom: 12px;
+      -webkit-appearance: none; appearance: none;
+    }
+    .pt-select option { background: #0a0c18; }
+
+    .pt-nivel-row {
+      display: flex; gap: 6px; margin-bottom: 14px;
+    }
+    .pt-nivel-btn {
+      flex: 1; background: rgba(10,12,20,.96);
+      border: 2px solid rgba(255,0,60,.3); color: rgba(255,0,60,.5);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(10px,2.8vw,12px); padding: 10px 4px;
+      cursor: pointer; letter-spacing: .5px; text-align: center;
+      -webkit-tap-highlight-color: transparent; transition: all .15s;
+    }
+    .pt-nivel-btn.ativo {
+      border-color: var(--pink); color: #000;
+      background: var(--pink); box-shadow: 0 0 12px rgba(255,0,60,.5);
+    }
+    .pt-nivel-btn:active { opacity: .7; }
+
+    .pt-dias-row {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .pt-dia-btn {
+      flex: 1; min-width: calc(14% - 6px);
+      background: rgba(10,12,20,.96);
+      border: 2px solid rgba(255,0,60,.3); color: rgba(255,0,60,.5);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(9px,2.5vw,11px); padding: 8px 2px;
+      cursor: pointer; text-align: center;
+      -webkit-tap-highlight-color: transparent; transition: all .15s;
+    }
+    .pt-dia-btn.ativo {
+      border-color: var(--pink); color: #000;
+      background: var(--pink);
+    }
+
+    .pt-loading {
+      text-align: center; padding: 20px 0;
+      color: var(--pink); font-weight: bold; font-size: clamp(12px,3.2vw,14px);
+      letter-spacing: 1px; display: none;
+    }
+    .pt-loading-dots { display: inline-block; animation: ptdots 1.2s infinite; }
+    @keyframes ptdots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+    /* RESULTADO DO PLANO */
+    .pt-plano-dia {
+      border: 1px solid rgba(255,0,60,.3);
+      background: rgba(255,0,60,.03);
+      padding: 12px; margin-bottom: 10px;
+    }
+    .pt-plano-dia-titulo {
+      color: var(--pink); font-size: clamp(12px,3.3vw,15px);
+      font-weight: bold; letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,0,60,.2); padding-bottom: 6px; margin-bottom: 10px;
+    }
+    .pt-exercicio-item {
+      border-bottom: 1px dashed rgba(255,0,60,.15);
+      padding: 8px 0;
+    }
+    .pt-exercicio-item:last-child { border-bottom: none; }
+    .pt-ex-nome {
+      color: var(--yellow); font-size: clamp(13px,3.5vw,15px);
+      font-weight: bold; margin-bottom: 3px;
+    }
+    .pt-ex-detalhe {
+      color: var(--cyan); font-size: clamp(10px,2.8vw,12px);
+      font-weight: bold; letter-spacing: .3px;
+    }
+    .pt-ex-desc {
+      color: var(--dim); font-size: clamp(9px,2.5vw,11px);
+      margin-top: 3px; line-height: 1.4; font-weight: bold;
+    }
+    .pt-ex-btn-iniciar {
+      display: block; width: 100%; margin-top: 8px;
+      background: rgba(0,255,64,.08); border: 1px solid var(--green);
+      color: var(--green); font-family: 'Courier New', monospace;
+      font-size: clamp(11px,3vw,13px); font-weight: bold;
+      padding: 8px; cursor: pointer; letter-spacing: 1px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* AVISO DE PROGRESSÃO */
+    .pt-progresso-aviso {
+      display: none; position: fixed; bottom: 0; left: 0; width: 100%;
+      background: rgba(5,5,16,.97); border-top: 2px solid var(--pink);
+      padding: 18px 20px; z-index: 300;
+      box-shadow: 0 -4px 24px rgba(255,0,60,.3);
+    }
+    .pt-progresso-aviso.ativo { display: block; }
+    .pt-progresso-titulo {
+      color: var(--pink); font-size: clamp(14px,4vw,18px);
+      font-weight: bold; text-align: center; letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .pt-progresso-txt {
+      color: var(--dim); font-size: clamp(11px,3vw,13px);
+      text-align: center; margin-bottom: 14px; font-weight: bold;
+    }
+    .pt-progresso-btns { display: flex; gap: 10px; }
+
+    /* TELA EXECUÇÃO DO EXERCÍCIO IA */
+    .pt-exec-nome {
+      font-size: clamp(20px,5.5vw,28px); font-weight: bold;
+      color: var(--yellow); text-align: center; margin: 12px 0 6px;
+      letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .pt-exec-info {
+      display: flex; gap: 8px; margin: 8px 0 14px;
+    }
+    .pt-exec-card {
+      flex: 1; border: 1px solid rgba(255,0,60,.3);
+      background: rgba(255,0,60,.05); padding: 8px 4px; text-align: center;
+    }
+    .pt-exec-card-lbl { color: var(--dim); font-size: clamp(8px,2.2vw,10px); font-weight: bold; }
+    .pt-exec-card-val { color: var(--pink); font-size: clamp(14px,3.8vw,18px); font-weight: bold; margin-top: 2px; }
+
+    .pt-voz-instrucao {
+      background: rgba(255,0,60,.06); border: 1px solid rgba(255,0,60,.25);
+      padding: 10px 12px; margin: 8px 0 12px;
+      color: var(--dim); font-size: clamp(10px,2.8vw,12px);
+      font-weight: bold; letter-spacing: .3px; line-height: 1.5;
+      min-height: 60px;
+    }
+    .pt-falar-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: 1px solid rgba(255,0,60,.4);
+      color: var(--pink); font-family: 'Courier New', monospace;
+      font-size: clamp(10px,2.8vw,12px); font-weight: bold;
+      padding: 6px 12px; cursor: pointer; margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -590,10 +747,14 @@
       <span id="voz-status-txt">VOZ ONLINE</span>
     </div>
     <div class="btn-row">
-      <button class="btn-round sz-lg c-yellow" onclick="irParaSelecao()">TREINO LIVRE</button>
+      <!-- TREINO LIVRE - retangular para abrir espaço ao novo painel -->
+      <button class="btn-sec yellow" onclick="irParaSelecao()" style="margin-top:0; font-size:clamp(15px,4.5vw,19px); padding:clamp(14px,4vw,18px) 18px; letter-spacing:3px;">⚡ TREINO LIVRE</button>
       
-      <!-- NOVO BOTÃO: ROTINA SEMANAL -->
-      <button class="btn-sec green" onclick="abrirSemana()" style="margin-top:10px; font-size:14px;">📅 ROTINA SEMANAL</button>
+      <!-- NOVO BOTÃO: PERSONAL TRAINER IA -->
+      <button class="btn-sec" onclick="abrirPersonalIA()" style="margin-top:4px; font-size:14px; border-color:var(--pink); color:var(--pink); box-shadow:0 0 14px rgba(255,0,60,0.25);">🤖 PERSONAL TRAINER IA</button>
+
+      <!-- ROTINA SEMANAL -->
+      <button class="btn-sec green" onclick="abrirSemana()" style="margin-top:4px; font-size:14px;">📅 ROTINA SEMANAL</button>
 
       <!-- BOTÃO: DIETA & HIDRATAÇÃO -->
       <button class="btn-sec yellow" onclick="abrirDieta()" style="margin-top:4px; font-size:14px;">🥗 DIETA & HIDRATAÇÃO</button>
@@ -1124,6 +1285,202 @@
     </div><!-- fim resultados -->
   </div>
 </div><!-- fim screen-dieta -->
+
+<!-- ══════════════════════════════════════════════════════════
+     TELA: PERSONAL TRAINER IA — FORMULÁRIO
+══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-personal">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--pink); color:var(--pink)">&lt; Voltar</button>
+  <div class="config-scroll" id="pt-form-scroll">
+    <div class="panel" style="border-color:var(--pink)">
+      <div class="corner-tr" style="border-color:var(--pink)"></div>
+      <div class="corner-bl" style="border-color:var(--pink)"></div>
+
+      <div class="glitch" data-text="PERSONAL IA" style="font-size:clamp(20px,5.8vw,30px);color:var(--pink);margin-bottom:4px">PERSONAL IA</div>
+      <div style="text-align:center;color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;margin-bottom:18px;letter-spacing:.5px;">// TREINO PERSONALIZADO COM INTELIGÊNCIA ARTIFICIAL</div>
+
+      <!-- DADOS FÍSICOS -->
+      <div style="color:var(--pink);font-size:clamp(10px,2.8vw,12px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(255,0,60,.2);padding-bottom:6px;margin-bottom:14px;">📊 DADOS FÍSICOS</div>
+
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1">
+          <span class="pt-label">⚖️ PESO (kg)</span>
+          <input class="pt-input" id="pt-peso" type="number" placeholder="Ex: 80" inputmode="decimal">
+        </div>
+        <div style="flex:1">
+          <span class="pt-label">📏 ALTURA (cm)</span>
+          <input class="pt-input" id="pt-altura" type="number" placeholder="Ex: 175" inputmode="decimal">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1">
+          <span class="pt-label">🎂 IDADE</span>
+          <input class="pt-input" id="pt-idade" type="number" placeholder="Ex: 28" inputmode="numeric">
+        </div>
+        <div style="flex:1">
+          <span class="pt-label">👤 SEXO</span>
+          <select class="pt-select" id="pt-sexo">
+            <option value="Masculino">Masculino</option>
+            <option value="Feminino">Feminino</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- BIOTIPO -->
+      <span class="pt-label">🧬 BIOTIPO <span style="color:var(--dim);font-weight:normal;">(se souber)</span></span>
+      <select class="pt-select" id="pt-biotipo">
+        <option value="Não sei">Não sei / prefiro não informar</option>
+        <option value="Ectomorfo">Ectomorfo — magro, dificuldade de ganhar massa</option>
+        <option value="Mesomorfo">Mesomorfo — musculoso, ganha e perde facilmente</option>
+        <option value="Endomorfo">Endomorfo — tendência a acumular gordura</option>
+      </select>
+
+      <!-- OBJETIVO -->
+      <span class="pt-label">🎯 OBJETIVO</span>
+      <select class="pt-select" id="pt-foco">
+        <option value="Hipertrofia">💪 Ganhar massa muscular</option>
+        <option value="Emagrecimento">🔥 Emagrecimento</option>
+        <option value="Força">🏋️ Aumentar força</option>
+        <option value="Definição">⚡ Definição muscular</option>
+        <option value="Condicionamento">🏃 Condicionamento físico</option>
+        <option value="Saúde">❤️ Saúde e qualidade de vida</option>
+      </select>
+
+      <!-- DIAS DA SEMANA -->
+      <span class="pt-label">📅 DIAS QUE CONSEGUE TREINAR</span>
+      <div class="pt-dias-row" id="pt-dias-row">
+        <button class="pt-dia-btn" data-dia="Segunda" onclick="ptToggleDia(this)">SEG</button>
+        <button class="pt-dia-btn" data-dia="Terça" onclick="ptToggleDia(this)">TER</button>
+        <button class="pt-dia-btn" data-dia="Quarta" onclick="ptToggleDia(this)">QUA</button>
+        <button class="pt-dia-btn" data-dia="Quinta" onclick="ptToggleDia(this)">QUI</button>
+        <button class="pt-dia-btn" data-dia="Sexta" onclick="ptToggleDia(this)">SEX</button>
+        <button class="pt-dia-btn" data-dia="Sábado" onclick="ptToggleDia(this)">SÁB</button>
+        <button class="pt-dia-btn" data-dia="Domingo" onclick="ptToggleDia(this)">DOM</button>
+      </div>
+
+      <!-- NÍVEL -->
+      <span class="pt-label">🏅 SEU NÍVEL</span>
+      <div class="pt-nivel-row">
+        <button class="pt-nivel-btn ativo" data-nivel="Iniciante" onclick="ptSelecionarNivel(this)">INICIANTE</button>
+        <button class="pt-nivel-btn" data-nivel="Intermediário" onclick="ptSelecionarNivel(this)">INTERM.</button>
+        <button class="pt-nivel-btn" data-nivel="Avançado" onclick="ptSelecionarNivel(this)">AVANÇADO</button>
+        <button class="pt-nivel-btn" data-nivel="Pro" onclick="ptSelecionarNivel(this)">PRO 🔥</button>
+      </div>
+
+      <!-- OBSERVAÇÕES -->
+      <span class="pt-label">📝 OBSERVAÇÕES <span style="color:var(--dim);font-weight:normal;">(lesões, restrições...)</span></span>
+      <textarea class="pt-input" id="pt-obs" rows="2" placeholder="Ex: Tenho problema no joelho, prefiro máquinas..." style="resize:none;font-size:clamp(12px,3.2vw,14px);text-align:left;"></textarea>
+
+      <!-- BOTÃO GERAR -->
+      <div id="pt-loading" class="pt-loading">
+        🤖 IA MONTANDO SEU TREINO<span class="pt-loading-dots">...</span>
+      </div>
+      <button class="btn-sec" id="pt-btn-gerar" onclick="gerarTreinoIA()" style="margin-top:8px;border-color:var(--pink);color:var(--pink);font-size:16px;padding:18px;">🤖 CRIAR MEU TREINO COM IA</button>
+
+      <!-- AVISO SE JÁ TEM PLANO -->
+      <div id="pt-plano-existente-aviso" style="display:none;margin-top:10px;padding:10px;border:1px solid rgba(0,240,255,.25);background:rgba(0,240,255,.04);text-align:center;">
+        <div style="color:var(--cyan);font-size:12px;font-weight:bold;letter-spacing:.5px;margin-bottom:8px;">// VOCÊ JÁ TEM UM PLANO ATIVO</div>
+        <button class="btn-sec" onclick="verPlanoAtual()" style="border-color:var(--cyan);color:var(--cyan);font-size:13px;padding:10px;margin-bottom:6px;">📋 VER MEU PLANO ATUAL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TELA: PERSONAL TRAINER IA — PLANO GERADO
+══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-pt-plano">
+  <button class="btn-back" onclick="irPara('screen-personal')" style="border-color:var(--pink); color:var(--pink)">&lt; Voltar</button>
+  <div class="config-scroll" id="pt-plano-scroll">
+    <div class="panel" style="border-color:var(--pink); padding-top:8px;">
+      <div class="corner-tr" style="border-color:var(--pink)"></div>
+      <div class="corner-bl" style="border-color:var(--pink)"></div>
+
+      <div class="glitch" data-text="SEU PLANO IA" style="font-size:clamp(18px,5vw,26px);color:var(--pink);margin-bottom:4px;margin-top:36px;">SEU PLANO IA</div>
+      <div id="pt-plano-subtitulo" style="text-align:center;color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;margin-bottom:16px;"></div>
+
+      <!-- Container do plano -->
+      <div id="pt-plano-container"></div>
+
+      <!-- Rodapé com botões -->
+      <div style="margin-top:14px;">
+        <button class="btn-sec" onclick="importarPlanoParaRotina()" style="border-color:var(--green);color:var(--green);font-size:13px;">📅 IMPORTAR PARA ROTINA SEMANAL</button>
+        <button class="btn-sec" onclick="irPara('screen-personal')" style="border-color:var(--pink);color:var(--pink);font-size:13px;margin-top:6px;">🔄 GERAR NOVO PLANO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TELA: EXECUÇÃO DO EXERCÍCIO IA (COM CRONÔMETRO + VOZ)
+══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-pt-treino">
+  <button class="btn-back" onclick="voltarPlanoIA()" style="border-color:var(--pink); color:var(--pink)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--pink); padding-top:8px;">
+      <div class="corner-tr" style="border-color:var(--pink)"></div>
+      <div class="corner-bl" style="border-color:var(--pink)"></div>
+
+      <!-- Header dia / exercício -->
+      <div style="text-align:center;color:var(--dim);font-size:11px;font-weight:bold;letter-spacing:.5px;margin-top:36px;" id="pt-exec-progresso">EXERCÍCIO 1 DE 1</div>
+      <div class="pt-exec-nome" id="pt-exec-nome">--</div>
+
+      <!-- Cards info -->
+      <div class="pt-exec-info">
+        <div class="pt-exec-card">
+          <div class="pt-exec-card-lbl">SÉRIES</div>
+          <div class="pt-exec-card-val" id="pt-exec-series">--</div>
+        </div>
+        <div class="pt-exec-card">
+          <div class="pt-exec-card-lbl">REPS</div>
+          <div class="pt-exec-card-val" id="pt-exec-reps">--</div>
+        </div>
+        <div class="pt-exec-card">
+          <div class="pt-exec-card-lbl">DESCANSO</div>
+          <div class="pt-exec-card-val" id="pt-exec-descanso">--</div>
+        </div>
+      </div>
+
+      <!-- Instrução de execução (voz) -->
+      <div class="pt-voz-instrucao" id="pt-voz-instrucao">Aguardando instrução...</div>
+      <button class="pt-falar-btn" onclick="ptFalarInstrucao()">🔊 OUVIR INSTRUÇÃO</button>
+
+      <!-- CRONÔMETRO DE SÉRIE -->
+      <div style="text-align:center;margin:8px 0 4px;">
+        <div style="color:var(--dim);font-size:10px;font-weight:bold;letter-spacing:.5px;margin-bottom:4px;">SÉRIE ATUAL</div>
+        <div class="lbl-series" id="pt-serie-atual" style="color:var(--pink);">1</div>
+        <div style="color:var(--dim);font-size:10px;font-weight:bold;">DE</div>
+        <div style="color:var(--pink);font-size:20px;font-weight:bold;" id="pt-serie-total">3</div>
+      </div>
+
+      <!-- Timer de descanso -->
+      <div class="lbl-timer t-white" id="pt-timer-display" style="color:var(--pink);">--</div>
+      <div class="prog-wrap">
+        <div class="prog-bar-bg"><div class="prog-bar-fill" id="pt-prog-bar" style="background:var(--pink);width:100%;"></div></div>
+      </div>
+
+      <!-- Botões de controle -->
+      <div class="timer-btn-row" style="margin-top:14px;">
+        <button class="btn-round sz-sm c-green" onclick="ptSerieFeita()">✔ SÉRIE FEITA</button>
+        <button class="btn-round sz-sm c-pink"  id="pt-btn-pausar" onclick="ptPausarDescanso()">⏸</button>
+        <button class="btn-round sz-sm c-cyan"  onclick="ptProximoExercicio()">⏭</button>
+      </div>
+
+      <div style="text-align:center;color:var(--dim);font-size:10px;margin-top:10px;font-weight:bold;">✔ SÉRIE FEITA → inicia descanso | ⏭ → pula exercício</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- AVISO DE PROGRESSÃO (BARRA INFERIOR) -->
+<div class="pt-progresso-aviso" id="pt-progresso-aviso">
+  <div class="pt-progresso-titulo">🔥 HORA DE EVOLUIR, <span id="pt-prog-nome"></span>!</div>
+  <div class="pt-progresso-txt">Você completou sua primeira semana de treinos. Quer que a IA atualize seu plano com exercícios mais intensos?</div>
+  <div class="pt-progresso-btns">
+    <button class="btn-sec" onclick="ptEvolvirPlano()" style="border-color:var(--pink);color:var(--pink);font-size:13px;">🤖 SIM, EVOLUIR TREINO</button>
+    <button class="btn-sec" onclick="ptFecharAviso()" style="border-color:var(--dim);color:var(--dim);font-size:13px;">DEPOIS</button>
+  </div>
+</div>
 
 <script>
 // ══════════════════════════════════════════════════════════════════════
@@ -2357,6 +2714,409 @@ function agendarResetMeiaNoite() {
 agendarResetMeiaNoite();
 
 window.onload = () => { tentarCarregarRV(); };
+
+// ══════════════════════════════════════════════════════════════════════
+//  PERSONAL TRAINER IA — MÓDULO COMPLETO
+// ══════════════════════════════════════════════════════════════════════
+
+// --- ESTADO ---
+let ptDiasSelecionados = [];
+let ptNivelSelecionado = 'Iniciante';
+let ptPlanoAtual       = null; // { subtitulo, dias: [{diaNome, exercicios:[{nome,series,reps,descanso,instrucao}]}] }
+let ptDiaExecAtual     = null;
+let ptExercicioIdx     = 0;
+let ptSerieAtual       = 0;
+let ptDescansoTimer    = null;
+let ptDescansoTotal    = 60;
+let ptDescansoRestante = 0;
+let ptDescansoRodando  = false;
+let ptSemanasConcluidas= 0;
+
+const PT_PLANO_KEY     = 'pt_plano_v1';
+const PT_SEMANAS_KEY   = 'pt_semanas';
+const PT_PROG_KEY      = 'pt_prog_aviso';
+
+// --- NAVEGAÇÃO ---
+function abrirPersonalIA() {
+  desbloquearAudio();
+  clickBeep();
+  const planoSalvo = localStorage.getItem(PT_PLANO_KEY);
+  if (planoSalvo) {
+    try {
+      ptPlanoAtual = JSON.parse(planoSalvo);
+      document.getElementById('pt-plano-existente-aviso').style.display = 'block';
+    } catch(e) {}
+  }
+  irPara('screen-personal');
+  ptSemanasConcluidas = parseInt(localStorage.getItem(PT_SEMANAS_KEY) || '0');
+  falar('Personal Trainer com Inteligência Artificial. Preencha seus dados e eu monto seu treino personalizado, ' + nomeUsuario + '!', 'Personal IA');
+}
+
+function verPlanoAtual() {
+  clickBeep();
+  renderizarPlano();
+  irPara('screen-pt-plano');
+}
+
+function voltarPlanoIA() {
+  clickBeep();
+  pararDescansoIA();
+  irPara('screen-pt-plano');
+}
+
+// --- SELEÇÃO DE DIAS E NÍVEL ---
+function ptToggleDia(btn) {
+  clickBeep();
+  const dia = btn.getAttribute('data-dia');
+  if (btn.classList.contains('ativo')) {
+    btn.classList.remove('ativo');
+    ptDiasSelecionados = ptDiasSelecionados.filter(d => d !== dia);
+  } else {
+    btn.classList.add('ativo');
+    ptDiasSelecionados.push(dia);
+  }
+}
+
+function ptSelecionarNivel(btn) {
+  clickBeep();
+  document.querySelectorAll('.pt-nivel-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  ptNivelSelecionado = btn.getAttribute('data-nivel');
+}
+
+// --- GERAÇÃO DO PLANO VIA IA ---
+async function gerarTreinoIA() {
+  const peso   = document.getElementById('pt-peso').value.trim();
+  const altura = document.getElementById('pt-altura').value.trim();
+  const idade  = document.getElementById('pt-idade').value.trim();
+  const sexo   = document.getElementById('pt-sexo').value;
+  const biotipo= document.getElementById('pt-biotipo').value;
+  const foco   = document.getElementById('pt-foco').value;
+  const obs    = document.getElementById('pt-obs').value.trim();
+
+  if (!peso || !altura || !idade) {
+    falar('Preencha peso, altura e idade para continuar, ' + nomeUsuario + '.', 'Dados incompletos!');
+    alert('Preencha Peso, Altura e Idade!');
+    return;
+  }
+  if (ptDiasSelecionados.length === 0) {
+    falar('Selecione pelo menos um dia da semana para treinar, ' + nomeUsuario + '.', 'Selecione os dias!');
+    alert('Selecione pelo menos 1 dia da semana!');
+    return;
+  }
+
+  const loading = document.getElementById('pt-loading');
+  const btnGerar = document.getElementById('pt-btn-gerar');
+  loading.style.display = 'block';
+  btnGerar.style.display = 'none';
+
+  falar('Processando seus dados com inteligência artificial. Aguarde enquanto monto seu plano, ' + nomeUsuario + '!', 'Gerando plano...');
+
+  const diasStr = ptDiasSelecionados.join(', ');
+  const prompt = `Você é um personal trainer especializado em treinamento físico.
+
+Crie um plano de treinamento personalizado para:
+- Peso: ${peso} kg
+- Altura: ${altura} cm
+- Idade: ${idade} anos
+- Sexo: ${sexo}
+- Biotipo: ${biotipo}
+- Objetivo: ${foco}
+- Dias disponíveis: ${diasStr} (${ptDiasSelecionados.length} dias por semana)
+- Nível: ${ptNivelSelecionado}
+- Observações: ${obs || 'Nenhuma'}
+
+Responda SOMENTE com um JSON válido, sem texto antes ou depois, sem markdown, seguindo EXATAMENTE este formato:
+{
+  "subtitulo": "Plano de [objetivo] - [nivel] - [X] dias/semana",
+  "dias": [
+    {
+      "diaNome": "Segunda",
+      "grupoMuscular": "Peito e Tríceps",
+      "exercicios": [
+        {
+          "nome": "Supino Reto",
+          "series": 3,
+          "reps": "12",
+          "descanso": "60s",
+          "instrucao": "Deite no banco, segure a barra na largura dos ombros, desça até o peito e empurre explosivamente."
+        }
+      ]
+    }
+  ]
+}
+
+Monte apenas os dias selecionados: ${diasStr}. Cada dia deve ter de 4 a 6 exercícios adequados ao nível ${ptNivelSelecionado}. Não prescreva exercícios inadequados se houver limitações relatadas.`;
+
+  try {
+    const resposta = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resposta.json();
+    const textoRaw = data.content.map(i => i.text || '').join('');
+    const textoLimpo = textoRaw.replace(/```json|```/g, '').trim();
+    ptPlanoAtual = JSON.parse(textoLimpo);
+    localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+    localStorage.setItem(PT_SEMANAS_KEY, '0');
+    ptSemanasConcluidas = 0;
+
+    loading.style.display = 'none';
+    btnGerar.style.display = 'block';
+
+    renderizarPlano();
+    irPara('screen-pt-plano');
+    falar('Pronto, ' + nomeUsuario + '! Seu plano personalizado foi montado. Veja os treinos de cada dia e toque em iniciar para começar!', 'Plano criado!');
+
+  } catch(err) {
+    loading.style.display = 'none';
+    btnGerar.style.display = 'block';
+    alert('Erro ao gerar plano. Verifique sua conexão e tente novamente.\n' + err.message);
+    falar('Erro ao conectar com a inteligência artificial. Verifique sua conexão e tente novamente.', 'Erro de conexão.');
+  }
+}
+
+// --- RENDERIZAR PLANO ---
+function renderizarPlano() {
+  if (!ptPlanoAtual) return;
+  document.getElementById('pt-plano-subtitulo').textContent = '// ' + (ptPlanoAtual.subtitulo || 'Plano Personalizado');
+  const container = document.getElementById('pt-plano-container');
+  container.innerHTML = '';
+
+  ptPlanoAtual.dias.forEach((dia, diaIdx) => {
+    const bloco = document.createElement('div');
+    bloco.className = 'pt-plano-dia';
+    const exsHtml = dia.exercicios.map((ex, exIdx) => `
+      <div class="pt-exercicio-item">
+        <div class="pt-ex-nome">${exIdx + 1}. ${ex.nome}</div>
+        <div class="pt-ex-detalhe">${ex.series} séries × ${ex.reps} reps &nbsp;|&nbsp; Descanso: ${ex.descanso}</div>
+        <div class="pt-ex-desc">${ex.instrucao}</div>
+      </div>
+    `).join('');
+    bloco.innerHTML = `
+      <div class="pt-plano-dia-titulo">📅 ${dia.diaNome.toUpperCase()} — ${dia.grupoMuscular || ''}</div>
+      ${exsHtml}
+      <button class="pt-ex-btn-iniciar" onclick="iniciarTreinoDiaIA(${diaIdx})">▶ INICIAR TREINO DE ${dia.diaNome.toUpperCase()}</button>
+    `;
+    container.appendChild(bloco);
+  });
+}
+
+// --- IMPORTAR PARA ROTINA SEMANAL ---
+function importarPlanoParaRotina() {
+  clickBeep();
+  if (!ptPlanoAtual) return;
+  const mapaChaves = {
+    'Segunda':'segunda','Terça':'terca','Quarta':'quarta',
+    'Quinta':'quinta','Sexta':'sexta','Sábado':'sabado','Domingo':'domingo'
+  };
+  ptPlanoAtual.dias.forEach(dia => {
+    const chave = mapaChaves[dia.diaNome];
+    if (!chave) return;
+    planejamentoSemanal[chave] = dia.exercicios.map(ex => ({
+      nome: ex.nome,
+      series: ex.series
+    }));
+  });
+  salvarPlanejamento();
+  falar('Plano importado para a Rotina Semanal, ' + nomeUsuario + '! Acesse Rotina Semanal para iniciar pelo cronômetro completo.', 'Importado!');
+  alert('✅ Plano importado para a Rotina Semanal com sucesso!');
+}
+
+// --- EXECUÇÃO DO TREINO IA COM CRONÔMETRO E VOZ ---
+function iniciarTreinoDiaIA(diaIdx) {
+  clickBeep();
+  ptDiaExecAtual = ptPlanoAtual.dias[diaIdx];
+  ptExercicioIdx = 0;
+  ptSerieAtual   = 1;
+  pararDescansoIA();
+  carregarExercicioIA();
+  irPara('screen-pt-treino');
+  const dia = ptDiaExecAtual;
+  falar('Iniciando treino de ' + dia.diaNome + ', ' + nomeUsuario + '! ' + dia.exercicios.length + ' exercícios no total. Vamos lá!', 'Iniciando...');
+}
+
+function carregarExercicioIA() {
+  if (!ptDiaExecAtual) return;
+  const ex = ptDiaExecAtual.exercicios[ptExercicioIdx];
+  const total = ptDiaExecAtual.exercicios.length;
+
+  document.getElementById('pt-exec-progresso').textContent = 'EXERCÍCIO ' + (ptExercicioIdx + 1) + ' DE ' + total;
+  document.getElementById('pt-exec-nome').textContent = ex.nome.toUpperCase();
+  document.getElementById('pt-exec-series').textContent = ex.series;
+  document.getElementById('pt-exec-reps').textContent = ex.reps;
+  document.getElementById('pt-exec-descanso').textContent = ex.descanso;
+  document.getElementById('pt-serie-atual').textContent = ptSerieAtual;
+  document.getElementById('pt-serie-total').textContent = ex.series;
+  document.getElementById('pt-voz-instrucao').textContent = ex.instrucao;
+  document.getElementById('pt-timer-display').textContent = ex.descanso;
+  document.getElementById('pt-prog-bar').style.width = '100%';
+
+  // Extrai segundos do descanso
+  const m = ex.descanso.match(/(\d+)/);
+  ptDescansoTotal = m ? parseInt(m[1]) : 60;
+  ptDescansoRestante = ptDescansoTotal;
+
+  setTimeout(() => ptFalarInstrucao(), 800);
+}
+
+function ptFalarInstrucao() {
+  const ex = ptDiaExecAtual?.exercicios[ptExercicioIdx];
+  if (!ex) return;
+  falar('Exercício ' + ex.nome + '. ' + ex.instrucao + '. Faça ' + ex.series + ' séries de ' + ex.reps + ' repetições com ' + ex.descanso + ' de descanso.', ex.nome);
+}
+
+function ptSerieFeita() {
+  clickBeep();
+  const ex = ptDiaExecAtual.exercicios[ptExercicioIdx];
+  if (ptSerieAtual >= ex.series) {
+    // Todas as séries feitas → próximo exercício
+    falar('Muito bem, ' + nomeUsuario + '! ' + ex.nome + ' concluído! ' +
+      (ptExercicioIdx < ptDiaExecAtual.exercicios.length - 1 ? 'Preparando próximo exercício.' : 'Último exercício! Incrível!'),
+      'Série concluída!');
+    if (vibAtivada && navigator.vibrate) navigator.vibrate([300, 100, 300]);
+    setTimeout(() => ptProximoExercicio(), 800);
+  } else {
+    // Inicia descanso
+    ptSerieAtual++;
+    document.getElementById('pt-serie-atual').textContent = ptSerieAtual;
+    if (vibAtivada && navigator.vibrate) navigator.vibrate(150);
+    falar('Série feita! Descanse por ' + ex.descanso + ', ' + nomeUsuario + '. Você está arrasando!', 'Descanso!');
+    iniciarDescansoIA();
+  }
+}
+
+function iniciarDescansoIA() {
+  pararDescansoIA();
+  ptDescansoRestante = ptDescansoTotal;
+  ptDescansoRodando  = true;
+  document.getElementById('pt-btn-pausar').textContent = '⏸';
+  atualizarTimerIA();
+  ptDescansoTimer = setInterval(() => {
+    if (!ptDescansoRodando) return;
+    ptDescansoRestante--;
+    atualizarTimerIA();
+    if (ptDescansoRestante <= 0) {
+      pararDescansoIA();
+      tocarBeepFim();
+      if (vibAtivada && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+      falar('Descanso finalizado! Próxima série: ' + ptSerieAtual + ' de ' + ptDiaExecAtual.exercicios[ptExercicioIdx].series + '. Vai com tudo, ' + nomeUsuario + '!', 'Treinar!');
+    }
+  }, 1000);
+}
+
+function atualizarTimerIA() {
+  document.getElementById('pt-timer-display').textContent = ptDescansoRestante + 's';
+  const pct = ptDescansoTotal > 0 ? (ptDescansoRestante / ptDescansoTotal) * 100 : 100;
+  document.getElementById('pt-prog-bar').style.width = pct + '%';
+  if (ptDescansoRestante <= 3 && ptDescansoRestante > 0) tocarBeepNormal();
+}
+
+function ptPausarDescanso() {
+  clickBeep();
+  ptDescansoRodando = !ptDescansoRodando;
+  document.getElementById('pt-btn-pausar').textContent = ptDescansoRodando ? '⏸' : '▶';
+}
+
+function pararDescansoIA() {
+  if (ptDescansoTimer) { clearInterval(ptDescansoTimer); ptDescansoTimer = null; }
+  ptDescansoRodando = false;
+}
+
+function ptProximoExercicio() {
+  clickBeep();
+  pararDescansoIA();
+  ptExercicioIdx++;
+  if (ptExercicioIdx >= ptDiaExecAtual.exercicios.length) {
+    // Treino do dia concluído!
+    ptSemanasConcluidas++;
+    localStorage.setItem(PT_SEMANAS_KEY, ptSemanasConcluidas);
+    falar('Treino de ' + ptDiaExecAtual.diaNome + ' concluído, ' + nomeUsuario + '! Você é uma máquina! Descanse bem e nos vemos no próximo treino!', 'Treino concluído!');
+    setTimeout(() => {
+      irPara('screen-pt-plano');
+      verificarProgressaoIA();
+    }, 1000);
+    return;
+  }
+  ptSerieAtual = 1;
+  const proximo = ptDiaExecAtual.exercicios[ptExercicioIdx];
+  falar('Próximo exercício: ' + proximo.nome + '. Prepare-se, ' + nomeUsuario + '!', proximo.nome);
+  carregarExercicioIA();
+}
+
+// --- PROGRESSÃO (aviso depois de semanas completas) ---
+function verificarProgressaoIA() {
+  const jaAvisou = localStorage.getItem(PT_PROG_KEY);
+  if (ptSemanasConcluidas >= ptPlanoAtual.dias.length && !jaAvisou) {
+    document.getElementById('pt-prog-nome').textContent = nomeUsuario.toUpperCase();
+    document.getElementById('pt-progresso-aviso').classList.add('ativo');
+    falar('Parabéns, ' + nomeUsuario + '! Você completou todos os treinos da semana! Quer que a inteligência artificial evolua seu plano para treinos mais intensos?', 'Evolução disponível!');
+  }
+}
+
+function ptFecharAviso() {
+  clickBeep();
+  document.getElementById('pt-progresso-aviso').classList.remove('ativo');
+}
+
+async function ptEvolvirPlano() {
+  clickBeep();
+  document.getElementById('pt-progresso-aviso').classList.remove('ativo');
+  localStorage.setItem(PT_PROG_KEY, '1');
+  falar('Atualizando seu plano de treino com exercícios mais intensos, ' + nomeUsuario + '! Aguarde um momento.', 'Evoluindo...');
+
+  const planoAnterior = JSON.stringify(ptPlanoAtual.dias.map(d => ({
+    dia: d.diaNome, exercicios: d.exercicios.map(e => e.nome)
+  })));
+
+  const prompt = `Você é um personal trainer. O aluno ${nomeUsuario} completou seu plano atual e precisa evoluir.
+
+Plano atual: ${planoAnterior}
+
+Crie um plano MAIS INTENSO mantendo os mesmos dias, aumentando cargas, séries, reps ou substituindo por exercícios mais avançados.
+
+Responda SOMENTE com JSON válido, mesmo formato de antes:
+{
+  "subtitulo": "Plano Evoluído - Nível Avançado",
+  "dias": [
+    {
+      "diaNome": "...",
+      "grupoMuscular": "...",
+      "exercicios": [
+        { "nome":"...", "series":4, "reps":"10", "descanso":"90s", "instrucao":"..." }
+      ]
+    }
+  ]
+}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const texto = data.content.map(i => i.text || '').join('').replace(/```json|```/g,'').trim();
+    ptPlanoAtual = JSON.parse(texto);
+    localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+    localStorage.setItem(PT_SEMANAS_KEY, '0');
+    localStorage.removeItem(PT_PROG_KEY);
+    ptSemanasConcluidas = 0;
+    renderizarPlano();
+    falar('Plano evoluído com sucesso! Seus novos treinos estão ainda mais intensos. Bora superar seus limites, ' + nomeUsuario + '!', 'Plano evoluído!');
+  } catch(e) {
+    alert('Erro ao evoluir plano. Tente novamente.');
+  }
+}
 
 // ══════════════════════════════════════════════════════════════════════
 //  GUIA ALIMENTAR POR OBJETIVO
