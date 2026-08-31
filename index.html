@@ -2810,75 +2810,179 @@ async function gerarTreinoIA() {
   loading.style.display = 'block';
   btnGerar.style.display = 'none';
 
-  falar('Processando seus dados com inteligência artificial. Aguarde enquanto monto seu plano, ' + nomeUsuario + '!', 'Gerando plano...');
+  falar('Processando seus dados. Montando seu plano personalizado, ' + nomeUsuario + '!', 'Gerando plano...');
 
-  const diasStr = ptDiasSelecionados.join(', ');
-  const prompt = `Você é um personal trainer especializado em treinamento físico.
+  // Simula processamento (1.5s) depois gera offline
+  setTimeout(() => {
+    try {
+      ptPlanoAtual = ptGerarPlanoLocal({
+        peso, altura, idade, sexo, biotipo, foco, obs,
+        dias: ptDiasSelecionados,
+        nivel: ptNivelSelecionado,
+        evolucao: 0
+      });
+      localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+      localStorage.setItem(PT_SEMANAS_KEY, '0');
+      localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
+      ptSemanasConcluidas = 0;
 
-Crie um plano de treinamento personalizado para:
-- Peso: ${peso} kg
-- Altura: ${altura} cm
-- Idade: ${idade} anos
-- Sexo: ${sexo}
-- Biotipo: ${biotipo}
-- Objetivo: ${foco}
-- Dias disponíveis: ${diasStr} (${ptDiasSelecionados.length} dias por semana)
-- Nível: ${ptNivelSelecionado}
-- Observações: ${obs || 'Nenhuma'}
+      loading.style.display = 'none';
+      btnGerar.style.display = 'block';
 
-Responda SOMENTE com um JSON válido, sem texto antes ou depois, sem markdown, seguindo EXATAMENTE este formato:
-{
-  "subtitulo": "Plano de [objetivo] - [nivel] - [X] dias/semana",
-  "dias": [
-    {
-      "diaNome": "Segunda",
-      "grupoMuscular": "Peito e Tríceps",
-      "exercicios": [
-        {
-          "nome": "Supino Reto",
-          "series": 3,
-          "reps": "12",
-          "descanso": "60s",
-          "instrucao": "Deite no banco, segure a barra na largura dos ombros, desça até o peito e empurre explosivamente."
-        }
-      ]
+      renderizarPlano();
+      irPara('screen-pt-plano');
+      falar('Pronto, ' + nomeUsuario + '! Seu plano personalizado foi montado. Veja os treinos de cada dia e toque em iniciar para começar!', 'Plano criado!');
+    } catch(err) {
+      loading.style.display = 'none';
+      btnGerar.style.display = 'block';
+      alert('Erro ao gerar plano: ' + err.message);
     }
-  ]
+  }, 1500);
 }
 
-Monte apenas os dias selecionados: ${diasStr}. Cada dia deve ter de 4 a 6 exercícios adequados ao nível ${ptNivelSelecionado}. Não prescreva exercícios inadequados se houver limitações relatadas.`;
+// ── ENGINE LOCAL DE GERAÇÃO DE TREINOS ──────────────────────────────────
+function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, nivel, evolucao }) {
+  evolucao = evolucao || 0;
 
-  try {
-    const resposta = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+  // Multiplicadores por nível + evolução
+  const lvl = { 'Iniciante':0, 'Intermediário':1, 'Avançado':2, 'Pro':3 }[nivel] || 0;
+  const evo = evolucao; // 0 = original, 1+ = ciclos de progressão
+  const grau = Math.min(lvl + evo, 4); // 0–4
+
+  // Séries e reps base por grau
+  const seriesBase = [3, 3, 4, 4, 5][grau];
+  const descansoBase = ['45s','60s','75s','90s','120s'][grau];
+
+  // ── BANCOS DE EXERCÍCIOS ────────────────────────────────────────────
+  const BANCO = {
+    peito: [
+      { nome:'Supino Reto com Barra',      reps:['15','12','10','8','6'][grau],  instrucao:'Deite no banco reto, agarre a barra na largura dos ombros. Desça lentamente até o peito e empurre explosivamente para cima. Mantenha os pés no chão.' },
+      { nome:'Supino Inclinado com Halteres', reps:['12','10','10','8','6'][grau], instrucao:'Banco inclinado a 45°. Segure os halteres alinhados com o peito superior. Empurre para cima e aproxime os halteres no topo, sem travar os cotovelos.' },
+      { nome:'Crucifixo com Halteres',     reps:['15','12','12','10','8'][grau],  instrucao:'Deite no banco, braços abertos com leve flexão no cotovelo. Feche os braços como se abraçasse uma árvore, sentindo o peitoral contrair no topo.' },
+      { nome:'Flexão de Braço',            reps:['20','15','15','12','10'][grau], instrucao:'Mãos no chão na largura dos ombros. Desça o corpo até quase tocar o chão. Suba explosivamente. Mantenha o corpo reto do cabeça ao calcanhar.' },
+      { nome:'Crossover na Polia',         reps:['15','12','12','10','10'][grau], instrucao:'Puxe os cabos de cima para baixo em arco, encontrando as mãos à frente do abdômen. Sinta o peitoral fechar. Retorne lentamente com controle.' },
+      { nome:'Supino Declinado',           reps:['12','10','10','8','6'][grau],   instrucao:'Banco declinado. Empurre a barra do peito inferior para cima. Foco na parte baixa do peitoral. Controle a descida por 2-3 segundos.' },
+    ],
+    costas: [
+      { nome:'Puxada Frontal',             reps:['15','12','10','8','6'][grau],   instrucao:'Agarre a barra larga. Puxe até o mento, trazendo os cotovelos para baixo e para trás. Sinta as costas contrair. Suba com controle sem balançar.' },
+      { nome:'Remada Curvada com Barra',   reps:['12','10','10','8','6'][grau],   instrucao:'Incline o tronco a 45°, joelhos semiflexionados. Puxe a barra até o umbigo, abrindo os cotovelos para os lados. Mantenha as costas retas.' },
+      { nome:'Remada com Haltere Unilateral', reps:['12','10','10','8','8'][grau], instrucao:'Apoie um joelho e mão no banco. Puxe o halter até a cintura, cotovelo para trás. Sinta as costas contrair no topo. Mantenha a coluna neutra.' },
+      { nome:'Levantamento Terra',         reps:['10','8','8','6','5'][grau],     instrucao:'Pés na largura do quadril. Segure a barra, costas retas e peito para frente. Empurre o chão com os pés para levantar. Não arredonde a lombar.' },
+      { nome:'Pulldown com Corda',         reps:['15','12','12','10','10'][grau], instrucao:'Segure a corda e puxe para baixo separando as pontas ao lado do corpo. Mantenha cotovelos próximos ao tronco. Sinta o grande dorsal trabalhar.' },
+      { nome:'Remada Sentado na Polia',    reps:['15','12','10','10','8'][grau],  instrucao:'Sente ereto, puxe o cabo até o abdômen trazendo os cotovelos para trás. Sinta as costas fechar. Solte lentamente estendendo bem os braços.' },
+    ],
+    ombro: [
+      { nome:'Desenvolvimento com Halteres', reps:['12','10','10','8','6'][grau], instrucao:'Sente ereto, halteres na altura dos ombros. Empurre para cima até quase estender os braços. Desça lentamente. Não trave os cotovelos no topo.' },
+      { nome:'Elevação Lateral',           reps:['15','15','12','12','10'][grau], instrucao:'Em pé, braços ao lado. Eleve os halteres lateralmente até a altura dos ombros com leve flexão no cotovelo. Desça controlado por 3 segundos.' },
+      { nome:'Elevação Frontal',           reps:['12','12','10','10','10'][grau], instrucao:'Segure os halteres à frente das coxas. Eleve um de cada vez até a altura dos ombros. Mantenha o cotovelo levemente flexionado. Não balance.' },
+      { nome:'Remada Alta com Barra',      reps:['12','10','10','8','8'][grau],   instrucao:'Segure a barra na largura dos ombros. Puxe verticalmente até o mento, cotovelos acima das mãos. Mantenha a barra próxima ao corpo.' },
+      { nome:'Face Pull na Polia',         reps:['15','15','12','12','10'][grau], instrucao:'Puxe a corda em direção ao rosto, abrindo os braços para os lados. Ativo o deltoide posterior e os rotadores externos. Ótimo para postura.' },
+    ],
+    biceps: [
+      { nome:'Rosca Direta com Barra',     reps:['12','10','10','8','8'][grau],   instrucao:'Em pé, cotovelos fixos ao lado do corpo. Flexione os antebraços trazendo a barra até os ombros. Sinta o bíceps contrair. Desça com controle.' },
+      { nome:'Rosca Alternada com Halteres', reps:['12','10','10','8','8'][grau], instrucao:'Sente ou fique em pé. Flexione um braço de cada vez, girando o pulso no topo para supinação. Mantenha o cotovelo fixo ao lado do corpo.' },
+      { nome:'Rosca Martelo',              reps:['12','12','10','10','8'][grau],  instrucao:'Halteres com pegada neutra (palma para dentro). Flexione ambos ao mesmo tempo sem girar o pulso. Trabalha o braquial e braquiorradial.' },
+      { nome:'Rosca Concentrada',          reps:['12','12','10','10','8'][grau],  instrucao:'Sente, apoie o cotovelo na parte interna da coxa. Flexione o antebraço até o ombro. Total isolamento do bíceps. Faça com lentidão.' },
+    ],
+    triceps: [
+      { nome:'Tríceps Pulley com Corda',   reps:['15','12','12','10','10'][grau], instrucao:'Puxe a corda para baixo separando as pontas ao final. Cotovelos fixos ao lado do corpo. Estenda completamente os braços e sinta o tríceps contrair.' },
+      { nome:'Tríceps Testa',              reps:['12','10','10','8','8'][grau],   instrucao:'Deite no banco, barra alinhada à testa. Flexione apenas os cotovelos, desça controlado e estenda de volta. Mantenha os cotovelos para dentro.' },
+      { nome:'Tríceps Francês com Halter', reps:['12','10','10','8','8'][grau],   instrucao:'Sente, segure o halter acima da cabeça com as duas mãos. Flexione os cotovelos abaixando o halter atrás da cabeça. Estenda explosivamente.' },
+      { nome:'Mergulho entre Bancos',      reps:['15','12','12','10','10'][grau], instrucao:'Apoie as mãos em um banco atrás. Desça o corpo dobrando os cotovelos até 90°. Empurre de volta. Mantenha os cotovelos para trás, não para os lados.' },
+    ],
+    pernas: [
+      { nome:'Agachamento Livre',          reps:['15','12','10','8','6'][grau],   instrucao:'Pés na largura dos ombros, barra apoiada na trapézio. Desça como se fosse sentar em uma cadeira, joelhos alinhados com os pés. Desça abaixo de 90°.' },
+      { nome:'Leg Press 45°',              reps:['15','12','12','10','10'][grau], instrucao:'Pés na largura dos ombros na plataforma. Desça até 90° de flexão. Empurre explosivamente. Não trave os joelhos no topo. Mantenha a lombar no encosto.' },
+      { nome:'Cadeira Extensora',          reps:['15','15','12','12','10'][grau], instrucao:'Sente com os joelhos na beira. Estenda as pernas até a posição horizontal. Segure 1s no topo. Desça controlado por 3 segundos. Foco no quadríceps.' },
+      { nome:'Cadeira Flexora',            reps:['15','15','12','12','10'][grau], instrucao:'Deite de bruços. Flexione os joelhos trazendo os calcanhares em direção às nádegas. Segure 1s no topo. Desça lentamente. Foco nos isquiotibiais.' },
+      { nome:'Stiff com Halteres',         reps:['12','10','10','8','8'][grau],   instrucao:'Em pé, halteres à frente das coxas. Incline o tronco mantendo as costas retas, sentindo o alongamento dos isquiotibiais. Volte usando os glúteos.' },
+      { nome:'Afundo com Halteres',        reps:['12','10','10','8','8'][grau],   instrucao:'Dê um passo largo à frente. Desça o joelho de trás quase no chão. Volte empurrando com o calcanhar da frente. Mantenha o tronco ereto.' },
+      { nome:'Panturrilha em Pé',          reps:['20','20','15','15','12'][grau], instrucao:'Em pé em um degrau, suba na ponta dos pés elevando ao máximo. Desça até sentir alongamento total. Faça lentamente. Pode segurar halteres.' },
+    ],
+    gluteo: [
+      { nome:'Hip Thrust com Barra',       reps:['15','12','10','10','8'][grau],  instrucao:'Apoie as costas no banco, barra sobre o quadril. Empurre o quadril para cima contraindo os glúteos no topo. Segure 2s. Desça com controle.' },
+      { nome:'Elevação Pélvica',           reps:['20','20','15','15','12'][grau], instrucao:'Deite, pés no chão, joelhos flexionados. Eleve o quadril contraindo os glúteos no topo. Mantenha 2s. Opção: adicionar halteres sobre o quadril.' },
+      { nome:'Agachamento Sumô',           reps:['15','12','12','10','10'][grau], instrucao:'Pés bem abertos, pontas para fora. Desça mantendo o tronco ereto. Ativa glúteos e adutores. Segure halter ou kettlebell no centro do corpo.' },
+      { nome:'Abdução na Máquina',         reps:['20','20','15','15','12'][grau], instrucao:'Sente na máquina de abdução. Abra as pernas contra a resistência. Segure 1s no topo. Retorne lentamente sem deixar os joelhos se fecharem.' },
+      { nome:'Kickback na Polia',          reps:['15','15','12','12','12'][grau], instrucao:'Prenda o tornozelo na polia baixa. Apoie-se e chute a perna para trás e ligeiramente para cima. Contraia o glúteo no topo. Repita dos dois lados.' },
+    ],
+    abdomen: [
+      { nome:'Abdominal Supra',            reps:['20','20','20','20','20'][grau], instrucao:'Deite, mãos na nuca sem puxar a cabeça. Sobe o tronco apenas uns 30°, contraindo o abdômen. Desça lentamente. Expire na subida.' },
+      { nome:'Prancha Isométrica',         reps:['40s','50s','60s','60s','60s'][grau], instrucao:'Apoie nos antebraços e pontas dos pés. Corpo reto, glúteos na linha do corpo. Contraia o abdômen. Não deixe o quadril cair ou subir.' },
+      { nome:'Abdominal Infra',            reps:['15','15','15','15','15'][grau], instrucao:'Deite, mãos sob o glúteo. Eleve as pernas esticadas até 90°. Desça lentamente sem encostar no chão. Foco na parte baixa do abdômen.' },
+      { nome:'Russian Twist',              reps:['20','20','20','20','20'][grau], instrucao:'Sente inclinado, pés elevados. Torça o tronco de lado a lado tocando o chão com as mãos ou um peso. Mantenha o abdômen contraído.' },
+    ],
+    cardio: [
+      { nome:'Esteira — Corrida Moderada', reps:['20min','25min','30min','35min','40min'][grau], instrucao:'Mantenha ritmo que te deixe ofegante mas capaz de falar. Frequência cardíaca entre 65% e 75% do máximo. Não segure o corrimão.' },
+      { nome:'Bicicleta Ergométrica',      reps:['20min','25min','25min','30min','35min'][grau], instrucao:'Ajuste o banco na altura do quadril. Pedale mantendo ritmo constante. Nível de esforço moderado a alto. Mantenha postura ereta.' },
+      { nome:'Circuito Funcional',         reps:['3 rodadas','3 rodadas','4 rodadas','4 rodadas','5 rodadas'][grau], instrucao:'Polichinelo 20x + Agachamento 15x + Flexão 10x + Prancha 30s. Execute um exercício após o outro sem pausa. 60s entre rodadas.' },
+      { nome:'Corda de Pular',             reps:['5min','7min','10min','12min','15min'][grau],   instrucao:'Pule em ritmo constante. Pouso suave na ponta dos pés. Braços relaxados girando do pulso. Alterne com descanso breve se necessário.' },
+      { nome:'HIIT — Sprints',             reps:['8 ciclos','10 ciclos','12 ciclos','12 ciclos','15 ciclos'][grau], instrucao:'30s de corrida máxima + 30s de caminhada = 1 ciclo. Esforce ao máximo nos sprints. Ótimo para queima de gordura pós-treino.' },
+    ]
+  };
+
+  // ── ESTRUTURAS DE TREINO POR DIAS/SEMANA ──────────────────────────────
+  const isCardio   = foco === 'Condicionamento' || foco === 'Emagrecimento';
+  const isGluteo   = foco === 'Hipertrofia' && sexo === 'Feminino';
+  const isForca    = foco === 'Força';
+
+  // Divisões possíveis por número de dias
+  const divisoes = {
+    1: [['peito','costas','pernas','ombro','biceps','triceps','abdomen']],
+    2: [['peito','costas','biceps','triceps'],['pernas','ombro','gluteo','abdomen']],
+    3: [['peito','triceps','ombro'],['costas','biceps','abdomen'],['pernas','gluteo']],
+    4: [['peito','triceps'],['costas','biceps'],['pernas','gluteo'],['ombro','abdomen']],
+    5: [['peito','triceps'],['costas','biceps'],['pernas'],['ombro','abdomen'],['gluteo','cardio']],
+    6: [['peito','triceps'],['costas','biceps'],['pernas'],['ombro'],['gluteo','abdomen'],['cardio']],
+    7: [['peito','triceps'],['costas','biceps'],['pernas'],['ombro'],['gluteo'],['abdomen','cardio'],['cardio']],
+  };
+
+  const nDias = Math.min(dias.length, 7);
+  const divisao = divisoes[nDias] || divisoes[3];
+
+  const grupos_labels = {
+    peito:'Peito', costas:'Costas', pernas:'Pernas', ombro:'Ombros',
+    biceps:'Bíceps', triceps:'Tríceps', gluteo:'Glúteos', abdomen:'Abdômen', cardio:'Cardio'
+  };
+
+  // Monta os dias
+  const diasMontados = dias.map((diaNome, i) => {
+    const gruposDia = divisao[i % divisao.length];
+    const grupoLabel = gruposDia.map(g => grupos_labels[g]).join(' + ');
+
+    // Escolhe exercícios de cada grupo (3 por grupo se múltiplos, 5 se único)
+    let exercicios = [];
+    gruposDia.forEach(grupo => {
+      const pool = BANCO[grupo] || [];
+      const qtd  = gruposDia.length === 1 ? Math.min(5, pool.length) : Math.min(3, pool.length);
+      // Shuffle determinístico baseado no índice do dia + evo
+      const seed = i + evo * 7;
+      const shuffled = pool.slice().sort((a,b) => {
+        const ha = Math.sin(pool.indexOf(a) * 127.1 + seed * 311.7) * 43758.5;
+        const hb = Math.sin(pool.indexOf(b) * 127.1 + seed * 311.7) * 43758.5;
+        return (ha - Math.floor(ha)) - (hb - Math.floor(hb));
+      });
+      shuffled.slice(0, qtd).forEach(ex => {
+        exercicios.push({
+          nome: ex.nome,
+          series: seriesBase,
+          reps: ex.reps,
+          descanso: (grupo === 'cardio' || grupo === 'abdomen') ? '30s' : descansoBase,
+          instrucao: ex.instrucao
+        });
+      });
     });
-    const data = await resposta.json();
-    const textoRaw = data.content.map(i => i.text || '').join('');
-    const textoLimpo = textoRaw.replace(/```json|```/g, '').trim();
-    ptPlanoAtual = JSON.parse(textoLimpo);
-    localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
-    localStorage.setItem(PT_SEMANAS_KEY, '0');
-    ptSemanasConcluidas = 0;
 
-    loading.style.display = 'none';
-    btnGerar.style.display = 'block';
+    // Ajuste de séries para cardio
+    if (isCardio) exercicios.forEach(ex => {
+      if (ex.descanso !== '30s') ex.descanso = '45s';
+    });
 
-    renderizarPlano();
-    irPara('screen-pt-plano');
-    falar('Pronto, ' + nomeUsuario + '! Seu plano personalizado foi montado. Veja os treinos de cada dia e toque em iniciar para começar!', 'Plano criado!');
+    return { diaNome, grupoMuscular: grupoLabel, exercicios };
+  });
 
-  } catch(err) {
-    loading.style.display = 'none';
-    btnGerar.style.display = 'block';
-    alert('Erro ao gerar plano. Verifique sua conexão e tente novamente.\n' + err.message);
-    falar('Erro ao conectar com a inteligência artificial. Verifique sua conexão e tente novamente.', 'Erro de conexão.');
-  }
+  const subtitulo = `Plano de ${foco} · ${nivel}${evo > 0 ? ' · Ciclo +'+ evo : ''} · ${nDias}x por semana`;
+  return { subtitulo, dias: diasMontados };
 }
 
 // --- RENDERIZAR PLANO ---
