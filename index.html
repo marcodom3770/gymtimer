@@ -626,6 +626,127 @@
       font-size: clamp(10px,2.8vw,12px); font-weight: bold;
       padding: 6px 12px; cursor: pointer; margin-bottom: 10px;
     }
+
+    /* ══════════════════════════════════════════
+       AGENDA DE TREINOS — ESTILOS
+    ══════════════════════════════════════════ */
+    #screen-agenda { justify-content: flex-start; padding-top: 16px; }
+
+    .agenda-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; gap: 8px;
+    }
+    .agenda-mes-label {
+      color: var(--yellow); font-size: clamp(13px,3.8vw,17px);
+      font-weight: bold; letter-spacing: 1px; text-align: center; flex: 1;
+      text-shadow: 0 0 8px rgba(252,238,12,0.3);
+    }
+    .agenda-nav-btn {
+      background: rgba(12,14,24,.94); border: 2px solid var(--yellow);
+      color: var(--yellow); font-family: 'Courier New', monospace;
+      font-weight: bold; font-size: clamp(14px,4vw,18px);
+      width: 36px; height: 36px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .agenda-nav-btn:active { background: rgba(252,238,12,0.15); }
+
+    .agenda-dias-semana {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 3px; margin-bottom: 5px;
+    }
+    .agenda-dia-semana-lbl {
+      text-align: center; color: var(--dim);
+      font-size: clamp(8px,2.2vw,10px); font-weight: bold;
+      letter-spacing: .5px; padding: 3px 0;
+    }
+
+    .agenda-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 3px; margin-bottom: 16px;
+    }
+    .agenda-dia {
+      aspect-ratio: 1; display: flex; align-items: center;
+      justify-content: center; font-size: clamp(10px,2.8vw,13px);
+      font-weight: bold; cursor: default; position: relative;
+      border: 1px solid transparent; transition: transform .1s;
+    }
+    .agenda-dia.vazio { opacity: 0; pointer-events: none; }
+    .agenda-dia.hoje { border-color: var(--cyan) !important; box-shadow: 0 0 8px rgba(0,240,255,0.25); }
+    .agenda-dia.futuro { color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
+    .agenda-dia.sem-treino {
+      background: rgba(255,0,60,0.12); border-color: rgba(255,0,60,0.3);
+      color: var(--pink);
+    }
+    .agenda-dia.treino-parcial {
+      background: rgba(252,238,12,0.12); border-color: rgba(252,238,12,0.35);
+      color: var(--yellow);
+    }
+    .agenda-dia.treino-completo {
+      background: rgba(0,255,64,0.12); border-color: rgba(0,255,64,0.35);
+      color: var(--green);
+    }
+    .agenda-dia.treino-completo::after {
+      content: '✓'; position: absolute; bottom: 2px; right: 3px;
+      font-size: clamp(7px,2vw,9px); color: var(--green); opacity: .8;
+    }
+    .agenda-dia.treino-parcial::after {
+      content: '~'; position: absolute; bottom: 2px; right: 3px;
+      font-size: clamp(7px,2vw,9px); color: var(--yellow); opacity: .8;
+    }
+    .agenda-dia.sem-treino::after {
+      content: '✕'; position: absolute; bottom: 2px; right: 3px;
+      font-size: clamp(7px,2vw,9px); color: var(--pink); opacity: .8;
+    }
+
+    .agenda-legenda {
+      display: flex; gap: 8px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .agenda-leg-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: clamp(9px,2.5vw,11px); font-weight: bold; letter-spacing: .3px;
+    }
+    .agenda-leg-dot {
+      width: 12px; height: 12px; border: 1px solid;
+      flex-shrink: 0;
+    }
+    .leg-green  { background: rgba(0,255,64,.15);  border-color: var(--green);  color: var(--green); }
+    .leg-yellow { background: rgba(252,238,12,.15); border-color: var(--yellow); color: var(--yellow); }
+    .leg-red    { background: rgba(255,0,60,.15);   border-color: var(--pink);   color: var(--pink); }
+
+    .agenda-stats {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .agenda-stat-card {
+      flex: 1; background: rgba(0,240,255,.04);
+      border: 1px solid rgba(0,240,255,.2); padding: 8px 6px; text-align: center;
+    }
+    .agenda-stat-lbl { color: var(--dim); font-size: clamp(8px,2.2vw,10px); font-weight: bold; letter-spacing: .3px; }
+    .agenda-stat-val { font-size: clamp(16px,4.5vw,22px); font-weight: bold; margin-top: 3px; }
+
+    .agenda-streak {
+      background: rgba(252,238,12,.05); border: 1px solid rgba(252,238,12,.25);
+      padding: 10px 12px; margin-bottom: 12px; text-align: center;
+    }
+    .agenda-streak-num {
+      color: var(--yellow); font-size: clamp(28px,8vw,42px);
+      font-weight: bold; line-height: 1; text-shadow: 0 0 12px rgba(252,238,12,.4);
+    }
+    .agenda-streak-lbl {
+      color: var(--dim); font-size: clamp(9px,2.5vw,11px);
+      font-weight: bold; letter-spacing: .5px; margin-top: 3px;
+    }
+
+    .agenda-btn-limpar {
+      display: block; width: 100%;
+      background: rgba(255,0,60,.06); border: 1px solid rgba(255,0,60,.3);
+      color: rgba(255,0,60,.6); font-family: 'Courier New', monospace;
+      font-size: clamp(10px,2.8vw,12px); font-weight: bold;
+      padding: 8px; cursor: pointer; letter-spacing: 1px; margin-top: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .agenda-btn-limpar:active { background: rgba(255,0,60,.15); }
   </style>
 </head>
 <body>
@@ -772,6 +893,9 @@
 
       <!-- BOTÃO: DIETA & HIDRATAÇÃO -->
       <button class="btn-sec yellow" onclick="abrirDieta()" style="margin-top:4px; font-size:14px;">🥗 DIETA & HIDRATAÇÃO</button>
+
+      <!-- BOTÃO: AGENDA DE TREINOS -->
+      <button class="btn-sec" onclick="abrirAgenda()" style="margin-top:4px; font-size:14px; border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 14px rgba(0,240,255,0.2);">📆 AGENDA DE TREINOS</button>
 
       <div style="display:flex;gap:12px; margin-top:10px;">
         <button class="btn-round sz-sm c-cyan"   onclick="irParaConfig()">⚙️</button>
@@ -1299,6 +1423,85 @@
     </div><!-- fim resultados -->
   </div>
 </div><!-- fim screen-dieta -->
+
+<!-- ══════════════════════════════════════════════════════════
+     TELA: AGENDA DE TREINOS
+══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-agenda">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--cyan); color:var(--cyan)">&lt; Voltar</button>
+  <div class="config-scroll">
+    <div class="panel" style="border-color:var(--cyan)">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+
+      <div class="glitch" data-text="AGENDA" style="font-size:clamp(22px,6.5vw,34px);color:var(--cyan);margin-bottom:4px;margin-top:6px;">AGENDA</div>
+      <div style="text-align:center;color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;margin-bottom:16px;letter-spacing:.5px;">// HISTÓRICO DE TREINOS DO MÊS</div>
+
+      <!-- Streak -->
+      <div class="agenda-streak">
+        <div class="agenda-streak-num" id="agenda-streak-num">0</div>
+        <div class="agenda-streak-lbl">🔥 DIAS CONSECUTIVOS DE TREINO</div>
+      </div>
+
+      <!-- Stats do mês -->
+      <div class="agenda-stats">
+        <div class="agenda-stat-card">
+          <div class="agenda-stat-lbl">COMPLETOS</div>
+          <div class="agenda-stat-val" id="agenda-stat-completos" style="color:var(--green)">0</div>
+        </div>
+        <div class="agenda-stat-card">
+          <div class="agenda-stat-lbl">PARCIAIS</div>
+          <div class="agenda-stat-val" id="agenda-stat-parciais" style="color:var(--yellow)">0</div>
+        </div>
+        <div class="agenda-stat-card">
+          <div class="agenda-stat-lbl">SEM TREINO</div>
+          <div class="agenda-stat-val" id="agenda-stat-sem" style="color:var(--pink)">0</div>
+        </div>
+      </div>
+
+      <!-- Navegação do mês -->
+      <div class="agenda-nav">
+        <button class="agenda-nav-btn" onclick="agendaMudarMes(-1)">◀</button>
+        <div class="agenda-mes-label" id="agenda-mes-label">--</div>
+        <button class="agenda-nav-btn" onclick="agendaMudarMes(+1)">▶</button>
+      </div>
+
+      <!-- Dias da semana -->
+      <div class="agenda-dias-semana">
+        <div class="agenda-dia-semana-lbl">DOM</div>
+        <div class="agenda-dia-semana-lbl">SEG</div>
+        <div class="agenda-dia-semana-lbl">TER</div>
+        <div class="agenda-dia-semana-lbl">QUA</div>
+        <div class="agenda-dia-semana-lbl">QUI</div>
+        <div class="agenda-dia-semana-lbl">SEX</div>
+        <div class="agenda-dia-semana-lbl">SÁB</div>
+      </div>
+
+      <!-- Grid do calendário -->
+      <div class="agenda-grid" id="agenda-grid"></div>
+
+      <!-- Legenda -->
+      <div class="agenda-legenda">
+        <div class="agenda-leg-item">
+          <div class="agenda-leg-dot leg-green"></div>
+          <span style="color:var(--green)">TREINO COMPLETO</span>
+        </div>
+        <div class="agenda-leg-item">
+          <div class="agenda-leg-dot leg-yellow"></div>
+          <span style="color:var(--yellow)">TREINO PARCIAL</span>
+        </div>
+        <div class="agenda-leg-item">
+          <div class="agenda-leg-dot leg-red"></div>
+          <span style="color:var(--pink)">SEM TREINO</span>
+        </div>
+      </div>
+
+      <!-- Botão limpar histórico -->
+      <button class="agenda-btn-limpar" onclick="agendaLimparHistorico()">⚠ LIMPAR HISTÓRICO DO MÊS ATUAL</button>
+
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════
      TELA: PERSONAL TRAINER IA — FORMULÁRIO
@@ -2153,7 +2356,13 @@ function mostrarResumo() {
   
   document.getElementById('modal-resumo').classList.add('active');
 }
-function fecharResumo() { clickBeep(); document.getElementById('modal-resumo').classList.remove('active'); voltarDoTimer(); }
+function fecharResumo() {
+  clickBeep();
+  document.getElementById('modal-resumo').classList.remove('active');
+  // Registra treino COMPLETO na agenda
+  agendaRegistrarTreino('completo');
+  voltarDoTimer();
+}
 
 // ══════════════════════════════════════════════════════════════════════
 //  LÓGICA DO CRONÔMETRO
@@ -2177,6 +2386,10 @@ function selecionarModo(modo) {
 }
 
 function voltarDoTimer() {
+  // Registra treino PARCIAL se iniciou pelo menos 1 série mas não concluiu pelo modal de resumo
+  if (contador > 0) {
+    agendaRegistrarTreino('parcial');
+  }
   pararTimer(); pararAutoStart(); pararCronTreino();
   timerRodando = false;
   modoPlanejadoAtivo = false;
@@ -2819,6 +3032,10 @@ function verPlanoAtual() {
 function voltarPlanoIA() {
   clickBeep();
   pararDescansoIA();
+  // Registra treino parcial se havia exercício em andamento
+  if (ptExercicioIdx > 0 || ptSerieAtual > 1) {
+    agendaRegistrarTreino('parcial');
+  }
   irPara('screen-pt-plano');
 }
 
@@ -3198,6 +3415,8 @@ function ptProximoExercicio() {
     // Treino do dia concluído!
     ptSemanasConcluidas++;
     localStorage.setItem(PT_SEMANAS_KEY, ptSemanasConcluidas);
+    // Registra treino COMPLETO na agenda
+    agendaRegistrarTreino('completo');
     falar('Treino de ' + ptDiaExecAtual.diaNome + ' concluído, ' + nomeUsuario + '! Você é uma máquina! Descanse bem e nos vemos no próximo treino!', 'Treino concluído!');
     setTimeout(() => {
       irPara('screen-pt-plano');
@@ -3385,6 +3604,172 @@ function abrirGuiaAlimentar(objetivo) {
     massa:   'Guia para ganho de massa. Aumente a ingestão de carboidratos e proteínas. Coma mais vezes ao dia.'
   };
   falar(falas[objetivo], objetivo === 'manter' ? 'Manutenção.' : objetivo === 'emagrec' ? 'Emagrecimento.' : 'Ganho de massa.');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  MÓDULO: AGENDA DE TREINOS
+// ══════════════════════════════════════════════════════════════════════
+const AGENDA_KEY = 'gym_agenda_v1';
+
+// Retorna chave do dia: 'YYYY-MM-DD'
+function agendaChaveDia(date) {
+  const d = date || new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+// Carrega o histório completo
+function agendaCarregarHistorico() {
+  try { return JSON.parse(localStorage.getItem(AGENDA_KEY) || '{}'); } catch(e) { return {}; }
+}
+
+// Salva o histórico
+function agendaSalvarHistorico(hist) {
+  localStorage.setItem(AGENDA_KEY, JSON.stringify(hist));
+}
+
+// Registra treino do dia. 'completo' sempre sobrescreve 'parcial'.
+// status: 'completo' | 'parcial'
+function agendaRegistrarTreino(status) {
+  const hist = agendaCarregarHistorico();
+  const chave = agendaChaveDia();
+  const atual = hist[chave];
+  // Só atualiza se não tinha nada, ou se está promovendo de parcial → completo
+  if (!atual || (atual === 'parcial' && status === 'completo')) {
+    hist[chave] = status;
+    agendaSalvarHistorico(hist);
+  }
+}
+
+// Mes/ano atualmente exibido na agenda
+let agendaMesAtual = new Date().getMonth();
+let agendaAnoAtual = new Date().getFullYear();
+
+function agendaMudarMes(delta) {
+  clickBeep();
+  agendaMesAtual += delta;
+  if (agendaMesAtual > 11) { agendaMesAtual = 0; agendaAnoAtual++; }
+  if (agendaMesAtual < 0)  { agendaMesAtual = 11; agendaAnoAtual--; }
+  renderizarAgenda();
+}
+
+function abrirAgenda() {
+  clickBeep();
+  // Reset para mês atual sempre que abrir
+  agendaMesAtual = new Date().getMonth();
+  agendaAnoAtual = new Date().getFullYear();
+  renderizarAgenda();
+  irPara('screen-agenda');
+
+  const frasesAgenda = [
+    'Agenda de treinos on-line, ' + nomeUsuario + '! Veja seu histórico e mantenha a consistência!',
+    'Painel de progresso ativado, ' + nomeUsuario + '! Consistência é a chave do sucesso!',
+    'Histório de treinos carregado, ' + nomeUsuario + '! Quantos dias verdes você vai acumular?',
+  ];
+  falar(frasesAgenda[Math.floor(Math.random() * frasesAgenda.length)], 'Agenda de treinos.');
+}
+
+function renderizarAgenda() {
+  const hist     = agendaCarregarHistorico();
+  const hoje     = new Date();
+  const hojeChave = agendaChaveDia(hoje);
+
+  // Nomes dos meses
+  const meses = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO',
+                 'JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+  document.getElementById('agenda-mes-label').textContent =
+    meses[agendaMesAtual] + ' ' + agendaAnoAtual;
+
+  // Primeiro dia do mês e total de dias
+  const primeiroDia = new Date(agendaAnoAtual, agendaMesAtual, 1).getDay(); // 0=dom
+  const totalDias   = new Date(agendaAnoAtual, agendaMesAtual + 1, 0).getDate();
+
+  const grid = document.getElementById('agenda-grid');
+  grid.innerHTML = '';
+
+  let completos = 0, parciais = 0, semTreino = 0;
+
+  // Células vazias antes do primeiro dia
+  for (let i = 0; i < primeiroDia; i++) {
+    const cel = document.createElement('div');
+    cel.className = 'agenda-dia vazio';
+    grid.appendChild(cel);
+  }
+
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const dataStr = agendaAnoAtual + '-' +
+      String(agendaMesAtual + 1).padStart(2, '0') + '-' +
+      String(dia).padStart(2, '0');
+
+    const dataDia   = new Date(agendaAnoAtual, agendaMesAtual, dia);
+    const ehHoje    = dataStr === hojeChave;
+    const ehFuturo  = dataDia > hoje && !ehHoje;
+    const status    = hist[dataStr]; // 'completo' | 'parcial' | undefined
+
+    const cel = document.createElement('div');
+    cel.textContent = dia;
+
+    let classes = 'agenda-dia';
+    if (ehHoje) classes += ' hoje';
+
+    if (ehFuturo) {
+      classes += ' futuro';
+    } else if (status === 'completo') {
+      classes += ' treino-completo';
+      completos++;
+    } else if (status === 'parcial') {
+      classes += ' treino-parcial';
+      parciais++;
+    } else if (!ehHoje) {
+      // Dia passado sem registro
+      classes += ' sem-treino';
+      semTreino++;
+    }
+
+    cel.className = classes;
+    grid.appendChild(cel);
+  }
+
+  // Atualiza stats
+  document.getElementById('agenda-stat-completos').textContent = completos;
+  document.getElementById('agenda-stat-parciais').textContent  = parciais;
+  document.getElementById('agenda-stat-sem').textContent       = semTreino;
+
+  // Calcula streak (dias consecutivos até hoje, contando completo e parcial)
+  let streak = 0;
+  const verificar = new Date(hoje);
+  // Se hoje ainda não tem registro, começa verificando ontem
+  if (!hist[agendaChaveDia(verificar)]) {
+    verificar.setDate(verificar.getDate() - 1);
+  }
+  while (true) {
+    const chave = agendaChaveDia(verificar);
+    const s = hist[chave];
+    if (s === 'completo' || s === 'parcial') {
+      streak++;
+      verificar.setDate(verificar.getDate() - 1);
+    } else {
+      break;
+    }
+    if (streak > 365) break; // segurança
+  }
+  document.getElementById('agenda-streak-num').textContent = streak;
+}
+
+function agendaLimparHistorico() {
+  clickBeep();
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const nomeMes = meses[agendaMesAtual];
+  if (!confirm('⚠ Limpar todo o histórico de ' + nomeMes + ' ' + agendaAnoAtual + '?\nEsta ação não pode ser desfeita.')) return;
+
+  const hist = agendaCarregarHistorico();
+  const prefixo = agendaAnoAtual + '-' + String(agendaMesAtual + 1).padStart(2, '0') + '-';
+  Object.keys(hist).forEach(k => { if (k.startsWith(prefixo)) delete hist[k]; });
+  agendaSalvarHistorico(hist);
+  renderizarAgenda();
+  falar('Histórico de ' + nomeMes + ' limpo com sucesso!', 'Histórico limpo.');
 }
 </script>
 </body>
