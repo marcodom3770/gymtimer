@@ -698,20 +698,34 @@
   </div>
 </div>
 
-<!-- MODAL: EXERCÍCIO CONCLUÍDO (PARA ROTINA SEMANAL) -->
+<!-- MODAL: ÚLTIMA SÉRIE / PRÓXIMO EXERCÍCIO (PARA ROTINA SEMANAL) -->
 <div id="modal-proximo-treino" class="modal-overlay">
   <div class="panel" style="border-color:var(--yellow);width:90%;max-width:380px">
     <div class="corner-tr" style="border-color:var(--yellow)"></div>
     <div class="corner-bl" style="border-color:var(--yellow)"></div>
-    <div class="glitch" data-text="EXERCÍCIO CONCLUÍDO" style="font-size:clamp(16px,5vw,22px);color:var(--yellow);margin-bottom:12px">EXERCÍCIO CONCLUÍDO</div>
-    
-    <div style="text-align:center; margin-bottom:20px;">
-      <div style="color:var(--dim); font-size:12px; margin-bottom:5px;">PREPARE-SE PARA O PRÓXIMO:</div>
-      <div id="proximo-treino-nome" style="color:var(--cyan); font-size:22px; font-weight:bold; text-transform:uppercase;">--</div>
-      <div id="proximo-treino-series" style="color:var(--yellow); font-size:14px; margin-top:5px;">--</div>
+    <div class="glitch" id="modal-prox-titulo" data-text="ÚLTIMA SÉRIE" style="font-size:clamp(16px,5vw,22px);color:var(--yellow);margin-bottom:10px">ÚLTIMA SÉRIE</div>
+
+    <!-- Indicador: qual exercício e qual série está encerrando -->
+    <div style="text-align:center; margin-bottom:12px; padding:8px 0; border-top:1px solid rgba(252,238,12,0.3); border-bottom:1px solid rgba(252,238,12,0.3);">
+      <div style="color:var(--dim); font-size:11px; font-weight:bold; letter-spacing:.5px; margin-bottom:3px;">ENCERRANDO</div>
+      <div id="modal-prox-exercicio-atual" style="color:var(--orange); font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">--</div>
+      <div id="modal-prox-serie-atual" style="color:var(--yellow); font-size:20px; font-weight:bold; margin-top:4px; letter-spacing:1px;">SÉRIE -- DE --</div>
     </div>
-    
-    <button class="btn-sec green" onclick="iniciarProximoTreino()">▶ INICIAR PRÓXIMO</button>
+
+    <!-- Bloco: há próximo exercício -->
+    <div id="modal-prox-proximo-wrap" style="text-align:center; margin-bottom:16px;">
+      <div style="color:var(--dim); font-size:11px; font-weight:bold; margin-bottom:5px; letter-spacing:.5px;">PREPARE-SE PARA O PRÓXIMO:</div>
+      <div id="proximo-treino-nome" style="color:var(--cyan); font-size:20px; font-weight:bold; text-transform:uppercase; letter-spacing:1px;">--</div>
+      <div id="proximo-treino-series" style="color:var(--yellow); font-size:13px; margin-top:5px; font-weight:bold;">--</div>
+    </div>
+
+    <!-- Bloco: último exercício do dia (oculto por padrão) -->
+    <div id="modal-prox-fim-wrap" style="text-align:center; margin-bottom:16px; display:none;">
+      <div style="color:var(--green); font-size:17px; font-weight:bold; letter-spacing:1px; margin-bottom:6px;">🏆 POR HOJE É SÓ!</div>
+      <div style="color:var(--dim); font-size:12px; font-weight:bold; letter-spacing:.5px;">DESCANSE — AMANHÃ TEM MAIS 💪</div>
+    </div>
+
+    <button id="modal-prox-btn" class="btn-sec green" onclick="iniciarProximoTreino()">▶ INICIAR PRÓXIMO</button>
   </div>
 </div>
 
@@ -2052,11 +2066,43 @@ function prepararTreinoAtual() {
   document.getElementById('lbl-status').textContent = `EXERCÍCIO ${idxTreinoAtual + 1} DE ${listaTreinosDia.length}`;
 }
 
-function mostrarProximoTreino() {
-  const proxExercicio = listaTreinosDia[idxTreinoAtual + 1];
-  document.getElementById('proximo-treino-nome').textContent = proxExercicio.nome.toUpperCase();
-  document.getElementById('proximo-treino-series').textContent = proxExercicio.series + " SÉRIES";
-  document.getElementById('modal-proximo-treino').classList.add('active');
+function mostrarProximoTreino(ehUltimo) {
+  const exercicioAtual = listaTreinosDia[idxTreinoAtual];
+  const modal = document.getElementById('modal-proximo-treino');
+  const tituloEl = document.getElementById('modal-prox-titulo');
+
+  // Preenche qual exercício e qual série está sendo encerrada
+  document.getElementById('modal-prox-exercicio-atual').textContent = exercicioAtual.nome.toUpperCase();
+  document.getElementById('modal-prox-serie-atual').textContent = 'SÉRIE ' + exercicioAtual.series + ' DE ' + exercicioAtual.series;
+
+  if (ehUltimo) {
+    // Último exercício do dia
+    tituloEl.textContent = 'FINALIZE A SÉRIE';
+    tituloEl.setAttribute('data-text', 'FINALIZE A SÉRIE');
+    document.getElementById('modal-prox-proximo-wrap').style.display = 'none';
+    document.getElementById('modal-prox-fim-wrap').style.display = 'block';
+    const btn = document.getElementById('modal-prox-btn');
+    btn.textContent = '🏆 VER RESUMO';
+    btn.onclick = function() {
+      clickBeep();
+      modal.classList.remove('active');
+      setTimeout(mostrarResumo, 300);
+    };
+  } else {
+    // Há próximo exercício
+    const proxExercicio = listaTreinosDia[idxTreinoAtual + 1];
+    tituloEl.textContent = 'ÚLTIMA SÉRIE';
+    tituloEl.setAttribute('data-text', 'ÚLTIMA SÉRIE');
+    document.getElementById('modal-prox-proximo-wrap').style.display = 'block';
+    document.getElementById('modal-prox-fim-wrap').style.display = 'none';
+    document.getElementById('proximo-treino-nome').textContent = proxExercicio.nome.toUpperCase();
+    document.getElementById('proximo-treino-series').textContent = proxExercicio.series + ' SÉRIES';
+    const btn = document.getElementById('modal-prox-btn');
+    btn.textContent = '▶ INICIAR PRÓXIMO';
+    btn.onclick = iniciarProximoTreino;
+  }
+
+  modal.classList.add('active');
 }
 
 function iniciarProximoTreino() {
@@ -2243,16 +2289,28 @@ function iniciarTimer() {
       if (contador >= metaSeries) {
         
         if (modoPlanejadoAtivo && idxTreinoAtual < listaTreinosDia.length - 1) {
-            // SE TEM PRÓXIMO EXERCÍCIO NA ROTINA
-            const proxNome = listaTreinosDia[idxTreinoAtual + 1].nome;
+            // HÁ PRÓXIMO EXERCÍCIO NA ROTINA
+            const proxNome  = listaTreinosDia[idxTreinoAtual + 1].nome;
+            const proxSer   = listaTreinosDia[idxTreinoAtual + 1].series;
             const frasesConc = [
-              `Exercício ${idxTreinoAtual+1} concluído! Descanse e prepare-se para ${proxNome}.`,
-              `Muito bem, ${nomeUsuario}! ${listaTreinosDia[idxTreinoAtual].nome} finalizado. A seguir: ${proxNome}!`,
-              `Série completa! Parabéns, ${nomeUsuario}! Próximo exercício é ${proxNome}. Respira e vai!`,
+              `Última série! Termine o exercício e prepare-se para ${proxNome}. ${proxSer} série${proxSer>1?'s':''} te aguardam!`,
+              `Isso, ${nomeUsuario}! Última série concluída! Respira e já vai pro ${proxNome}. ${proxSer} série${proxSer>1?'s':''}!`,
+              `Finalize agora, ${nomeUsuario}! Em seguida vem o ${proxNome} — ${proxSer} série${proxSer>1?'s':''}. Foco!`,
             ];
-            falar(frasesConc[Math.floor(Math.random()*frasesConc.length)], "Exercício concluído!");
-            setTimeout(mostrarProximoTreino, 1200);
+            falar(frasesConc[Math.floor(Math.random()*frasesConc.length)], "Última série!");
+            setTimeout(() => mostrarProximoTreino(false), 1200);
+        } else if (modoPlanejadoAtivo) {
+            // ÚLTIMO EXERCÍCIO DO DIA — última série
+            pararCronTreino();
+            const frasesUltimo = [
+              `Finalize a série, ${nomeUsuario}! Por hoje é só! Descanse — amanhã tem mais!`,
+              `Última série do dia! Dá tudo que tem, ${nomeUsuario}! Por hoje é só! Seu corpo merece descanso!`,
+              `Isso! Finalize com tudo, ${nomeUsuario}! Por hoje é só! Descanse bem — amanhã tem mais!`,
+            ];
+            falar(frasesUltimo[Math.floor(Math.random()*frasesUltimo.length)], "Por hoje é só!");
+            setTimeout(() => mostrarProximoTreino(true), 1200);
         } else {
+            // MODO LIVRE
             pararCronTreino();
             const frasesTermino = [
               `Parabéns, ${nomeUsuario}! Rotina concluída com sucesso! Você é uma máquina!`,
