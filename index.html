@@ -3150,8 +3150,8 @@ function getGeminiKey() {
 function salvarApiKey() {
   const key = document.getElementById('cfg-gemini-key').value.trim();
   const statusEl = document.getElementById('cfg-ia-status');
-  if (!key || !key.startsWith('AIza')) {
-    statusEl.textContent = '❌ Chave inválida. Começa com "AIza..."';
+  if (!key || key.length < 20) {
+    statusEl.textContent = '❌ Chave muito curta ou vazia.';
     statusEl.style.color = 'var(--pink)';
     return;
   }
