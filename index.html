@@ -419,6 +419,62 @@
     /* Percentual de hidratação */
     .agua-pct { display: inline-block; color: var(--green); font-size: clamp(13px,3.5vw,16px); font-weight: bold; margin-left: 8px; }
 
+    /* ── CHAT PERSONAL IA ── */
+    #modal-chat-personal {
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      z-index:300; align-items:flex-end; justify-content:center;
+      background:rgba(0,0,0,.88);
+    }
+    #modal-chat-personal.active { display:flex; }
+    .chat-panel {
+      width:93%; max-width:448px; max-height:85vh;
+      background:rgba(8,10,18,.98); border:2px solid var(--pink);
+      border-bottom:none; display:flex; flex-direction:column;
+      padding:0;
+    }
+    .chat-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px 10px; border-bottom:1px solid rgba(255,0,60,.25);
+      flex-shrink:0;
+    }
+    .chat-title { color:var(--pink); font-weight:bold; font-size:clamp(13px,3.5vw,16px); letter-spacing:1px; }
+    .chat-close { color:var(--dim); font-size:20px; cursor:pointer; padding:0 4px; background:none; border:none; font-family:monospace; }
+    .chat-msgs {
+      flex:1; overflow-y:auto; padding:12px 14px; display:flex;
+      flex-direction:column; gap:10px; min-height:200px;
+    }
+    .chat-msg { max-width:88%; padding:9px 12px; font-size:clamp(11px,3vw,13px); font-weight:bold; line-height:1.5; letter-spacing:.3px; }
+    .chat-msg.user { background:rgba(255,0,60,.1); border:1px solid rgba(255,0,60,.3); color:white; align-self:flex-end; border-radius:2px 2px 0 2px; }
+    .chat-msg.ia   { background:rgba(0,240,255,.06); border:1px solid rgba(0,240,255,.2); color:var(--cyan); align-self:flex-start; border-radius:2px 2px 2px 0; }
+    .chat-msg.erro { background:rgba(255,0,60,.08); border:1px solid rgba(255,0,60,.25); color:var(--pink); align-self:flex-start; font-size:11px; }
+    .chat-typing { color:var(--dim); font-size:11px; letter-spacing:.5px; align-self:flex-start; }
+    .chat-input-row {
+      display:flex; gap:8px; padding:10px 12px 14px;
+      border-top:1px solid rgba(255,0,60,.2); flex-shrink:0;
+    }
+    .chat-input {
+      flex:1; background:rgba(255,0,60,.05); border:1px solid rgba(255,0,60,.35);
+      color:white; font-family:'Courier New',monospace; font-size:clamp(12px,3.2vw,14px);
+      padding:10px 12px; outline:none; resize:none;
+    }
+    .chat-input::placeholder { color:rgba(255,255,255,.25); }
+    .chat-send {
+      background:rgba(255,0,60,.15); border:2px solid var(--pink); color:var(--pink);
+      font-family:'Courier New',monospace; font-weight:bold; font-size:18px;
+      padding:0 16px; cursor:pointer; flex-shrink:0;
+    }
+    .chat-send:active { background:var(--pink); color:#000; }
+
+    /* Status IA na config */
+    .ia-key-status { text-align:center; font-size:11px; font-weight:bold; letter-spacing:.5px; margin-top:6px; min-height:16px; }
+    .ia-key-input {
+      width:100%; background:rgba(255,0,60,.05); border:2px solid var(--pink);
+      color:var(--pink); font-family:'Courier New',monospace; font-weight:bold;
+      font-size:clamp(13px,3.5vw,15px); padding:11px 10px; letter-spacing:1px;
+      outline:none; margin:10px 0 8px;
+    }
+    .ia-key-input::placeholder { color:rgba(255,0,60,.3); }
+
     /* ── GUIA ALIMENTAR POR OBJETIVO ── */
     .objetivo-btns {
       display: flex; flex-direction: column; gap: 9px; margin-top: 16px; margin-bottom: 4px;
@@ -1082,6 +1138,21 @@
         </div>
       </div>
 
+      <!-- SEÇÃO IA -->
+      <div class="cfg-section" id="sec-ia">
+        <div class="cfg-section-title" style="color:var(--pink); border-color:var(--pink)">🤖 INTELIGÊNCIA ARTIFICIAL — GEMINI</div>
+        <div style="color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.5px;line-height:1.6;margin-bottom:4px;">
+          Cole sua chave gratuita do Google Gemini para ativar o Personal Trainer com IA real.<br>
+          <span style="color:rgba(0,240,255,.6)">// 1500 requisições grátis por dia</span>
+        </div>
+        <input class="ia-key-input" type="password" id="cfg-gemini-key" placeholder="AIzaSy...">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sec pink" style="flex:1;font-size:clamp(11px,3vw,13px);padding:11px 6px;" onclick="salvarApiKey()">✔ SALVAR CHAVE</button>
+          <button class="btn-sec" onclick="window.open('https://aistudio.google.com/app/apikey','_blank')" style="flex:1;font-size:clamp(10px,2.7vw,12px);padding:11px 4px;border-color:var(--yellow);color:var(--yellow);">🔑 PEGAR CHAVE GRÁTIS</button>
+        </div>
+        <div class="ia-key-status" id="cfg-ia-status"></div>
+      </div>
+
       <div class="cfg-section" id="sec-sistema">
         <div class="cfg-section-title" style="color:var(--cyan); border-color:var(--cyan)">⚙️ COMPORTAMENTO</div>
         <select class="cfg-select" id="cfg-alerta" onchange="salvarAlerta()">
@@ -1630,6 +1701,7 @@
 
       <!-- Rodapé com botões -->
       <div style="margin-top:14px;">
+        <button class="btn-sec" onclick="abrirChatPersonal()" style="border-color:var(--cyan);color:var(--cyan);font-size:13px;margin-bottom:2px;">💬 PERGUNTAR AO PERSONAL IA</button>
         <button class="btn-sec" onclick="importarPlanoParaRotina()" style="border-color:var(--green);color:var(--green);font-size:13px;">📅 IMPORTAR PARA ROTINA SEMANAL</button>
         <button class="btn-sec" onclick="irPara('screen-personal')" style="border-color:var(--pink);color:var(--pink);font-size:13px;margin-top:6px;">🔄 GERAR NOVO PLANO</button>
       </div>
@@ -3069,6 +3141,136 @@ function ptSelecionarNivel(btn) {
 }
 
 // --- GERAÇÃO DO PLANO VIA IA ---
+// ── GEMINI API — FUNÇÕES DE ACESSO ─────────────────────────────────────
+function getGeminiKey() {
+  return localStorage.getItem('gym_gemini_key') || '';
+}
+
+function salvarApiKey() {
+  const key = document.getElementById('cfg-gemini-key').value.trim();
+  const statusEl = document.getElementById('cfg-ia-status');
+  if (!key || !key.startsWith('AIza')) {
+    statusEl.textContent = '❌ Chave inválida. Começa com "AIza..."';
+    statusEl.style.color = 'var(--pink)';
+    return;
+  }
+  localStorage.setItem('gym_gemini_key', key);
+  statusEl.textContent = '✔ CHAVE SALVA! IA ATIVADA.';
+  statusEl.style.color = 'var(--green)';
+  setTimeout(() => { statusEl.textContent = ''; }, 4000);
+}
+
+async function chamadaGemini(prompt) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('SEM_CHAVE');
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+      })
+    }
+  );
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.candidates[0].content.parts[0].text;
+}
+
+// ── CHAT PERSONAL IA ───────────────────────────────────────────────────
+let chatHistorico = [];
+
+function abrirChatPersonal() {
+  clickBeep();
+  const key = getGeminiKey();
+  if (!key) {
+    alert('⚠️ Configure sua chave Gemini em:\nMENU → ⚙️ CONFIGURAÇÕES → 🤖 INTELIGÊNCIA ARTIFICIAL\n\nÉ gratuita no Google AI Studio!');
+    return;
+  }
+  document.getElementById('modal-chat-personal').classList.add('active');
+  document.getElementById('chat-input-msg').focus();
+}
+
+function fecharChatPersonal() {
+  document.getElementById('modal-chat-personal').classList.remove('active');
+}
+
+function adicionarMsgChat(texto, tipo) {
+  const lista = document.getElementById('chat-msgs-list');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + tipo;
+  div.textContent = texto;
+  lista.appendChild(div);
+  lista.scrollTop = lista.scrollHeight;
+  return div;
+}
+
+async function enviarMsgPersonal() {
+  const input = document.getElementById('chat-input-msg');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.disabled = true;
+
+  adicionarMsgChat(msg, 'user');
+
+  const typing = adicionarMsgChat('⏳ Pensando...', 'chat-typing');
+
+  // Monta contexto do aluno
+  const params = JSON.parse(localStorage.getItem('pt_params') || '{}');
+  const contexto = params.peso ? `O aluno ${nomeUsuario}: ${params.peso}kg, ${params.altura}cm, ${params.idade} anos, ${params.sexo}, objetivo: ${params.foco}, nível: ${params.nivel || ptNivelSelecionado}.` : `Aluno: ${nomeUsuario}.`;
+
+  chatHistorico.push({ role: 'user', text: msg });
+  if (chatHistorico.length > 10) chatHistorico = chatHistorico.slice(-10);
+
+  const historico = chatHistorico.slice(0,-1).map(h => `${h.role === 'user' ? 'Aluno' : 'Personal'}: ${h.text}`).join('\n');
+
+  const prompt = `Você é um personal trainer expert e nutricionista esportivo chamado CYBER PERSONAL. Responda de forma direta, prática e motivadora em português brasileiro.
+
+Contexto do aluno: ${contexto}
+${historico ? 'Histórico da conversa:\n' + historico + '\n' : ''}
+Aluno pergunta: ${msg}
+
+Responda em no máximo 3 parágrafos curtos. Seja direto e útil.`;
+
+  try {
+    const resposta = await chamadaGemini(prompt);
+    typing.remove();
+    adicionarMsgChat(resposta, 'ia');
+    chatHistorico.push({ role: 'ia', text: resposta });
+  } catch(e) {
+    typing.remove();
+    if (e.message === 'SEM_CHAVE') {
+      adicionarMsgChat('⚠️ Configure a chave Gemini em Configurações → IA.', 'erro');
+    } else {
+      adicionarMsgChat('❌ Erro: ' + e.message, 'erro');
+    }
+  }
+  input.disabled = false;
+  input.focus();
+}
+
+// Enter para enviar (Shift+Enter = nova linha)
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('chat-input-msg');
+  if (inp) {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMsgPersonal(); }
+    });
+  }
+  // Carrega chave salva na config
+  const savedKey = getGeminiKey();
+  if (savedKey) {
+    const el = document.getElementById('cfg-gemini-key');
+    if (el) el.value = savedKey;
+    const st = document.getElementById('cfg-ia-status');
+    if (st) { st.textContent = '✔ IA ATIVADA'; st.style.color = 'var(--green)'; }
+  }
+});
+
+// ── GERAÇÃO DE TREINO COM IA REAL ──────────────────────────────────────
 async function gerarTreinoIA() {
   const peso   = document.getElementById('pt-peso').value.trim();
   const altura = document.getElementById('pt-altura').value.trim();
@@ -3089,39 +3291,79 @@ async function gerarTreinoIA() {
     return;
   }
 
-  const loading = document.getElementById('pt-loading');
+  const loading  = document.getElementById('pt-loading');
   const btnGerar = document.getElementById('pt-btn-gerar');
-  loading.style.display = 'block';
+  loading.style.display  = 'block';
   btnGerar.style.display = 'none';
+  falar('Enviando seus dados para a Inteligência Artificial. Montando plano personalizado, ' + nomeUsuario + '!', 'Gerando com IA...');
 
-  falar('Processando seus dados. Montando seu plano personalizado, ' + nomeUsuario + '!', 'Gerando plano...');
+  const key = getGeminiKey();
 
-  // Simula processamento (1.5s) depois gera offline
-  setTimeout(() => {
-    try {
-      ptPlanoAtual = ptGerarPlanoLocal({
-        peso, altura, idade, sexo, biotipo, foco, obs,
-        dias: ptDiasSelecionados,
-        nivel: ptNivelSelecionado,
-        evolucao: 0
-      });
-      localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
-      localStorage.setItem(PT_SEMANAS_KEY, '0');
-      localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
-      ptSemanasConcluidas = 0;
+  if (!key) {
+    // Sem chave → fallback local com aviso
+    falar('Usando modo local. Configure a chave Gemini nas configurações para IA real!', 'Modo local...');
+    setTimeout(() => {
+      try {
+        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0 });
+        localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+        localStorage.setItem(PT_SEMANAS_KEY, '0');
+        localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
+        ptSemanasConcluidas = 0;
+        loading.style.display = 'none'; btnGerar.style.display = 'block';
+        renderizarPlano(); irPara('screen-pt-plano');
+        falar('Plano local gerado! Para IA real, configure a chave Gemini nas configurações.', 'Plano criado!');
+      } catch(err) {
+        loading.style.display = 'none'; btnGerar.style.display = 'block';
+        alert('Erro: ' + err.message);
+      }
+    }, 1200);
+    return;
+  }
 
-      loading.style.display = 'none';
-      btnGerar.style.display = 'block';
+  const prompt = `Você é um personal trainer expert. Crie um plano de treino COMPLETO e PERSONALIZADO em JSON.
 
-      renderizarPlano();
-      irPara('screen-pt-plano');
-      falar('Pronto, ' + nomeUsuario + '! Seu plano personalizado foi montado. Veja os treinos de cada dia e toque em iniciar para começar!', 'Plano criado!');
-    } catch(err) {
-      loading.style.display = 'none';
-      btnGerar.style.display = 'block';
-      alert('Erro ao gerar plano: ' + err.message);
+DADOS DO ALUNO (${nomeUsuario}):
+- Peso: ${peso}kg | Altura: ${altura}cm | Idade: ${idade} anos
+- Sexo: ${sexo} | Biotipo: ${biotipo}
+- Objetivo: ${foco} | Nível: ${ptNivelSelecionado}
+- Dias disponíveis: ${ptDiasSelecionados.join(', ')}
+${obs ? '- Observações especiais: ' + obs : ''}
+
+REGRAS:
+1. Distribua grupos musculares nos dias de forma inteligente (ex: músculos opostos em dias alternados)
+2. Número de séries, reps e exercícios ADEQUADOS ao nível ${ptNivelSelecionado}
+3. Cada exercício deve ter instrução detalhada de execução em português
+4. Inclua aquecimento ou exercício mais leve no início de cada dia
+5. Responda SOMENTE com JSON válido, sem texto adicional, sem markdown, sem \`\`\`
+
+FORMATO OBRIGATÓRIO (não altere a estrutura):
+{"subtitulo":"Plano [Objetivo] - [Nível] - [Nome]","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito + Tríceps","exercicios":[{"nome":"Nome do Exercício","series":4,"reps":"10-12","descanso":"60s","instrucao":"Instrução detalhada de execução..."}]}]}`;
+
+  try {
+    const texto = await chamadaGemini(prompt);
+    const json = texto.replace(/```json|```/g,'').trim();
+    ptPlanoAtual = JSON.parse(json);
+    localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+    localStorage.setItem(PT_SEMANAS_KEY, '0');
+    localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
+    ptSemanasConcluidas = 0;
+    loading.style.display = 'none'; btnGerar.style.display = 'block';
+    renderizarPlano(); irPara('screen-pt-plano');
+    falar('Plano criado com Inteligência Artificial, ' + nomeUsuario + '! Gemini montou seu treino personalizado. Hora de arrasar!', 'Plano IA criado!');
+  } catch(err) {
+    loading.style.display = 'none'; btnGerar.style.display = 'block';
+    if (err.message.includes('API_KEY_INVALID') || err.message.includes('PERMISSION_DENIED')) {
+      alert('❌ Chave API inválida!\n\nVá em Configurações → 🤖 IA e adicione uma chave válida do Google AI Studio.');
+    } else {
+      alert('⚠️ Erro na IA (' + err.message + ')\n\nUsando plano local como fallback...');
+      try {
+        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0 });
+        localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+        localStorage.setItem(PT_SEMANAS_KEY, '0'); ptSemanasConcluidas = 0;
+        renderizarPlano(); irPara('screen-pt-plano');
+      } catch(e2) { alert('Erro no fallback: ' + e2.message); }
     }
-  }, 1500);
+  }
 }
 
 // ── ENGINE LOCAL DE GERAÇÃO DE TREINOS ──────────────────────────────────
@@ -3485,26 +3727,21 @@ Responda SOMENTE com JSON válido, mesmo formato de antes:
 }`;
 
   try {
-    const resp = await fetch('https://corsproxy.io/?url=https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const texto = data.content.map(i => i.text || '').join('').replace(/```json|```/g,'').trim();
-    ptPlanoAtual = JSON.parse(texto);
+    const texto = await chamadaGemini(prompt);
+    const json = texto.replace(/```json|```/g,'').trim();
+    ptPlanoAtual = JSON.parse(json);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
     localStorage.removeItem(PT_PROG_KEY);
     ptSemanasConcluidas = 0;
     renderizarPlano();
-    falar('Plano evoluído com sucesso! Seus novos treinos estão ainda mais intensos. Bora superar seus limites, ' + nomeUsuario + '!', 'Plano evoluído!');
+    falar('Plano evoluído com Inteligência Artificial! Seus novos treinos estão ainda mais intensos. Bora superar seus limites, ' + nomeUsuario + '!', 'Plano evoluído!');
   } catch(e) {
-    alert('Erro ao evoluir plano. Tente novamente.');
+    if (e.message === 'SEM_CHAVE') {
+      alert('⚠️ Configure a chave Gemini em Configurações → 🤖 IA para evoluir o plano com IA real.');
+    } else {
+      alert('Erro ao evoluir plano: ' + e.message);
+    }
   }
 }
 
@@ -3781,6 +4018,26 @@ function agendaLimparHistorico() {
   falar('Histórico de ' + nomeMes + ' limpo com sucesso!', 'Histórico limpo.');
 }
 </script>
+
+<!-- MODAL: CHAT PERSONAL IA -->
+<div id="modal-chat-personal">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div>
+        <div class="chat-title">💬 PERSONAL TRAINER IA</div>
+        <div style="color:var(--dim);font-size:10px;font-weight:bold;letter-spacing:.5px;margin-top:2px;">// Powered by Google Gemini</div>
+      </div>
+      <button class="chat-close" onclick="fecharChatPersonal()">✕</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs-list">
+      <div class="chat-msg ia">Olá! Sou seu Personal Trainer com IA real. Pode me perguntar sobre exercícios, técnicas, nutrição, recuperação ou dúvidas sobre seu plano de treino.</div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input-msg" rows="2" placeholder="Pergunte algo ao seu personal..."></textarea>
+      <button class="chat-send" onclick="enviarMsgPersonal()">➤</button>
+    </div>
+  </div>
+</div>
 
 <!-- PWA: Registro do Service Worker -->
 <script>
