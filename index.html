@@ -3161,9 +3161,12 @@ function salvarApiKey() {
   setTimeout(() => { statusEl.textContent = ''; }, 4000);
 }
 
-async function chamadaGemini(prompt) {
+async function chamadaGemini(prompt, forcarJSON = false) {
   const key = getGeminiKey();
   if (!key) throw new Error('SEM_CHAVE');
+  const genConfig = forcarJSON
+    ? { temperature: 0.7, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+    : { temperature: 0.7, maxOutputTokens: 2048 };
   const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`,
     {
@@ -3171,13 +3174,33 @@ async function chamadaGemini(prompt) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+        generationConfig: genConfig
       })
     }
   );
   const data = await resp.json();
   if (data.error) throw new Error(data.error.message);
   return data.candidates[0].content.parts[0].text;
+}
+
+// Parser robusto: extrai JSON válido mesmo com markdown, texto antes/depois, ou espaços
+function extrairJSON(texto) {
+  // 1) Remove blocos markdown ```json ... ``` ou ``` ... ``` (case-insensitive, multilinha)
+  let limpo = texto.replace(/```[\w]*\n?/gi, '').replace(/```/g, '').trim();
+  // 2) Tenta parsear direto
+  try { return JSON.parse(limpo); } catch(_) {}
+  // 3) Extrai o primeiro objeto JSON completo usando contagem de chaves
+  const inicio = limpo.indexOf('{');
+  if (inicio === -1) throw new Error('Nenhum JSON encontrado na resposta da IA');
+  let depth = 0, i = inicio;
+  for (; i < limpo.length; i++) {
+    if (limpo[i] === '{') depth++;
+    else if (limpo[i] === '}') { depth--; if (depth === 0) break; }
+  }
+  const candidato = limpo.slice(inicio, i + 1);
+  try { return JSON.parse(candidato); } catch(e) {
+    throw new Error('JSON inválido: ' + e.message);
+  }
 }
 
 // ── CHAT PERSONAL IA ───────────────────────────────────────────────────
@@ -3341,9 +3364,8 @@ FORMATO OBRIGATÓRIO (não altere a estrutura):
 {"subtitulo":"Plano [Objetivo] - [Nível] - [Nome]","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito + Tríceps","exercicios":[{"nome":"Nome do Exercício","series":4,"reps":"10-12","descanso":"60s","instrucao":"Instrução detalhada de execução..."}]}]}`;
 
   try {
-    const texto = await chamadaGemini(prompt);
-    const json = texto.replace(/```json|```/g,'').trim();
-    ptPlanoAtual = JSON.parse(json);
+    const texto = await chamadaGemini(prompt, true);
+    ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
     localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
@@ -3728,9 +3750,8 @@ Responda SOMENTE com JSON válido, mesmo formato de antes:
 }`;
 
   try {
-    const texto = await chamadaGemini(prompt);
-    const json = texto.replace(/```json|```/g,'').trim();
-    ptPlanoAtual = JSON.parse(json);
+    const texto = await chamadaGemini(prompt, true);
+    ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
     localStorage.removeItem(PT_PROG_KEY);
