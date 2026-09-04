@@ -3165,7 +3165,7 @@ async function chamadaGemini(prompt, forcarJSON = false) {
   const key = getGeminiKey();
   if (!key) throw new Error('SEM_CHAVE');
   const genConfig = forcarJSON
-    ? { temperature: 0.7, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+    ? { temperature: 0.7, maxOutputTokens: 8192, responseMimeType: 'application/json' }
     : { temperature: 0.7, maxOutputTokens: 2048 };
   const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`,
@@ -3344,24 +3344,12 @@ async function gerarTreinoIA() {
     return;
   }
 
-  const prompt = `Você é um personal trainer expert. Crie um plano de treino COMPLETO e PERSONALIZADO em JSON.
-
-DADOS DO ALUNO (${nomeUsuario}):
-- Peso: ${peso}kg | Altura: ${altura}cm | Idade: ${idade} anos
-- Sexo: ${sexo} | Biotipo: ${biotipo}
-- Objetivo: ${foco} | Nível: ${ptNivelSelecionado}
-- Dias disponíveis: ${ptDiasSelecionados.join(', ')}
-${obs ? '- Observações especiais: ' + obs : ''}
-
-REGRAS:
-1. Distribua grupos musculares nos dias de forma inteligente (ex: músculos opostos em dias alternados)
-2. Número de séries, reps e exercícios ADEQUADOS ao nível ${ptNivelSelecionado}
-3. Cada exercício deve ter instrução detalhada de execução em português
-4. Inclua aquecimento ou exercício mais leve no início de cada dia
-5. Responda SOMENTE com JSON válido, sem texto adicional, sem markdown, sem \`\`\`
-
-FORMATO OBRIGATÓRIO (não altere a estrutura):
-{"subtitulo":"Plano [Objetivo] - [Nível] - [Nome]","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito + Tríceps","exercicios":[{"nome":"Nome do Exercício","series":4,"reps":"10-12","descanso":"60s","instrucao":"Instrução detalhada de execução..."}]}]}`;
+  const nDias = ptDiasSelecionados.length;
+  const prompt = `Personal trainer expert. Gere plano de treino em JSON puro.
+Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, ${nDias} dia(s): ${ptDiasSelecionados.join(', ')}.${obs ? ' Obs: '+obs : ''}
+Regras: distribua grupos musculares por dia; ${nDias <= 3 ? '4-5' : '3-4'} exercícios/dia; séries e reps compatíveis com o nível; instrucao CURTA (máx 80 chars) em pt-BR; retorne SOMENTE JSON válido.
+Formato exato (sem markdown, sem texto fora do JSON):
+{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça a barra ao peito, empurre."}]}]}`;
 
   try {
     const texto = await chamadaGemini(prompt, true);
