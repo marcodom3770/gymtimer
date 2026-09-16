@@ -298,7 +298,14 @@
     .treino-nome-lbl { color: var(--yellow); font-weight: bold; font-size: clamp(14px, 4vw, 16px); }
     .treino-series-lbl { color: var(--cyan); font-size: clamp(11px, 3vw, 13px); }
     .btn-del-treino { background: none; border: 1px solid var(--pink); color: var(--pink); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
-    .btn-edit-treino { background: none; border: 1px solid var(--yellow); color: var(--yellow); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }
+    .btn-edit-treino { background: none; border: 1px solid var(--yellow); color: var(--yellow); padding: 4px 8px; cursor: pointer; font-family: monospace; font-weight: bold; border-radius: 4px; }  
+    .btn-enviar-treino { background:none; border:1px solid var(--green); color:var(--green); padding:4px 8px; cursor:pointer; font-family:monospace; font-weight:bold; border-radius:4px; }
+    .transfer-lista { max-height:220px; overflow-y:auto; margin:10px 0; border:1px solid rgba(0,240,255,.25); padding:8px; }
+    .transfer-item { display:flex; align-items:center; gap:9px; padding:8px 4px; border-bottom:1px dashed rgba(0,240,255,.18); color:var(--yellow); font-size:12px; font-weight:bold; }
+    .transfer-item:last-child { border-bottom:none; }
+    .transfer-item input { width:18px; height:18px; accent-color:#00ff40; }
+    .transfer-acoes { display:flex; gap:8px; }
+    .transfer-acoes .btn-sec { flex:1; font-size:11px; padding:11px 5px; }
     .empty-msg { text-align: center; color: var(--dim); font-size: 12px; padding: 20px 0; }
 
     /* ── PAINEL DIETA & HIDRATAÇÃO ── */
@@ -933,6 +940,26 @@
   </div>
 </div>
 
+<!-- MODAL: COPIAR / MOVER TREINOS ENTRE DIAS -->
+<div id="modal-transferir-treinos" class="modal-overlay">
+  <div class="panel" style="border-color:var(--green);width:92%;max-width:400px">
+    <div class="corner-tr" style="border-color:var(--green)"></div>
+    <div class="corner-bl" style="border-color:var(--green)"></div>
+    <div class="glitch" data-text="ENVIAR TREINOS" style="font-size:clamp(16px,5vw,22px);color:var(--green);margin-bottom:8px">ENVIAR TREINOS</div>
+    <div style="color:var(--dim);font-size:11px;text-align:center;font-weight:bold;margin-bottom:8px">// ESCOLHA OS EXERCÍCIOS E O DIA DE DESTINO</div>
+    <label class="transfer-item" style="border:1px solid rgba(0,255,64,.25);margin-bottom:8px">
+      <input type="checkbox" id="transfer-todos" onchange="alternarTodosTreinos(this.checked)"> SELECIONAR TODOS OS TREINOS DO DIA
+    </label>
+    <div id="transfer-lista" class="transfer-lista"></div>
+    <div style="color:var(--dim);font-size:11px;font-weight:bold;margin:8px 0 4px">// ENVIAR PARA:</div>
+    <select id="transfer-dia-destino" class="cfg-select" style="border-color:var(--green);color:var(--green);margin-bottom:10px"></select>
+    <div class="transfer-acoes">
+      <button class="btn-sec green" onclick="confirmarTransferencia(false)">📋 COPIAR</button>
+      <button class="btn-sec yellow" onclick="confirmarTransferencia(true)">➡ MOVER</button>
+    </div>
+    <button class="btn-sec pink" onclick="fecharModalTransferir()">✕ CANCELAR</button>
+  </div>
+</div>
 <!-- TELA: HOME -->
 <div class="screen" id="screen-home">
   <div class="panel" style="border-color:var(--cyan)">
@@ -1022,6 +1049,7 @@
       </div>
       
       <button class="btn-sec cyan" onclick="abrirModalAddTreino()">+ ADICIONAR EXERCÍCIO</button>
+      <button class="btn-sec" onclick="abrirModalTransferir()" style="border-color:var(--green);color:var(--green)">📋 COPIAR / MOVER TREINOS</button>
       <button class="btn-sec green" onclick="iniciarTreinoDoDia()" style="margin-top:15px; font-size:18px; padding:15px;">▶ INICIAR TREINO DO DIA</button>
       
     </div>
@@ -2230,6 +2258,7 @@ function renderizarTreinosDoDia() {
         <div class="treino-series-lbl">${treino.series} SÉRIES</div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="btn-enviar-treino" onclick="abrirModalTransferir(${idx})" title="Enviar para outro dia">➡</button>
         <button class="btn-edit-treino" onclick="abrirModalEditTreino(${idx})" title="Editar">✏</button>
         <button class="btn-del-treino"  onclick="removerTreino(${idx})"         title="Excluir">✕</button>
       </div>
@@ -2307,6 +2336,54 @@ function removerTreino(idx) {
       : `${nomeRemovido} removido. O dia ficou sem exercícios. Adicione novos quando quiser.`,
     "Exercício removido."
   );
+}
+
+// Copiar ou mover exercícios entre os dias da rotina
+function abrirModalTransferir(idxPreSelecionado) {
+  clickBeep();
+  const treinos = planejamentoSemanal[diaSelecionado] || [];
+  if (!treinos.length) { alert('Não há exercícios neste dia para enviar.'); return; }
+  const lista = document.getElementById('transfer-lista');
+  lista.innerHTML = '';
+  treinos.forEach((treino, idx) => {
+    const label = document.createElement('label');
+    label.className = 'transfer-item';
+    label.innerHTML = `<input type="checkbox" class="transfer-check" value="${idx}" ${idxPreSelecionado === idx ? 'checked' : ''}> <span>${idx + 1}. ${treino.nome.toUpperCase()} · ${treino.series} SÉRIES</span>`;
+    lista.appendChild(label);
+  });
+  const todos = document.getElementById('transfer-todos');
+  todos.checked = idxPreSelecionado === undefined;
+  if (idxPreSelecionado === undefined) alternarTodosTreinos(true);
+  const nomes = {segunda:'SEGUNDA-FEIRA',terca:'TERÇA-FEIRA',quarta:'QUARTA-FEIRA',quinta:'QUINTA-FEIRA',sexta:'SEXTA-FEIRA',sabado:'SÁBADO',domingo:'DOMINGO'};
+  const destino = document.getElementById('transfer-dia-destino');
+  destino.innerHTML = Object.keys(nomes).filter(d => d !== diaSelecionado).map(d => `<option value="${d}">${nomes[d]}</option>`).join('');
+  document.getElementById('modal-transferir-treinos').classList.add('active');
+}
+function alternarTodosTreinos(marcar) {
+  document.querySelectorAll('.transfer-check').forEach(c => c.checked = marcar);
+}
+function fecharModalTransferir() {
+  clickBeep();
+  document.getElementById('modal-transferir-treinos').classList.remove('active');
+}
+function confirmarTransferencia(mover) {
+  const destino = document.getElementById('transfer-dia-destino').value;
+  const indices = Array.from(document.querySelectorAll('.transfer-check:checked')).map(c => Number(c.value));
+  if (!indices.length) { alert('Selecione pelo menos um exercício.'); return; }
+  if (!destino || destino === diaSelecionado) { alert('Escolha outro dia como destino.'); return; }
+  const origem = planejamentoSemanal[diaSelecionado];
+  const escolhidos = indices.map(i => origem[i]).filter(Boolean).map(t => ({...t}));
+  planejamentoSemanal[destino].push(...escolhidos);
+  if (mover) {
+    [...indices].sort((a,b) => b-a).forEach(i => origem.splice(i, 1));
+  }
+  salvarPlanejamento();
+  fecharModalTransferir();
+  renderizarTreinosDoDia();
+  renderizarBotoesDias();
+  const acao = mover ? 'movido' : 'copiado';
+  alert(`✅ ${escolhidos.length} exercício(s) ${acao}(s) com sucesso!`);
+  falar(`${escolhidos.length} exercício${escolhidos.length > 1 ? 's' : ''} ${mover ? 'movido' : 'copiado'} para outro dia.`, 'Rotina atualizada.');
 }
 
 function iniciarTreinoDoDia() {
