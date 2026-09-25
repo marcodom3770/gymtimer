@@ -249,6 +249,80 @@
     
     #voz-indicator { position:fixed; bottom:14px; right:14px; color:var(--green); font-size:11px; font-weight:bold; z-index:100; opacity:0; transition:opacity .3s; }
     #voz-indicator.ativo { opacity:1; }
+
+    /* ══════════════════════════════════════════
+       PLAYER DE MÚSICAS — ESTILOS
+    ══════════════════════════════════════════ */
+    #screen-music { justify-content: flex-start; padding-top: 16px; }
+
+    .muz-track-nome {
+      text-align: center; color: var(--orange);
+      font-size: clamp(13px,3.8vw,17px); font-weight: bold;
+      letter-spacing: 1px; margin: 8px 0 14px;
+      min-height: 22px; text-overflow: ellipsis;
+      overflow: hidden; white-space: nowrap; padding: 0 4px;
+    }
+    .muz-prog-wrap {
+      width: 100%; height: 10px;
+      background: rgba(255,140,0,.12);
+      border: 1px solid rgba(255,140,0,.3);
+      border-radius: 2px; overflow: hidden;
+      cursor: pointer; margin-bottom: 4px;
+      touch-action: none; position: relative;
+    }
+    .muz-prog-fill {
+      height: 100%; background: var(--orange);
+      width: 0%; transition: width 0.4s linear;
+    }
+    .muz-tempo-row {
+      display: flex; justify-content: space-between;
+      color: var(--dim); font-size: clamp(9px,2.4vw,11px);
+      font-weight: bold; margin-bottom: 10px;
+    }
+    .muz-ctrl-row {
+      display: flex; justify-content: center;
+      align-items: center; gap: 20px; margin: 4px 0 6px;
+    }
+    .muz-toggle-btn {
+      flex: 1; background: rgba(10,12,20,.96);
+      border: 2px solid rgba(255,140,0,.3); color: rgba(255,140,0,.5);
+      font-family: 'Courier New', monospace;
+      font-size: clamp(9px,2.5vw,11px); font-weight: bold;
+      padding: 8px 4px; cursor: pointer; letter-spacing: .5px;
+      text-align: center; -webkit-tap-highlight-color: transparent;
+      transition: all .15s;
+    }
+    .muz-toggle-btn.ativo {
+      border-color: var(--orange); color: #000;
+      background: var(--orange); box-shadow: 0 0 10px rgba(255,140,0,.5);
+    }
+    .muz-playlist {
+      max-height: 32vh; overflow-y: auto;
+      border: 1px solid rgba(255,140,0,.2);
+      background: rgba(255,140,0,.02);
+    }
+    .muz-empty {
+      text-align: center; color: var(--dim);
+      font-size: clamp(10px,2.8vw,12px); font-weight: bold;
+      padding: 20px 10px; line-height: 1.7;
+    }
+    .muz-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 10px;
+      border-bottom: 1px dashed rgba(255,140,0,.15);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background .1s;
+    }
+    .muz-item:last-child { border-bottom: none; }
+    .muz-item:active { background: rgba(255,140,0,.1); }
+    .muz-item.ativo { background: rgba(255,140,0,.08); border-bottom-color: rgba(255,140,0,.3); }
+    .muz-item-num { color:var(--dim); font-size:clamp(9px,2.4vw,11px); font-weight:bold; min-width:20px; flex-shrink:0; }
+    .muz-item-nome { color:var(--orange); font-size:clamp(10px,2.8vw,13px); font-weight:bold; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .muz-item.ativo .muz-item-nome { color: white; }
+    .muz-item-play { color:var(--orange); font-size:15px; flex-shrink:0; animation: muzpulse 1.2s infinite; }
+    @keyframes muzpulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .muz-duck-info { font-size:clamp(9px,2.4vw,10px); font-weight:bold; color:var(--dim); margin:4px 0 10px; letter-spacing:.3px; line-height:1.5; }
     
     .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.85); }
     .modal-overlay.active { display:flex; }
@@ -988,6 +1062,9 @@
 
       <!-- BOTÃO: AGENDA DE TREINOS -->
       <button class="btn-sec" onclick="abrirAgenda()" style="margin-top:4px; font-size:14px; border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 14px rgba(0,240,255,0.2);">📆 AGENDA DE TREINOS</button>
+
+      <!-- BOTÃO: PLAYER DE MÚSICAS -->
+      <button class="btn-sec" onclick="muzAbrirPlayer()" style="margin-top:4px; font-size:14px; border-color:var(--orange); color:var(--orange); box-shadow:0 0 14px rgba(255,140,0,0.2);">🎵 PLAYER DE MÚSICAS</button>
 
       <div style="display:flex;gap:12px; margin-top:10px;">
         <button class="btn-round sz-sm c-cyan"   onclick="irParaConfig()">⚙️</button>
@@ -2037,9 +2114,9 @@ function falar(textoCompleto, textoCurto = "") {
   if (!vozAtivada) return;
   const textoParaFalar = (nivelVozPref === 'short' && textoCurto !== "") ? textoCurto : textoCompleto;
   if (!textoParaFalar) return;
-  if (vozModoAtual === VOZ_MODOS.RV)     { falarComRV(textoParaFalar); return; }
-  if (vozModoAtual === VOZ_MODOS.NATIVE) { falarNativo(textoParaFalar); return; }
-  tocarProcessamento(null);
+  if (vozModoAtual === VOZ_MODOS.RV)     { muzDuck(); falarComRV(textoParaFalar); return; }
+  if (vozModoAtual === VOZ_MODOS.NATIVE) { muzDuck(); falarNativo(textoParaFalar); return; }
+  tocarProcessamento(null); // modo BEEP: sem duck
 }
 
 function testarVoz() {
@@ -2058,15 +2135,16 @@ function falarComRV(texto) {
     tocarProcessamento(() => {
       responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {
         rate: rateVoz/100, volume: volVoz/100, pitch: pitchVoz,
-        onstart: () => mostrarIndicador(true), onend: () => mostrarIndicador(false),
-        onerror: () => { mostrarIndicador(false); falarNativo(texto); }
+        onstart: () => mostrarIndicador(true),
+        onend:   () => { mostrarIndicador(false); muzRestore(); },
+        onerror: () => { mostrarIndicador(false); falarNativo(texto); muzRestore(); }
       });
     });
-  } catch(e) { mostrarIndicador(false); }
+  } catch(e) { mostrarIndicador(false); muzRestore(); }
 }
 
 function falarNativo(texto) {
-  if (!('speechSynthesis' in window)) { tocarProcessamento(null); return; }
+  if (!('speechSynthesis' in window)) { tocarProcessamento(null); muzRestore(); return; }
   try {
     window.speechSynthesis.cancel();
     tocarProcessamento(() => {
@@ -2076,10 +2154,12 @@ function falarNativo(texto) {
         const vozExata = vozesNativasGlobais.find(v => v.voiceURI === uriVozEscolhida);
         if (vozExata) u.voice = vozExata;
       }
-      u.onstart = () => mostrarIndicador(true); u.onend = () => mostrarIndicador(false); u.onerror = () => mostrarIndicador(false);
+      u.onstart = () => mostrarIndicador(true);
+      u.onend   = () => { mostrarIndicador(false); muzRestore(); };
+      u.onerror = () => { mostrarIndicador(false); muzRestore(); };
       window.speechSynthesis.speak(u);
     });
-  } catch(e) { mostrarIndicador(false); }
+  } catch(e) { mostrarIndicador(false); muzRestore(); }
 }
 
 async function solicitarWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
@@ -3940,6 +4020,324 @@ function abrirGuiaAlimentar(objetivo) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
+//  MÓDULO: PLAYER DE MÚSICAS
+// ══════════════════════════════════════════════════════════════════════
+
+// Estado geral
+let muzAudio       = null;
+let muzPlaylist    = [];  // [{nome, url}]
+let muzIdx         = 0;
+let muzTocando     = false;
+let muzVolume      = parseInt(localStorage.getItem('gym_muz_vol') || '80');
+let muzShuffle     = localStorage.getItem('gym_muz_shuffle') === 'true';
+let muzRepetir     = localStorage.getItem('gym_muz_repeat')  === 'true';
+
+// Estado de integração com voz
+let muzIntegracao  = localStorage.getItem('gym_muz_integ') !== 'false'; // default ON
+let muzComportVoz  = localStorage.getItem('gym_muz_comp')   || 'baixar'; // 'baixar' | 'pausar'
+let muzVolDucked   = parseInt(localStorage.getItem('gym_muz_vol_duck') || '20');
+let muzEraDucked   = false;
+let muzEraPlaying  = false;
+
+// ── Inicialização do elemento <audio> ──────────────────────────────────
+function muzInit() {
+  if (muzAudio) return;
+  muzAudio = new Audio();
+  muzAudio.volume = muzVolume / 100;
+  muzAudio.onended = () => {
+    if (muzRepetir) { muzAudio.currentTime = 0; muzAudio.play().catch(()=>{}); return; }
+    if (muzShuffle) { muzIdx = Math.floor(Math.random() * muzPlaylist.length); }
+    else { muzIdx = (muzIdx + 1) % muzPlaylist.length; }
+    muzCarregarFaixa(muzIdx, true);
+  };
+  muzAudio.ontimeupdate = muzAtualizarBarra;
+  muzAudio.ondurationchange = muzAtualizarBarra;
+}
+
+// ── Carregar / adicionar arquivos ─────────────────────────────────────
+function muzCarregarArquivos(files) {
+  if (!files || files.length === 0) return;
+  // Libera URLs anteriores
+  muzPlaylist.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  muzPlaylist = [];
+  Array.from(files).forEach(f => {
+    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f) });
+  });
+  muzIdx = 0;
+  muzCarregarFaixa(0, false);
+  muzRenderPlaylist();
+  // limpa input para poder recarregar os mesmos arquivos depois
+  document.getElementById('muz-file-input').value = '';
+}
+
+function muzAdicionarArquivos(files) {
+  if (!files || files.length === 0) return;
+  Array.from(files).forEach(f => {
+    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f) });
+  });
+  muzRenderPlaylist();
+  document.getElementById('muz-file-add').value = '';
+  if (muzPlaylist.length === Array.from(files).length) { // era vazio antes
+    muzCarregarFaixa(0, false);
+  }
+}
+
+// ── Carregar faixa ────────────────────────────────────────────────────
+function muzCarregarFaixa(idx, autoplay) {
+  if (muzPlaylist.length === 0) return;
+  muzInit();
+  muzIdx = idx;
+  muzAudio.src = muzPlaylist[idx].url;
+  muzAudio.volume = muzVolume / 100;
+  const nomeEl = document.getElementById('muz-nome');
+  if (nomeEl) nomeEl.textContent = muzPlaylist[idx].nome;
+  muzAtualizarBotoesPlaylist();
+  if (autoplay) {
+    muzAudio.play()
+      .then(() => { muzTocando = true; muzAtualizarBtnPlay(); })
+      .catch(e => console.warn('[MUZ] play error:', e));
+  } else {
+    muzTocando = false;
+    muzAtualizarBtnPlay();
+  }
+}
+
+// ── Play / Pause ──────────────────────────────────────────────────────
+function muzPlayPause() {
+  if (!muzAudio || muzPlaylist.length === 0) {
+    alert('🎵 Adicione músicas primeiro em CARREGAR MÚSICAS');
+    return;
+  }
+  if (muzTocando) {
+    muzAudio.pause(); muzTocando = false;
+  } else {
+    muzAudio.play()
+      .then(() => { muzTocando = true; })
+      .catch(e => alert('Erro ao reproduzir: ' + e.message));
+  }
+  muzAtualizarBtnPlay();
+}
+
+function muzAnterior() {
+  if (!muzPlaylist.length) return;
+  if (muzShuffle) muzIdx = Math.floor(Math.random() * muzPlaylist.length);
+  else muzIdx = (muzIdx - 1 + muzPlaylist.length) % muzPlaylist.length;
+  muzCarregarFaixa(muzIdx, muzTocando);
+}
+
+function muzProxima() {
+  if (!muzPlaylist.length) return;
+  if (muzShuffle) muzIdx = Math.floor(Math.random() * muzPlaylist.length);
+  else muzIdx = (muzIdx + 1) % muzPlaylist.length;
+  muzCarregarFaixa(muzIdx, muzTocando);
+}
+
+// ── Volume ────────────────────────────────────────────────────────────
+function muzSetVolume(v) {
+  muzVolume = parseInt(v);
+  if (muzAudio && !muzEraDucked) muzAudio.volume = muzVolume / 100;
+  const el = document.getElementById('muz-vol-val');
+  if (el) el.textContent = muzVolume + '%';
+  localStorage.setItem('gym_muz_vol', muzVolume);
+}
+
+// ── Shuffle / Repetir ─────────────────────────────────────────────────
+function muzToggleShuffle() {
+  clickBeep();
+  muzShuffle = !muzShuffle;
+  localStorage.setItem('gym_muz_shuffle', muzShuffle);
+  const btn = document.getElementById('muz-btn-shuffle');
+  if (btn) btn.classList.toggle('ativo', muzShuffle);
+}
+
+function muzToggleRepetir() {
+  clickBeep();
+  muzRepetir = !muzRepetir;
+  localStorage.setItem('gym_muz_repeat', muzRepetir);
+  const btn = document.getElementById('muz-btn-repeat');
+  if (btn) btn.classList.toggle('ativo', muzRepetir);
+}
+
+// ── Barra de progresso ────────────────────────────────────────────────
+function muzAtualizarBarra() {
+  if (!muzAudio) return;
+  const dur = muzAudio.duration;
+  const cur = muzAudio.currentTime;
+  const pct = (dur && !isNaN(dur)) ? (cur / dur) * 100 : 0;
+  const fill = document.getElementById('muz-prog-fill');
+  const curEl = document.getElementById('muz-tempo-cur');
+  const totEl = document.getElementById('muz-tempo-tot');
+  if (fill) fill.style.width = pct + '%';
+  if (curEl) curEl.textContent = muzFormatarTempo(cur);
+  if (totEl) totEl.textContent = muzFormatarTempo(dur);
+}
+
+function muzFormatarTempo(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60), seg = Math.floor(s % 60);
+  return m + ':' + String(seg).padStart(2, '0');
+}
+
+function muzBuscarPosicao(e) {
+  if (!muzAudio || !muzAudio.duration || isNaN(muzAudio.duration)) return;
+  const wrap = document.getElementById('muz-prog-wrap');
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : (e.changedTouches ? e.changedTouches[0].clientX : e.clientX);
+  const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  muzAudio.currentTime = pct * muzAudio.duration;
+  e.stopPropagation();
+}
+
+// ── Render da playlist ────────────────────────────────────────────────
+function muzRenderPlaylist() {
+  const el = document.getElementById('muz-playlist');
+  const countEl = document.getElementById('muz-playlist-count');
+  if (!el) return;
+  if (muzPlaylist.length === 0) {
+    el.innerHTML = '<div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR MÚSICAS</span> para começar.</div>';
+    if (countEl) countEl.textContent = '';
+    return;
+  }
+  if (countEl) countEl.textContent = muzPlaylist.length + ' faixa' + (muzPlaylist.length > 1 ? 's' : '');
+  el.innerHTML = muzPlaylist.map((f, i) => `
+    <div class="muz-item ${i === muzIdx ? 'ativo' : ''}" onclick="muzCarregarFaixa(${i}, true)">
+      <span class="muz-item-num">${i + 1}</span>
+      <span class="muz-item-nome">${f.nome}</span>
+      ${i === muzIdx ? '<span class="muz-item-play">♪</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function muzAtualizarBotoesPlaylist() {
+  muzRenderPlaylist();
+}
+
+// ── Limpar playlist ───────────────────────────────────────────────────
+function muzLimparPlaylist() {
+  clickBeep();
+  if (muzPlaylist.length === 0) return;
+  if (!confirm('Limpar toda a playlist?')) return;
+  if (muzAudio) { muzAudio.pause(); muzAudio.src = ''; }
+  muzPlaylist.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  muzPlaylist = []; muzIdx = 0; muzTocando = false;
+  const nomeEl = document.getElementById('muz-nome');
+  if (nomeEl) nomeEl.textContent = '// NENHUMA FAIXA CARREGADA';
+  const fillEl = document.getElementById('muz-prog-fill');
+  if (fillEl) fillEl.style.width = '0%';
+  const curEl = document.getElementById('muz-tempo-cur'); if (curEl) curEl.textContent = '0:00';
+  const totEl = document.getElementById('muz-tempo-tot'); if (totEl) totEl.textContent = '0:00';
+  muzAtualizarBtnPlay();
+  muzRenderPlaylist();
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────
+function muzAtualizarBtnPlay() {
+  const btn = document.getElementById('muz-btn-play');
+  if (btn) btn.textContent = muzTocando ? '⏸' : '▶';
+}
+
+// ── Integração VOZ ➔ MÚSICA ───────────────────────────────────────────
+// Chamada antes de uma fala: abaxa ou pausa a música
+function muzDuck() {
+  if (!muzAudio || !muzIntegracao || !muzTocando) return;
+  muzEraPlaying = true;
+  muzEraDucked  = true;
+  if (muzComportVoz === 'pausar') {
+    muzAudio.pause(); muzTocando = false; muzAtualizarBtnPlay();
+  } else {
+    // Abaixa suavemente
+    muzAudio.volume = muzVolDucked / 100;
+  }
+}
+
+// Chamada quando a fala termina: restaura a música
+function muzRestore() {
+  if (!muzEraDucked) return;
+  muzEraDucked = false;
+  if (!muzAudio) return;
+  if (muzComportVoz === 'pausar') {
+    if (muzEraPlaying) {
+      muzAudio.play()
+        .then(() => { muzTocando = true; muzAtualizarBtnPlay(); })
+        .catch(() => {});
+    }
+  } else {
+    // Restaura volume original
+    muzAudio.volume = muzVolume / 100;
+  }
+  muzEraPlaying = false;
+}
+
+// ── Toggle integração ─────────────────────────────────────────────────
+function toggleMuzIntegracao() {
+  clickBeep();
+  muzIntegracao = !muzIntegracao;
+  const t = document.getElementById('muz-toggle-integ');
+  if (t) t.classList.toggle('on', muzIntegracao);
+  localStorage.setItem('gym_muz_integ', muzIntegracao);
+}
+
+// ── Configurações de duck ─────────────────────────────────────────────
+function muzAtualizarComport() {
+  muzComportVoz = document.getElementById('muz-comport').value;
+  localStorage.setItem('gym_muz_comp', muzComportVoz);
+  muzAtualizarVisibilidadeVolDuck();
+}
+
+function muzSetVolDuck(v) {
+  muzVolDucked = parseInt(v);
+  const el = document.getElementById('muz-duck-val');
+  if (el) el.textContent = muzVolDucked + '%';
+  localStorage.setItem('gym_muz_vol_duck', muzVolDucked);
+}
+
+function muzAtualizarVisibilidadeVolDuck() {
+  const row = document.getElementById('muz-row-vol-duck');
+  if (row) row.style.display = (muzComportVoz === 'baixar') ? 'flex' : 'none';
+}
+
+// ── Abrir player ──────────────────────────────────────────────────────
+function muzAbrirPlayer() {
+  clickBeep();
+  desbloquearAudio();
+  muzInit();
+
+  // Sync UI — volume da música
+  const sliderVol = document.getElementById('muz-slider-vol');
+  const valVol    = document.getElementById('muz-vol-val');
+  if (sliderVol) sliderVol.value = muzVolume;
+  if (valVol)    valVol.textContent = muzVolume + '%';
+
+  // Sync UI — integração voz
+  const comportEl = document.getElementById('muz-comport');
+  if (comportEl) comportEl.value = muzComportVoz;
+  const sliderDuck = document.getElementById('muz-slider-duck');
+  const valDuck    = document.getElementById('muz-duck-val');
+  if (sliderDuck) sliderDuck.value = muzVolDucked;
+  if (valDuck)    valDuck.textContent = muzVolDucked + '%';
+  const togInteg = document.getElementById('muz-toggle-integ');
+  if (togInteg) togInteg.classList.toggle('on', muzIntegracao);
+  muzAtualizarVisibilidadeVolDuck();
+
+  // Sync toggles
+  const btnShuf = document.getElementById('muz-btn-shuffle');
+  const btnRep  = document.getElementById('muz-btn-repeat');
+  if (btnShuf) btnShuf.classList.toggle('ativo', muzShuffle);
+  if (btnRep)  btnRep.classList.toggle('ativo',  muzRepetir);
+
+  // Sync play button
+  muzAtualizarBtnPlay();
+
+  // Atualiza nome da faixa atual
+  const nomeEl = document.getElementById('muz-nome');
+  if (nomeEl && muzPlaylist.length > 0) nomeEl.textContent = muzPlaylist[muzIdx].nome;
+
+  muzRenderPlaylist();
+  irPara('screen-music');
+}
+
+// ══════════════════════════════════════════════════════════════════════
 //  MÓDULO: AGENDA DE TREINOS
 // ══════════════════════════════════════════════════════════════════════
 const AGENDA_KEY = 'gym_agenda_v1';
@@ -4105,6 +4503,121 @@ function agendaLimparHistorico() {
   falar('Histórico de ' + nomeMes + ' limpo com sucesso!', 'Histórico limpo.');
 }
 </script>
+
+<!-- ══════════════════════════════════════════════════════════
+     TELA: PLAYER DE MÚSICAS
+══════════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-music">
+  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--orange);color:var(--orange)">&lt; Voltar</button>
+  <div class="config-scroll" style="width:93%;max-width:448px;overflow-y:auto;max-height:92vh;padding-bottom:16px;position:relative;margin-top:28px;">
+
+    <!-- PAINEL PLAYER PRINCIPAL -->
+    <div class="panel" style="border-color:var(--orange);margin-bottom:14px;">
+      <div class="corner-tr" style="border-color:var(--orange)"></div>
+      <div class="corner-bl" style="border-color:var(--orange)"></div>
+
+      <div class="glitch" data-text="PLAYER DE MÚSICAS" style="font-size:clamp(16px,5vw,22px);color:var(--orange);margin-bottom:4px;">PLAYER DE MÚSICAS</div>
+      <div style="text-align:center;color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;letter-spacing:.5px;margin-bottom:14px;">// MÚSICAS DO DISPOSITIVO</div>
+
+      <!-- Nome da faixa atual -->
+      <div class="muz-track-nome" id="muz-nome">// NENHUMA FAIXA CARREGADA</div>
+
+      <!-- Barra de progresso (clicável) -->
+      <div class="muz-prog-wrap" id="muz-prog-wrap"
+           onclick="muzBuscarPosicao(event)"
+           ontouchend="muzBuscarPosicao(event)">
+        <div class="muz-prog-fill" id="muz-prog-fill"></div>
+      </div>
+      <div class="muz-tempo-row">
+        <span id="muz-tempo-cur">0:00</span>
+        <span id="muz-tempo-tot">0:00</span>
+      </div>
+
+      <!-- Controles -->
+      <div class="muz-ctrl-row">
+        <button class="btn-round sz-sm c-orange" onclick="muzAnterior()">⏮</button>
+        <button class="btn-round sz-lg c-orange" id="muz-btn-play" onclick="muzPlayPause()" style="font-size:clamp(22px,7vw,32px);">▶</button>
+        <button class="btn-round sz-sm c-orange" onclick="muzProxima()">⏭</button>
+      </div>
+
+      <!-- Volume da música -->
+      <div class="slider-row" style="margin-top:16px;">
+        <span class="slider-lbl" style="color:var(--orange);">🎵 VOL</span>
+        <input type="range" id="muz-slider-vol" min="0" max="100" value="80"
+               oninput="muzSetVolume(this.value)"
+               style="background:rgba(255,140,0,.25);">
+        <span class="slider-val" id="muz-vol-val" style="color:var(--orange);">80%</span>
+      </div>
+
+      <!-- Shuffle + Repetir -->
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="muz-toggle-btn" id="muz-btn-shuffle" onclick="muzToggleShuffle()">🔀 ALEATÓRIO</button>
+        <button class="muz-toggle-btn" id="muz-btn-repeat" onclick="muzToggleRepetir()">🔁 REPETIR</button>
+      </div>
+    </div>
+
+    <!-- PAINEL INTEGRAÇÃO COM VOZ -->
+    <div class="panel" style="border-color:var(--cyan);margin-bottom:14px;">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+
+      <div style="color:var(--cyan);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(0,240,255,.2);padding-bottom:6px;margin-bottom:12px;">🗣️ INTEGRAÇÃO COM VOZ</div>
+
+      <div class="toggle-row">
+        <span class="toggle-label">ATIVO DURANTE FALAS</span>
+        <div class="toggle-switch on" id="muz-toggle-integ" onclick="toggleMuzIntegracao()" style="border-color:var(--cyan);">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+
+      <p class="muz-duck-info">// Quando o módulo de voz reproduzir uma fala, o que fazer com a música?</p>
+
+      <select class="cfg-select" id="muz-comport" style="border-color:var(--cyan);color:var(--cyan);" onchange="muzAtualizarComport()">
+        <option value="baixar">🔉 Abaixar volume (continua tocando)</option>
+        <option value="pausar">⏸ Pausar música (retoma após a fala)</option>
+      </select>
+
+      <!-- Volume durante a fala (só visível no modo "baixar") -->
+      <div class="slider-row" id="muz-row-vol-duck">
+        <span class="slider-lbl" style="color:var(--cyan);">VOL FALA</span>
+        <input type="range" id="muz-slider-duck" min="0" max="60" value="20"
+               oninput="muzSetVolDuck(this.value)"
+               style="background:rgba(0,240,255,.25);">
+        <span class="slider-val" id="muz-duck-val" style="color:var(--cyan);">20%</span>
+      </div>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:4px;letter-spacing:.3px;">// Volume da música enquanto a voz está falando</div>
+    </div>
+
+    <!-- PAINEL PLAYLIST -->
+    <div class="panel" style="border-color:var(--orange);">
+      <div class="corner-tr" style="border-color:var(--orange)"></div>
+      <div class="corner-bl" style="border-color:var(--orange)"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="color:var(--orange);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;">📋 PLAYLIST</div>
+        <span style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;" id="muz-playlist-count"></span>
+      </div>
+
+      <!-- File inputs ocultos -->
+      <input type="file" id="muz-file-input" accept="audio/*" multiple style="display:none;" onchange="muzCarregarArquivos(this.files)">
+      <input type="file" id="muz-file-add"   accept="audio/*" multiple style="display:none;" onchange="muzAdicionarArquivos(this.files)">
+
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button class="btn-sec" onclick="document.getElementById('muz-file-input').click()" style="border-color:var(--orange);color:var(--orange);font-size:12px;padding:10px 6px;flex:1;">📂 CARREGAR MÚSICAS</button>
+        <button class="btn-sec green" onclick="document.getElementById('muz-file-add').click()" style="font-size:12px;padding:10px 6px;flex:1;">➕ ADICIONAR</button>
+      </div>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-bottom:8px;letter-spacing:.3px;">// Selecione arquivos de áudio do seu celular. Toque na faixa para tocar.</div>
+
+      <div class="muz-playlist" id="muz-playlist">
+        <div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR MÚSICAS</span> para começar.</div>
+      </div>
+
+      <!-- Limpar playlist -->
+      <button class="btn-sec" onclick="muzLimparPlaylist()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:10px;">🗑 LIMPAR PLAYLIST</button>
+    </div>
+
+  </div>
+</div>
 
 <!-- MODAL: CHAT PERSONAL IA -->
 <div id="modal-chat-personal">
