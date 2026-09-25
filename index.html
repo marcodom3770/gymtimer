@@ -296,6 +296,37 @@
       border-color: var(--orange); color: #000;
       background: var(--orange); box-shadow: 0 0 10px rgba(255,140,0,.5);
     }
+    /* ── BUSCA NA PLAYLIST ── */
+    .muz-search-wrap {
+      position: relative; margin-bottom: 8px;
+    }
+    .muz-search-input {
+      width: 100%; background: rgba(255,140,0,.06);
+      border: 1px solid rgba(255,140,0,.35); color: var(--orange);
+      font-family: 'Courier New', monospace; font-weight: bold;
+      font-size: clamp(11px,3vw,13px); padding: 8px 32px 8px 10px;
+      outline: none; letter-spacing: .5px;
+    }
+    .muz-search-input::placeholder { color: rgba(255,140,0,.35); }
+    .muz-search-clear {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: rgba(255,140,0,.5);
+      font-size: 16px; cursor: pointer; padding: 0 2px; line-height: 1;
+      display: none;
+    }
+    .muz-search-clear.vis { display: block; }
+
+    /* ── PASTA VINCULADA ── */
+    .muz-pasta-info {
+      display: none; align-items: center; gap: 6px; margin-bottom: 8px;
+      padding: 6px 10px; background: rgba(0,255,64,.05);
+      border: 1px solid rgba(0,255,64,.25);
+    }
+    .muz-pasta-info.vis { display: flex; }
+    .muz-pasta-nome { color: var(--green); font-size: clamp(9px,2.4vw,11px); font-weight: bold; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: .3px; }
+    .muz-pasta-badge { background: rgba(0,255,64,.15); border: 1px solid var(--green); color: var(--green); font-size: clamp(8px,2.2vw,10px); font-weight: bold; padding: 2px 6px; white-space: nowrap; }
+
+    /* ── PLAYLIST CONTAINER ── */
     .muz-playlist {
       max-height: 32vh; overflow-y: auto;
       border: 1px solid rgba(255,140,0,.2);
@@ -316,11 +347,21 @@
     .muz-item:last-child { border-bottom: none; }
     .muz-item:active { background: rgba(255,140,0,.1); }
     .muz-item.ativo { background: rgba(255,140,0,.08); border-bottom-color: rgba(255,140,0,.3); }
+    .muz-item.hidden-search { display: none; }
     .muz-item-num { color:var(--dim); font-size:clamp(9px,2.4vw,11px); font-weight:bold; min-width:20px; flex-shrink:0; }
     .muz-item-nome { color:var(--orange); font-size:clamp(10px,2.8vw,13px); font-weight:bold; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .muz-item.ativo .muz-item-nome { color: white; }
     .muz-item-play { color:var(--orange); font-size:15px; flex-shrink:0; animation: muzpulse 1.2s infinite; }
     @keyframes muzpulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── SALVO / PERSISTIDO ── */
+    .muz-saved-chip {
+      display: none; align-items: center; justify-content: center;
+      gap: 5px; padding: 4px 10px; margin-bottom: 6px;
+      background: rgba(0,255,64,.06); border: 1px solid rgba(0,255,64,.2);
+      color: rgba(0,255,64,.7); font-size: clamp(9px,2.4vw,10px); font-weight: bold; letter-spacing: .3px;
+    }
+    .muz-saved-chip.vis { display: flex; }
 
     .muz-duck-info { font-size:clamp(9px,2.4vw,10px); font-weight:bold; color:var(--dim); margin:4px 0 10px; letter-spacing:.3px; line-height:1.5; }
     
@@ -4020,24 +4061,56 @@ function abrirGuiaAlimentar(objetivo) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  MÓDULO: PLAYER DE MÚSICAS
+//  MÓDULO: PLAYER DE MÚSICAS (v2 — persistência + pasta + busca)
 // ══════════════════════════════════════════════════════════════════════
+
+const MUZ_NOMES_KEY  = 'gym_muz_nomes_v2';   // [{nome, pasta?}]
+const MUZ_IDX_KEY    = 'gym_muz_idx_v2';
+const MUZ_PASTA_KEY  = 'gym_muz_pasta_nome';  // nome da pasta vinculada
 
 // Estado geral
 let muzAudio       = null;
-let muzPlaylist    = [];  // [{nome, url}]
+let muzPlaylist    = [];  // [{nome, url, pasta?}]
 let muzIdx         = 0;
 let muzTocando     = false;
 let muzVolume      = parseInt(localStorage.getItem('gym_muz_vol') || '80');
 let muzShuffle     = localStorage.getItem('gym_muz_shuffle') === 'true';
 let muzRepetir     = localStorage.getItem('gym_muz_repeat')  === 'true';
+let muzPastaNome   = localStorage.getItem(MUZ_PASTA_KEY) || '';
 
 // Estado de integração com voz
-let muzIntegracao  = localStorage.getItem('gym_muz_integ') !== 'false'; // default ON
-let muzComportVoz  = localStorage.getItem('gym_muz_comp')   || 'baixar'; // 'baixar' | 'pausar'
+let muzIntegracao  = localStorage.getItem('gym_muz_integ') !== 'false';
+let muzComportVoz  = localStorage.getItem('gym_muz_comp')   || 'baixar';
 let muzVolDucked   = parseInt(localStorage.getItem('gym_muz_vol_duck') || '20');
 let muzEraDucked   = false;
 let muzEraPlaying  = false;
+
+// ── Persistência de nomes ─────────────────────────────────────────────
+function muzSalvarNomes() {
+  const dados = muzPlaylist.map(f => ({ nome: f.nome, pasta: f.pasta || false }));
+  try { localStorage.setItem(MUZ_NOMES_KEY, JSON.stringify(dados)); } catch(_){}
+  try { localStorage.setItem(MUZ_IDX_KEY, String(muzIdx)); } catch(_){}
+}
+
+function muzCarregarNomesSalvos() {
+  try {
+    const raw = localStorage.getItem(MUZ_NOMES_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch(_) { return []; }
+}
+
+function muzSalvarPlaylistManual() {
+  clickBeep();
+  muzSalvarNomes();
+  const chip = document.getElementById('muz-saved-chip');
+  const txt  = document.getElementById('muz-saved-txt');
+  if (chip && txt) {
+    txt.textContent = '✅ Playlist salva! (' + muzPlaylist.length + ' faixas)';
+    chip.classList.add('vis');
+    setTimeout(() => { txt.textContent = 'Playlist restaurada do último uso'; }, 2500);
+  }
+}
 
 // ── Inicialização do elemento <audio> ──────────────────────────────────
 function muzInit() {
@@ -4049,37 +4122,96 @@ function muzInit() {
     if (muzShuffle) { muzIdx = Math.floor(Math.random() * muzPlaylist.length); }
     else { muzIdx = (muzIdx + 1) % muzPlaylist.length; }
     muzCarregarFaixa(muzIdx, true);
+    muzSalvarNomes(); // salva índice ao trocar faixa
   };
   muzAudio.ontimeupdate = muzAtualizarBarra;
   muzAudio.ondurationchange = muzAtualizarBarra;
 }
 
-// ── Carregar / adicionar arquivos ─────────────────────────────────────
+// ── Carregar arquivos avulsos ─────────────────────────────────────────
 function muzCarregarArquivos(files) {
   if (!files || files.length === 0) return;
-  // Libera URLs anteriores
   muzPlaylist.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
   muzPlaylist = [];
+  muzPastaNome = '';
+  localStorage.removeItem(MUZ_PASTA_KEY);
   Array.from(files).forEach(f => {
-    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f) });
+    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f), pasta: false });
   });
   muzIdx = 0;
   muzCarregarFaixa(0, false);
   muzRenderPlaylist();
-  // limpa input para poder recarregar os mesmos arquivos depois
+  muzSalvarNomes();
   document.getElementById('muz-file-input').value = '';
+  muzAtualizarPastaInfo();
 }
 
 function muzAdicionarArquivos(files) {
   if (!files || files.length === 0) return;
+  const eraVazio = muzPlaylist.length === 0;
   Array.from(files).forEach(f => {
-    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f) });
+    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f), pasta: false });
   });
   muzRenderPlaylist();
+  muzSalvarNomes();
   document.getElementById('muz-file-add').value = '';
-  if (muzPlaylist.length === Array.from(files).length) { // era vazio antes
-    muzCarregarFaixa(0, false);
+  if (eraVazio) muzCarregarFaixa(0, false);
+}
+
+// ── Carregar pasta inteira ────────────────────────────────────────────
+function muzCarregarPasta(input) {
+  const files = input.files;
+  if (!files || files.length === 0) return;
+
+  // Detectar nome da pasta pelo caminho do primeiro arquivo
+  let pastaNome = 'Pasta vinculada';
+  if (files[0].webkitRelativePath) {
+    pastaNome = files[0].webkitRelativePath.split('/')[0];
   }
+
+  muzPlaylist.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
+  muzPlaylist = [];
+
+  // Filtrar apenas áudio e ordenar alfabeticamente
+  const audioFiles = Array.from(files)
+    .filter(f => f.type.startsWith('audio/') || /\.(mp3|ogg|wav|flac|aac|m4a|opus|weba)$/i.test(f.name))
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }));
+
+  if (audioFiles.length === 0) {
+    alert('⚠️ Nenhum arquivo de áudio encontrado na pasta selecionada.');
+    input.value = '';
+    return;
+  }
+
+  audioFiles.forEach(f => {
+    muzPlaylist.push({ nome: f.name.replace(/\.[^.]+$/, ''), url: URL.createObjectURL(f), pasta: true });
+  });
+
+  muzPastaNome = pastaNome;
+  localStorage.setItem(MUZ_PASTA_KEY, pastaNome);
+  muzIdx = 0;
+  muzCarregarFaixa(0, false);
+  muzRenderPlaylist();
+  muzSalvarNomes();
+  muzAtualizarPastaInfo();
+  input.value = '';
+}
+
+// ── Info da pasta vinculada ───────────────────────────────────────────
+function muzAtualizarPastaInfo() {
+  const infoEl   = document.getElementById('muz-pasta-info');
+  const nomeEl   = document.getElementById('muz-pasta-nome');
+  const countEl  = document.getElementById('muz-pasta-count');
+  const salvarBtn = document.getElementById('muz-btn-salvar');
+
+  const temPasta = muzPastaNome && muzPlaylist.some(f => f.pasta);
+  if (infoEl) infoEl.classList.toggle('vis', temPasta);
+  if (nomeEl && temPasta) nomeEl.textContent = '📁 ' + muzPastaNome;
+  if (countEl && temPasta) {
+    const n = muzPlaylist.filter(f => f.pasta).length;
+    countEl.textContent = n + ' música' + (n !== 1 ? 's' : '');
+  }
+  if (salvarBtn) salvarBtn.style.display = muzPlaylist.length > 0 ? 'block' : 'none';
 }
 
 // ── Carregar faixa ────────────────────────────────────────────────────
@@ -4105,7 +4237,7 @@ function muzCarregarFaixa(idx, autoplay) {
 // ── Play / Pause ──────────────────────────────────────────────────────
 function muzPlayPause() {
   if (!muzAudio || muzPlaylist.length === 0) {
-    alert('🎵 Adicione músicas primeiro em CARREGAR MÚSICAS');
+    alert('🎵 Adicione músicas primeiro em CARREGAR ou PASTA');
     return;
   }
   if (muzTocando) {
@@ -4123,6 +4255,7 @@ function muzAnterior() {
   if (muzShuffle) muzIdx = Math.floor(Math.random() * muzPlaylist.length);
   else muzIdx = (muzIdx - 1 + muzPlaylist.length) % muzPlaylist.length;
   muzCarregarFaixa(muzIdx, muzTocando);
+  muzSalvarNomes();
 }
 
 function muzProxima() {
@@ -4130,6 +4263,7 @@ function muzProxima() {
   if (muzShuffle) muzIdx = Math.floor(Math.random() * muzPlaylist.length);
   else muzIdx = (muzIdx + 1) % muzPlaylist.length;
   muzCarregarFaixa(muzIdx, muzTocando);
+  muzSalvarNomes();
 }
 
 // ── Volume ────────────────────────────────────────────────────────────
@@ -4189,24 +4323,55 @@ function muzBuscarPosicao(e) {
   e.stopPropagation();
 }
 
+// ── Busca / filtro na playlist ────────────────────────────────────────
+function muzFiltrarPlaylist(termo) {
+  const t = (termo || '').trim().toLowerCase();
+  const clearBtn = document.getElementById('muz-search-clear');
+  if (clearBtn) clearBtn.classList.toggle('vis', t.length > 0);
+
+  const items = document.querySelectorAll('#muz-playlist .muz-item');
+  items.forEach(el => {
+    const nome = (el.querySelector('.muz-item-nome') || {}).textContent || '';
+    el.classList.toggle('hidden-search', t.length > 0 && !nome.toLowerCase().includes(t));
+  });
+}
+
+function muzLimparBusca() {
+  const input = document.getElementById('muz-search-input');
+  if (input) { input.value = ''; muzFiltrarPlaylist(''); }
+}
+
 // ── Render da playlist ────────────────────────────────────────────────
 function muzRenderPlaylist() {
-  const el = document.getElementById('muz-playlist');
-  const countEl = document.getElementById('muz-playlist-count');
+  const el       = document.getElementById('muz-playlist');
+  const countEl  = document.getElementById('muz-playlist-count');
+  const searchWrap = document.getElementById('muz-search-wrap');
+  const salvarBtn  = document.getElementById('muz-btn-salvar');
   if (!el) return;
+
   if (muzPlaylist.length === 0) {
-    el.innerHTML = '<div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR MÚSICAS</span> para começar.</div>';
-    if (countEl) countEl.textContent = '';
+    el.innerHTML = '<div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR</span> ou <span style="color:var(--green);">📁 PASTA</span> para começar.</div>';
+    if (countEl)   countEl.textContent = '';
+    if (searchWrap) searchWrap.style.display = 'none';
+    if (salvarBtn)  salvarBtn.style.display  = 'none';
     return;
   }
+
   if (countEl) countEl.textContent = muzPlaylist.length + ' faixa' + (muzPlaylist.length > 1 ? 's' : '');
+  if (searchWrap && muzPlaylist.length >= 5) searchWrap.style.display = 'block';
+  if (salvarBtn) salvarBtn.style.display = 'block';
+
   el.innerHTML = muzPlaylist.map((f, i) => `
-    <div class="muz-item ${i === muzIdx ? 'ativo' : ''}" onclick="muzCarregarFaixa(${i}, true)">
+    <div class="muz-item ${i === muzIdx ? 'ativo' : ''}" onclick="muzCarregarFaixa(${i}, true); muzSalvarNomes();">
       <span class="muz-item-num">${i + 1}</span>
       <span class="muz-item-nome">${f.nome}</span>
       ${i === muzIdx ? '<span class="muz-item-play">♪</span>' : ''}
     </div>
   `).join('');
+
+  // Re-aplicar filtro de busca ativo
+  const searchInput = document.getElementById('muz-search-input');
+  if (searchInput && searchInput.value.trim()) muzFiltrarPlaylist(searchInput.value);
 }
 
 function muzAtualizarBotoesPlaylist() {
@@ -4221,14 +4386,21 @@ function muzLimparPlaylist() {
   if (muzAudio) { muzAudio.pause(); muzAudio.src = ''; }
   muzPlaylist.forEach(f => { try { URL.revokeObjectURL(f.url); } catch(_){} });
   muzPlaylist = []; muzIdx = 0; muzTocando = false;
+  muzPastaNome = '';
+  localStorage.removeItem(MUZ_NOMES_KEY);
+  localStorage.removeItem(MUZ_IDX_KEY);
+  localStorage.removeItem(MUZ_PASTA_KEY);
   const nomeEl = document.getElementById('muz-nome');
   if (nomeEl) nomeEl.textContent = '// NENHUMA FAIXA CARREGADA';
   const fillEl = document.getElementById('muz-prog-fill');
   if (fillEl) fillEl.style.width = '0%';
   const curEl = document.getElementById('muz-tempo-cur'); if (curEl) curEl.textContent = '0:00';
   const totEl = document.getElementById('muz-tempo-tot'); if (totEl) totEl.textContent = '0:00';
+  const chip  = document.getElementById('muz-saved-chip'); if (chip) chip.classList.remove('vis');
   muzAtualizarBtnPlay();
   muzRenderPlaylist();
+  muzAtualizarPastaInfo();
+  muzLimparBusca();
 }
 
 // ── UI helpers ────────────────────────────────────────────────────────
@@ -4238,7 +4410,6 @@ function muzAtualizarBtnPlay() {
 }
 
 // ── Integração VOZ ➔ MÚSICA ───────────────────────────────────────────
-// Chamada antes de uma fala: abaxa ou pausa a música
 function muzDuck() {
   if (!muzAudio || !muzIntegracao || !muzTocando) return;
   muzEraPlaying = true;
@@ -4246,12 +4417,10 @@ function muzDuck() {
   if (muzComportVoz === 'pausar') {
     muzAudio.pause(); muzTocando = false; muzAtualizarBtnPlay();
   } else {
-    // Abaixa suavemente
     muzAudio.volume = muzVolDucked / 100;
   }
 }
 
-// Chamada quando a fala termina: restaura a música
 function muzRestore() {
   if (!muzEraDucked) return;
   muzEraDucked = false;
@@ -4263,7 +4432,6 @@ function muzRestore() {
         .catch(() => {});
     }
   } else {
-    // Restaura volume original
     muzAudio.volume = muzVolume / 100;
   }
   muzEraPlaying = false;
@@ -4295,6 +4463,38 @@ function muzSetVolDuck(v) {
 function muzAtualizarVisibilidadeVolDuck() {
   const row = document.getElementById('muz-row-vol-duck');
   if (row) row.style.display = (muzComportVoz === 'baixar') ? 'flex' : 'none';
+}
+
+// ── Restaurar nomes salvos ao abrir ──────────────────────────────────
+// Nota: As URLs de objeto (blob:) não persistem após fechar o app.
+// Portanto, ao reabrir, mostramos os nomes mas a fila precisa ser
+// recarregada pelo usuário. Exibimos um chip informativo se havia lista.
+function muzRestaurarNomesSalvos() {
+  const nomes = muzCarregarNomesSalvos();
+  if (nomes.length === 0) return;
+  const idxSalvo = parseInt(localStorage.getItem(MUZ_IDX_KEY) || '0');
+
+  // Preencher playlist com nomes (sem URL válida — placeholder)
+  // Apenas para exibir na tela; usuário precisa recarregar para tocar.
+  // Se já tem itens com URL (carregados nesta sessão), não sobrescrever.
+  if (muzPlaylist.length === 0) {
+    muzPlaylist = nomes.map(n => ({ nome: n.nome, url: '', pasta: n.pasta || false }));
+    muzIdx = Math.min(idxSalvo, muzPlaylist.length - 1);
+
+    const chip = document.getElementById('muz-saved-chip');
+    const txt  = document.getElementById('muz-saved-txt');
+    if (chip && txt) {
+      txt.textContent = '📂 ' + muzPlaylist.length + ' faixa' + (muzPlaylist.length > 1 ? 's' : '') + ' da sessão anterior — recarregue para tocar';
+      chip.classList.add('vis');
+    }
+
+    const nomeEl = document.getElementById('muz-nome');
+    if (nomeEl && muzPlaylist.length > 0) nomeEl.textContent = muzPlaylist[muzIdx].nome;
+
+    muzPastaNome = localStorage.getItem(MUZ_PASTA_KEY) || '';
+    muzAtualizarPastaInfo();
+    muzRenderPlaylist();
+  }
 }
 
 // ── Abrir player ──────────────────────────────────────────────────────
@@ -4333,7 +4533,11 @@ function muzAbrirPlayer() {
   const nomeEl = document.getElementById('muz-nome');
   if (nomeEl && muzPlaylist.length > 0) nomeEl.textContent = muzPlaylist[muzIdx].nome;
 
+  // Restaurar nomes da sessão anterior (se nenhuma música carregada ainda)
+  muzRestaurarNomesSalvos();
+
   muzRenderPlaylist();
+  muzAtualizarPastaInfo();
   irPara('screen-music');
 }
 
@@ -4598,22 +4802,49 @@ function agendaLimparHistorico() {
         <span style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;" id="muz-playlist-count"></span>
       </div>
 
+      <!-- Chip de playlist salva -->
+      <div class="muz-saved-chip" id="muz-saved-chip">
+        <span style="color:var(--green);">💾</span>
+        <span id="muz-saved-txt">Playlist restaurada do último uso</span>
+      </div>
+
+      <!-- Info da pasta vinculada -->
+      <div class="muz-pasta-info" id="muz-pasta-info">
+        <span style="color:var(--green);font-size:14px;flex-shrink:0;">📁</span>
+        <span class="muz-pasta-nome" id="muz-pasta-nome">—</span>
+        <span class="muz-pasta-badge" id="muz-pasta-count">0 músicas</span>
+      </div>
+
       <!-- File inputs ocultos -->
-      <input type="file" id="muz-file-input" accept="audio/*" multiple style="display:none;" onchange="muzCarregarArquivos(this.files)">
-      <input type="file" id="muz-file-add"   accept="audio/*" multiple style="display:none;" onchange="muzAdicionarArquivos(this.files)">
+      <input type="file" id="muz-file-input"   accept="audio/*" multiple style="display:none;" onchange="muzCarregarArquivos(this.files)">
+      <input type="file" id="muz-file-add"     accept="audio/*" multiple style="display:none;" onchange="muzAdicionarArquivos(this.files)">
+      <input type="file" id="muz-file-pasta"   accept="audio/*" multiple webkitdirectory style="display:none;" onchange="muzCarregarPasta(this)">
 
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <button class="btn-sec" onclick="document.getElementById('muz-file-input').click()" style="border-color:var(--orange);color:var(--orange);font-size:12px;padding:10px 6px;flex:1;">📂 CARREGAR MÚSICAS</button>
-        <button class="btn-sec green" onclick="document.getElementById('muz-file-add').click()" style="font-size:12px;padding:10px 6px;flex:1;">➕ ADICIONAR</button>
+      <!-- Botões principais -->
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button class="btn-sec" onclick="document.getElementById('muz-file-input').click()" style="border-color:var(--orange);color:var(--orange);font-size:11px;padding:10px 4px;flex:1;">📂 CARREGAR</button>
+        <button class="btn-sec green" onclick="document.getElementById('muz-file-add').click()" style="font-size:11px;padding:10px 4px;flex:1;">➕ ADICIONAR</button>
+        <button class="btn-sec" onclick="document.getElementById('muz-file-pasta').click()" style="border-color:var(--green);color:var(--green);font-size:11px;padding:10px 4px;flex:1;">📁 PASTA</button>
       </div>
-      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-bottom:8px;letter-spacing:.3px;">// Selecione arquivos de áudio do seu celular. Toque na faixa para tocar.</div>
 
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-bottom:8px;letter-spacing:.3px;">// Toque em <span style="color:var(--green);">📁 PASTA</span> para vincular uma pasta de músicas.</div>
+
+      <!-- Busca na playlist -->
+      <div class="muz-search-wrap" id="muz-search-wrap" style="display:none;">
+        <input class="muz-search-input" id="muz-search-input" type="text" placeholder="🔍 BUSCAR NA PLAYLIST..." oninput="muzFiltrarPlaylist(this.value)">
+        <button class="muz-search-clear" id="muz-search-clear" onclick="muzLimparBusca()">✕</button>
+      </div>
+
+      <!-- Lista de músicas -->
       <div class="muz-playlist" id="muz-playlist">
-        <div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR MÚSICAS</span> para começar.</div>
+        <div class="muz-empty">Nenhuma música carregada.<br>Toque em <span style="color:var(--orange);">📂 CARREGAR</span> ou <span style="color:var(--green);">📁 PASTA</span> para começar.</div>
       </div>
 
-      <!-- Limpar playlist -->
-      <button class="btn-sec" onclick="muzLimparPlaylist()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:10px;">🗑 LIMPAR PLAYLIST</button>
+      <!-- Rodapé de ações -->
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn-sec" onclick="muzLimparPlaylist()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;flex:1;">🗑 LIMPAR</button>
+        <button class="btn-sec" onclick="muzSalvarPlaylistManual()" id="muz-btn-salvar" style="border-color:var(--cyan);color:var(--cyan);font-size:11px;padding:9px;flex:1;display:none;">💾 SALVAR LISTA</button>
+      </div>
     </div>
 
   </div>
