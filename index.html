@@ -364,6 +364,153 @@
     .muz-saved-chip.vis { display: flex; }
 
     .muz-duck-info { font-size:clamp(9px,2.4vw,10px); font-weight:bold; color:var(--dim); margin:4px 0 10px; letter-spacing:.3px; line-height:1.5; }
+
+    /* ══════════════════════════════════════════
+       MINI-PLAYER FLUTUANTE (TOPO)
+    ══════════════════════════════════════════ */
+    #mini-player {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 999;
+      background: rgba(5,5,16,0.97);
+      border-bottom: 2px solid var(--orange);
+      box-shadow: 0 2px 16px rgba(255,140,0,.18);
+      padding: 6px 10px 5px;
+      flex-direction: column;
+      gap: 3px;
+    }
+    #mini-player.vis { display: flex; }
+    /* empurra telas para baixo quando mini-player está visível */
+    body.mini-player-on .screen { padding-top: 56px; }
+    body.mini-player-on .global-clock { top: 62px; }
+
+    .mini-top-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mini-eq-bars {
+      display: flex; align-items: flex-end; gap: 2px;
+      height: 16px; flex-shrink: 0;
+    }
+    .mini-eq-bar {
+      width: 3px; background: var(--orange);
+      border-radius: 1px;
+      animation: eqBounce 0.6s ease-in-out infinite alternate;
+    }
+    .mini-eq-bar:nth-child(1){ height:6px;  animation-delay:0s; }
+    .mini-eq-bar:nth-child(2){ height:12px; animation-delay:.15s; }
+    .mini-eq-bar:nth-child(3){ height:8px;  animation-delay:.3s; }
+    .mini-eq-bar:nth-child(4){ height:14px; animation-delay:.1s; }
+    .mini-eq-bar:nth-child(5){ height:5px;  animation-delay:.25s; }
+    #mini-player.pausado .mini-eq-bar { animation-play-state: paused; }
+    @keyframes eqBounce { from{transform:scaleY(0.3)} to{transform:scaleY(1)} }
+
+    .mini-nome {
+      flex: 1; color: var(--orange);
+      font-size: clamp(10px,2.8vw,13px); font-weight: bold;
+      letter-spacing: .5px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mini-btns { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .mini-btn {
+      background: none; border: 1px solid rgba(255,140,0,.4);
+      color: var(--orange); font-size: 13px;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      font-family: monospace;
+    }
+    .mini-btn:active { background: rgba(255,140,0,.2); }
+    .mini-btn.open-btn { border-color: rgba(255,140,0,.25); color: rgba(255,140,0,.6); font-size: 10px; }
+
+    .mini-prog-bar {
+      width: 100%; height: 2px;
+      background: rgba(255,140,0,.15);
+    }
+    .mini-prog-fill {
+      height: 100%; background: var(--orange);
+      width: 0%; transition: width 0.4s linear;
+    }
+
+    /* ══════════════════════════════════════════
+       WAVEFORM / VISUALIZADOR
+    ══════════════════════════════════════════ */
+    .muz-waveform-wrap {
+      width: 100%; height: 48px;
+      margin: 6px 0 10px; position: relative;
+      background: rgba(255,140,0,.03);
+      border: 1px solid rgba(255,140,0,.12);
+      overflow: hidden;
+    }
+    #muz-waveform-canvas {
+      width: 100%; height: 100%; display: block;
+    }
+
+    /* ══════════════════════════════════════════
+       EQUALIZADOR
+    ══════════════════════════════════════════ */
+    .muz-eq-wrap {
+      display: flex; gap: 6px; align-items: flex-end;
+      justify-content: space-between; margin: 8px 0 4px;
+    }
+    .muz-eq-band {
+      display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1;
+    }
+    .muz-eq-lbl { color: var(--dim); font-size: clamp(8px,2.2vw,10px); font-weight: bold; letter-spacing: .3px; }
+    .muz-eq-val { color: var(--orange); font-size: clamp(9px,2.4vw,11px); font-weight: bold; min-width: 28px; text-align: center; }
+    input.muz-eq-slider {
+      writing-mode: vertical-lr; direction: rtl;
+      -webkit-appearance: slider-vertical;
+      width: 22px; height: 70px;
+      background: rgba(255,140,0,.2); outline: none; cursor: pointer;
+    }
+    input.muz-eq-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--orange); border-radius: 0; }
+    .muz-eq-reset { display: block; width: 100%; margin-top: 6px;
+      background: none; border: 1px dashed rgba(255,140,0,.3); color: rgba(255,140,0,.6);
+      font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold;
+      padding: 6px; cursor: pointer; letter-spacing: 1px; }
+    .muz-eq-reset:active { background: rgba(255,140,0,.08); }
+
+    /* ══════════════════════════════════════════
+       CROSSFADE
+    ══════════════════════════════════════════ */
+    .muz-crossfade-row { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
+
+    /* ══════════════════════════════════════════
+       RÁDIO ONLINE
+    ══════════════════════════════════════════ */
+    .radio-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin: 10px 0;
+    }
+    .radio-item {
+      background: rgba(10,12,24,.95);
+      border: 1px solid rgba(0,240,255,.2);
+      padding: 10px 8px; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: all .15s; display: flex; flex-direction: column; gap: 4px;
+    }
+    .radio-item:active { background: rgba(0,240,255,.08); }
+    .radio-item.ativo { border-color: var(--cyan); background: rgba(0,240,255,.06); box-shadow: 0 0 10px rgba(0,240,255,.15); }
+    .radio-item-nome { color: var(--cyan); font-size: clamp(10px,2.8vw,12px); font-weight: bold; letter-spacing: .5px; }
+    .radio-item-tag  { color: var(--dim); font-size: clamp(8px,2.2vw,10px); font-weight: bold; letter-spacing: .3px; }
+    .radio-item-eq   { display: flex; align-items: flex-end; gap: 2px; height: 12px; margin-top: 2px; }
+    .radio-item-eq span { width: 3px; background: var(--cyan); border-radius: 1px; opacity: .5; }
+    .radio-item.ativo .radio-item-eq span { opacity: 1; animation: eqBounce .5s ease-in-out infinite alternate; }
+    .radio-item-eq span:nth-child(1){ height:4px; animation-delay:0s; }
+    .radio-item-eq span:nth-child(2){ height:9px; animation-delay:.2s; }
+    .radio-item-eq span:nth-child(3){ height:6px; animation-delay:.1s; }
+    .radio-item-eq span:nth-child(4){ height:11px;animation-delay:.3s; }
+    .radio-estado { display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+      font-size: clamp(9px,2.4vw,11px); font-weight: bold; color: var(--dim); letter-spacing: .3px; }
+    .radio-estado-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+    .radio-estado-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── DRAG-TO-REORDER ── */
+    .muz-item.dragging { opacity: .45; background: rgba(255,140,0,.12); }
+    .muz-item.drag-over { border-top: 2px solid var(--orange); }
+    .muz-drag-handle { color: rgba(255,140,0,.4); font-size: 14px; flex-shrink: 0; cursor: grab; padding: 0 2px; touch-action: none; }
+    .muz-drag-handle:active { cursor: grabbing; }
     
     .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.85); }
     .modal-overlay.active { display:flex; }
@@ -941,6 +1088,29 @@
 <canvas id="matrix"></canvas>
 <div class="overlay"></div>
 <div id="voz-indicator">▐ TRANSMITINDO ▌</div>
+
+<!-- MINI-PLAYER FLUTUANTE -->
+<div id="mini-player">
+  <div class="mini-top-row">
+    <div class="mini-eq-bars">
+      <div class="mini-eq-bar"></div>
+      <div class="mini-eq-bar"></div>
+      <div class="mini-eq-bar"></div>
+      <div class="mini-eq-bar"></div>
+      <div class="mini-eq-bar"></div>
+    </div>
+    <div class="mini-nome" id="mini-nome">—</div>
+    <div class="mini-btns">
+      <button class="mini-btn" onclick="muzAnterior()" title="Anterior">⏮</button>
+      <button class="mini-btn" id="mini-btn-play" onclick="muzPlayPause()">▶</button>
+      <button class="mini-btn" onclick="muzProxima()" title="Próxima">⏭</button>
+      <button class="mini-btn open-btn" onclick="muzAbrirPlayer()" title="Abrir player">▲</button>
+    </div>
+  </div>
+  <div class="mini-prog-bar">
+    <div class="mini-prog-fill" id="mini-prog-fill"></div>
+  </div>
+</div>
 
 <!-- RELÓGIO GLOBAL -->
 <div id="global-clock" class="global-clock">00:00</div>
@@ -4362,12 +4532,16 @@ function muzRenderPlaylist() {
   if (salvarBtn) salvarBtn.style.display = 'block';
 
   el.innerHTML = muzPlaylist.map((f, i) => `
-    <div class="muz-item ${i === muzIdx ? 'ativo' : ''}" onclick="muzCarregarFaixa(${i}, true); muzSalvarNomes();">
+    <div class="muz-item ${i === muzIdx ? 'ativo' : ''}" data-idx="${i}"
+         draggable="true"
+         onclick="muzItemClick(event, ${i})">
+      <span class="muz-drag-handle" title="Arrastar">⠿</span>
       <span class="muz-item-num">${i + 1}</span>
       <span class="muz-item-nome">${f.nome}</span>
       ${i === muzIdx ? '<span class="muz-item-play">♪</span>' : ''}
     </div>
   `).join('');
+  muzBindDrag();
 
   // Re-aplicar filtro de busca ativo
   const searchInput = document.getElementById('muz-search-input');
@@ -4541,6 +4715,485 @@ function muzAbrirPlayer() {
   irPara('screen-music');
 }
 
+// ══════════════════════════════════════════════════════════════════════
+//  MINI-PLAYER FLUTUANTE
+// ══════════════════════════════════════════════════════════════════════
+function miniPlayerAtualizar() {
+  const mp = document.getElementById('mini-player');
+  if (!mp) return;
+
+  const temMusica = muzPlaylist.length > 0 || radioTocando;
+  const naTelaMuz = document.getElementById('screen-music') && document.getElementById('screen-music').classList.contains('active');
+
+  // Mostra mini-player em todas as telas EXCETO na tela do player e loading
+  const naTelaLoading = document.getElementById('screen-loading') && document.getElementById('screen-loading').classList.contains('active');
+  const mostrar = temMusica && !naTelaMuz && !naTelaLoading;
+
+  mp.classList.toggle('vis', mostrar);
+  document.body.classList.toggle('mini-player-on', mostrar);
+
+  if (!mostrar) return;
+
+  // Nome
+  const nomeEl = document.getElementById('mini-nome');
+  if (nomeEl) {
+    if (radioTocando && radioAtualIdx >= 0) {
+      nomeEl.textContent = '📻 ' + RADIO_ESTACOES[radioAtualIdx].nome;
+    } else if (muzPlaylist.length > 0) {
+      nomeEl.textContent = muzPlaylist[muzIdx] ? muzPlaylist[muzIdx].nome : '—';
+    }
+  }
+
+  // Botão play/pause
+  const btnPlay = document.getElementById('mini-btn-play');
+  if (btnPlay) {
+    if (radioTocando) btnPlay.textContent = '⏸';
+    else btnPlay.textContent = muzTocando ? '⏸' : '▶';
+  }
+
+  // Animação EQ
+  mp.classList.toggle('pausado', !muzTocando && !radioTocando);
+}
+
+function miniPlayerAtualizarProgresso(pct) {
+  const fill = document.getElementById('mini-prog-fill');
+  if (fill) fill.style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  WAVEFORM / VISUALIZADOR DE ÁUDIO
+// ══════════════════════════════════════════════════════════════════════
+let waveformAnimId = null;
+let waveformAnalyser = null;
+let waveformSource  = null;
+
+function muzConectarWaveform() {
+  if (!muzAudio) return;
+  try {
+    const ac = getAC();
+    if (!waveformSource) {
+      waveformSource   = ac.createMediaElementSource(muzAudio);
+      waveformAnalyser = ac.createAnalyser();
+      waveformAnalyser.fftSize = 128;
+      waveformSource.connect(waveformAnalyser);
+      // Reconectar EQ se existir
+      if (muzEqNodes && muzEqNodes.length > 0) {
+        waveformAnalyser.connect(muzEqNodes[0]);
+      } else {
+        waveformAnalyser.connect(ac.destination);
+      }
+    }
+  } catch(e) { /* já conectado */ }
+}
+
+function muzWaveformLoop() {
+  const canvas = document.getElementById('muz-waveform-canvas');
+  if (!canvas || !waveformAnalyser) { waveformAnimId = requestAnimationFrame(muzWaveformLoop); return; }
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width  = canvas.offsetWidth;
+  const H = canvas.height = canvas.offsetHeight;
+
+  const bufLen = waveformAnalyser.frequencyBinCount;
+  const data   = new Uint8Array(bufLen);
+  waveformAnalyser.getByteFrequencyData(data);
+
+  ctx.clearRect(0, 0, W, H);
+
+  const barW = W / bufLen;
+  for (let i = 0; i < bufLen; i++) {
+    const v   = data[i] / 255;
+    const h   = v * H;
+    const alpha = 0.4 + v * 0.6;
+    // gradiente laranja → amarelo no topo
+    const r = 255, g = Math.round(140 + v * 98), b = 0;
+    ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+    ctx.fillRect(i * barW, H - h, barW - 1, h);
+  }
+
+  // Linha de centro
+  ctx.strokeStyle = 'rgba(255,140,0,0.15)';
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  waveformAnimId = requestAnimationFrame(muzWaveformLoop);
+}
+
+function muzIniciarWaveform() {
+  muzConectarWaveform();
+  if (!waveformAnimId) muzWaveformLoop();
+}
+
+function muzPararWaveform() {
+  if (waveformAnimId) { cancelAnimationFrame(waveformAnimId); waveformAnimId = null; }
+  const canvas = document.getElementById('muz-waveform-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width = canvas.offsetWidth;
+    const H = canvas.height = canvas.offsetHeight;
+    ctx.clearRect(0,0,W,H);
+    // Desenha linha flat
+    ctx.strokeStyle = 'rgba(255,140,0,0.2)';
+    ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  EQUALIZADOR (3 bandas: Baixo, Médio, Agudo)
+// ══════════════════════════════════════════════════════════════════════
+const MUZ_EQ_KEY = 'gym_muz_eq_v1';
+const EQ_BANDAS = [
+  { label: 'GRAVE',  freq: 100,  tipo: 'lowshelf'  },
+  { label: 'MÉDIO',  freq: 1000, tipo: 'peaking'   },
+  { label: 'AGUDO',  freq: 8000, tipo: 'highshelf' },
+];
+
+let muzEqNodes = [];
+let muzEqGanhos = [0, 0, 0]; // dB
+
+function muzEqInit() {
+  const ac = getAC();
+  if (muzEqNodes.length > 0) return; // já iniciado
+  muzEqNodes = EQ_BANDAS.map(b => {
+    const f = ac.createBiquadFilter();
+    f.type      = b.tipo;
+    f.frequency.value = b.freq;
+    f.gain.value      = 0;
+    return f;
+  });
+  // Encadeia filtros
+  for (let i = 0; i < muzEqNodes.length - 1; i++) {
+    muzEqNodes[i].connect(muzEqNodes[i+1]);
+  }
+  muzEqNodes[muzEqNodes.length - 1].connect(ac.destination);
+
+  // Carrega valores salvos
+  try {
+    const saved = JSON.parse(localStorage.getItem(MUZ_EQ_KEY) || '[]');
+    if (saved.length === EQ_BANDAS.length) {
+      saved.forEach((g, i) => { muzEqGanhos[i] = g; muzEqNodes[i].gain.value = g; });
+    }
+  } catch(_) {}
+}
+
+function muzEqRenderUI() {
+  const wrap = document.getElementById('muz-eq-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = EQ_BANDAS.map((b, i) => `
+    <div class="muz-eq-band">
+      <span class="muz-eq-val" id="eq-val-${i}">${muzEqGanhos[i] >= 0 ? '+' : ''}${muzEqGanhos[i]}dB</span>
+      <input class="muz-eq-slider" type="range" min="-12" max="12" step="1"
+             value="${muzEqGanhos[i]}" oninput="muzEqSetBanda(${i}, this.value)"
+             style="background:rgba(252,238,12,.2);">
+      <span class="muz-eq-lbl">${b.label}</span>
+    </div>
+  `).join('');
+}
+
+function muzEqSetBanda(i, v) {
+  muzEqGanhos[i] = parseInt(v);
+  if (muzEqNodes[i]) muzEqNodes[i].gain.value = muzEqGanhos[i];
+  const valEl = document.getElementById('eq-val-' + i);
+  if (valEl) valEl.textContent = (muzEqGanhos[i] >= 0 ? '+' : '') + muzEqGanhos[i] + 'dB';
+  try { localStorage.setItem(MUZ_EQ_KEY, JSON.stringify(muzEqGanhos)); } catch(_){}
+}
+
+function muzEqReset() {
+  clickBeep();
+  muzEqGanhos = [0, 0, 0];
+  muzEqNodes.forEach(n => { n.gain.value = 0; });
+  localStorage.removeItem(MUZ_EQ_KEY);
+  muzEqRenderUI();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  CROSSFADE
+// ══════════════════════════════════════════════════════════════════════
+let muzCrossfadeSeg = parseInt(localStorage.getItem('gym_muz_crossfade') || '0');
+let muzCrossfadeTimer = null;
+
+function muzSetCrossfade(v) {
+  muzCrossfadeSeg = parseInt(v);
+  const el = document.getElementById('muz-crossfade-val');
+  if (el) el.textContent = muzCrossfadeSeg === 0 ? 'OFF' : muzCrossfadeSeg + 's';
+  localStorage.setItem('gym_muz_crossfade', muzCrossfadeSeg);
+}
+
+function muzIniciarCrossfadeWatch() {
+  if (muzCrossfadeTimer) clearInterval(muzCrossfadeTimer);
+  if (muzCrossfadeSeg === 0 || !muzAudio) return;
+  muzCrossfadeTimer = setInterval(() => {
+    if (!muzAudio || !muzTocando || muzRepetir) return;
+    const restante = muzAudio.duration - muzAudio.currentTime;
+    if (!isNaN(restante) && restante > 0 && restante <= muzCrossfadeSeg) {
+      // Fade out gradual
+      const vol = Math.max(0, (restante / muzCrossfadeSeg));
+      if (!muzEraDucked) muzAudio.volume = (muzVolume / 100) * vol;
+    }
+  }, 200);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  RÁDIO ONLINE
+// ══════════════════════════════════════════════════════════════════════
+const RADIO_ESTACOES = [
+  { nome: 'LO-FI HIP HOP',  tag: '// estudo & treino leve',    url: 'https://streams.ilovemusic.de/iloveradio17.mp3' },
+  { nome: 'ELETRÔNICA',     tag: '// energia máxima',          url: 'https://streams.ilovemusic.de/iloveradio2.mp3'  },
+  { nome: 'ROCK CLÁSSICO',  tag: '// força & foco',            url: 'https://streams.ilovemusic.de/iloveradio14.mp3' },
+  { nome: 'FUNK BRASIL',    tag: '// hype brasileiro',         url: 'https://radio.playradio.com.br/6022/stream'     },
+  { nome: 'TRAP / HIP HOP', tag: '// streets motivação',       url: 'https://streams.ilovemusic.de/iloveradio1.mp3'  },
+  { nome: 'REGGAETON',      tag: '// cardio & dança',          url: 'https://streams.ilovemusic.de/iloveradio15.mp3' },
+];
+
+let radioAudio     = null;
+let radioTocando   = false;
+let radioAtualIdx  = -1;
+
+function radioRenderGrid() {
+  const grid = document.getElementById('radio-grid');
+  if (!grid) return;
+  grid.innerHTML = RADIO_ESTACOES.map((e, i) => `
+    <div class="radio-item ${i === radioAtualIdx ? 'ativo' : ''}" onclick="radioTocar(${i})">
+      <div class="radio-item-nome">${e.nome}</div>
+      <div class="radio-item-tag">${e.tag}</div>
+      <div class="radio-item-eq">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function radioTocar(idx) {
+  clickBeep();
+  desbloquearAudio();
+
+  // Pausa o player de arquivo se estiver tocando
+  if (muzTocando && muzAudio) {
+    muzAudio.pause(); muzTocando = false; muzAtualizarBtnPlay();
+    muzPararWaveform();
+  }
+
+  // Mesmo índice = toggle pause/play
+  if (radioAtualIdx === idx && radioTocando) { radioParar(); return; }
+
+  radioAtualIdx = idx;
+
+  if (!radioAudio) radioAudio = new Audio();
+  radioAudio.pause();
+  radioAudio.src = RADIO_ESTACOES[idx].url;
+  radioAudio.volume = muzVolume / 100;
+  radioAudio.play()
+    .then(() => {
+      radioTocando = true;
+      radioAtualizarStatus('🟢 AO VIVO — ' + RADIO_ESTACOES[idx].nome, true);
+      radioRenderGrid();
+      miniPlayerAtualizar();
+    })
+    .catch(e => {
+      radioTocando = false; radioAtualIdx = -1;
+      radioAtualizarStatus('⚠ Falha na conexão. Tente outra estação.', false);
+    });
+
+  radioAtualizarStatus('⏳ Conectando...', false);
+}
+
+function radioParar() {
+  if (radioAudio) { radioAudio.pause(); radioAudio.src = ''; }
+  radioTocando = false; radioAtualIdx = -1;
+  radioAtualizarStatus('// Selecione uma estação', false);
+  radioRenderGrid();
+  miniPlayerAtualizar();
+}
+
+function radioAtualizarStatus(txt, on) {
+  const el  = document.getElementById('radio-status-txt');
+  const dot = document.getElementById('radio-dot');
+  if (el)  el.textContent = txt;
+  if (dot) dot.classList.toggle('on', on);
+}
+
+// Duck do rádio durante a voz
+function radioDuck() {
+  if (!radioAudio || !radioTocando || !muzIntegracao) return;
+  muzEraPlaying = true; muzEraDucked = true;
+  if (muzComportVoz === 'pausar') { radioAudio.pause(); }
+  else { radioAudio.volume = muzVolDucked / 100; }
+}
+
+function radioRestore() {
+  if (!muzEraDucked || !radioAudio) return;
+  muzEraDucked = false;
+  if (muzComportVoz === 'pausar') { radioAudio.play().catch(()=>{}); }
+  else { radioAudio.volume = muzVolume / 100; }
+  muzEraPlaying = false;
+}
+
+// ── Sobrescreve muzDuck/muzRestore para incluir rádio ─────────────────
+const _muzDuckOrig    = muzDuck;
+const _muzRestoreOrig = muzRestore;
+
+// Redefine para cobrir rádio também
+window.muzDuck = function() {
+  if (radioTocando) radioDuck();
+  else _muzDuckOrig();
+};
+window.muzRestore = function() {
+  if (radioTocando) radioRestore();
+  else _muzRestoreOrig();
+};
+
+// ══════════════════════════════════════════════════════════════════════
+//  DRAG-TO-REORDER PLAYLIST
+// ══════════════════════════════════════════════════════════════════════
+let dragSrcIdx = -1;
+
+function muzBindDrag() {
+  const items = document.querySelectorAll('#muz-playlist .muz-item');
+  items.forEach(el => {
+    el.addEventListener('dragstart', e => {
+      dragSrcIdx = parseInt(el.dataset.idx);
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      const destIdx = parseInt(el.dataset.idx);
+      if (dragSrcIdx < 0 || dragSrcIdx === destIdx) return;
+      // Reordenar
+      const moved = muzPlaylist.splice(dragSrcIdx, 1)[0];
+      muzPlaylist.splice(destIdx, 0, moved);
+      // Atualizar índice atual
+      if (muzIdx === dragSrcIdx) muzIdx = destIdx;
+      else if (dragSrcIdx < muzIdx && destIdx >= muzIdx) muzIdx--;
+      else if (dragSrcIdx > muzIdx && destIdx <= muzIdx) muzIdx++;
+      dragSrcIdx = -1;
+      muzRenderPlaylist();
+      muzSalvarNomes();
+    });
+
+    // Touch drag (mobile)
+    let touchSrc = -1, touchClone = null;
+    el.addEventListener('touchstart', e => {
+      const handle = e.target.closest('.muz-drag-handle');
+      if (!handle) return;
+      touchSrc = parseInt(el.dataset.idx);
+      touchClone = el.cloneNode(true);
+      touchClone.style.cssText = 'position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:' + el.offsetWidth + 'px;background:rgba(255,140,0,.12);border:1px solid var(--orange);';
+      document.body.appendChild(touchClone);
+    }, { passive: true });
+    el.addEventListener('touchmove', e => {
+      if (touchSrc < 0 || !touchClone) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      touchClone.style.left = (t.clientX - 20) + 'px';
+      touchClone.style.top  = (t.clientY - 20) + 'px';
+    }, { passive: false });
+    el.addEventListener('touchend', e => {
+      if (touchSrc < 0) return;
+      if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
+      const t = e.changedTouches[0];
+      const over = document.elementFromPoint(t.clientX, t.clientY);
+      const destEl = over ? over.closest('.muz-item') : null;
+      if (destEl && destEl !== el) {
+        const destIdx = parseInt(destEl.dataset.idx);
+        const moved = muzPlaylist.splice(touchSrc, 1)[0];
+        muzPlaylist.splice(destIdx, 0, moved);
+        if (muzIdx === touchSrc) muzIdx = destIdx;
+        else if (touchSrc < muzIdx && destIdx >= muzIdx) muzIdx--;
+        else if (touchSrc > muzIdx && destIdx <= muzIdx) muzIdx++;
+        muzRenderPlaylist(); muzSalvarNomes();
+      }
+      touchSrc = -1;
+    });
+  });
+}
+
+// Clique no item (ignora handle)
+function muzItemClick(e, idx) {
+  if (e.target.classList.contains('muz-drag-handle')) return;
+  muzCarregarFaixa(idx, true);
+  muzSalvarNomes();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  PATCHES NO PLAYER EXISTENTE (waveform + mini-player + EQ init)
+// ══════════════════════════════════════════════════════════════════════
+
+// Patch muzInit para iniciar EQ e waveform
+const _muzInitOrig = muzInit;
+window.muzInit = function() {
+  _muzInitOrig();
+  muzEqInit();
+  // Reconecta source ao EQ após init do áudio
+  setTimeout(() => {
+    try {
+      const ac = getAC();
+      if (!waveformSource && muzAudio) {
+        waveformSource  = ac.createMediaElementSource(muzAudio);
+        waveformAnalyser = ac.createAnalyser();
+        waveformAnalyser.fftSize = 128;
+        waveformSource.connect(waveformAnalyser);
+        if (muzEqNodes.length > 0) waveformAnalyser.connect(muzEqNodes[0]);
+        else waveformAnalyser.connect(ac.destination);
+      }
+    } catch(_){}
+  }, 100);
+};
+
+// Patch muzAtualizarBarra para atualizar mini-player
+const _muzAtualizarBarraOrig = muzAtualizarBarra;
+window.muzAtualizarBarra = function() {
+  _muzAtualizarBarraOrig();
+  if (muzAudio) {
+    const dur = muzAudio.duration, cur = muzAudio.currentTime;
+    const pct = (dur && !isNaN(dur)) ? (cur/dur)*100 : 0;
+    miniPlayerAtualizarProgresso(pct);
+  }
+};
+
+// Patch muzAtualizarBtnPlay para atualizar mini-player
+const _muzAtualizarBtnPlayOrig = muzAtualizarBtnPlay;
+window.muzAtualizarBtnPlay = function() {
+  _muzAtualizarBtnPlayOrig();
+  miniPlayerAtualizar();
+  if (muzTocando) { muzIniciarWaveform(); muzIniciarCrossfadeWatch(); }
+  else muzPararWaveform();
+};
+
+// Patch muzCarregarFaixa para atualizar mini-player
+const _muzCarregarFaixaOrig = muzCarregarFaixa;
+window.muzCarregarFaixa = function(idx, autoplay) {
+  _muzCarregarFaixaOrig(idx, autoplay);
+  setTimeout(() => { miniPlayerAtualizar(); }, 50);
+};
+
+// Patch muzAbrirPlayer para render EQ e rádio
+const _muzAbrirPlayerOrig = muzAbrirPlayer;
+window.muzAbrirPlayer = function() {
+  _muzAbrirPlayerOrig();
+  muzEqInit();
+  muzEqRenderUI();
+  radioRenderGrid();
+  // Sync crossfade
+  const slCf = document.getElementById('muz-slider-crossfade');
+  const valCf = document.getElementById('muz-crossfade-val');
+  if (slCf) slCf.value = muzCrossfadeSeg;
+  if (valCf) valCf.textContent = muzCrossfadeSeg === 0 ? 'OFF' : muzCrossfadeSeg + 's';
+  // Waveform
+  if (muzTocando) setTimeout(muzIniciarWaveform, 200);
+};
+
+// Patch irPara para atualizar mini-player ao trocar de tela
+const _irParaOrig = irPara;
+window.irPara = function(id) {
+  _irParaOrig(id);
+  setTimeout(miniPlayerAtualizar, 80);
+};
+
+// Módulo: Agenda de Treinos
 // ══════════════════════════════════════════════════════════════════════
 //  MÓDULO: AGENDA DE TREINOS
 // ══════════════════════════════════════════════════════════════════════
@@ -4721,10 +5374,15 @@ function agendaLimparHistorico() {
       <div class="corner-bl" style="border-color:var(--orange)"></div>
 
       <div class="glitch" data-text="PLAYER DE MÚSICAS" style="font-size:clamp(16px,5vw,22px);color:var(--orange);margin-bottom:4px;">PLAYER DE MÚSICAS</div>
-      <div style="text-align:center;color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;letter-spacing:.5px;margin-bottom:14px;">// MÚSICAS DO DISPOSITIVO</div>
+      <div style="text-align:center;color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;letter-spacing:.5px;margin-bottom:10px;">// MÚSICAS DO DISPOSITIVO</div>
 
       <!-- Nome da faixa atual -->
       <div class="muz-track-nome" id="muz-nome">// NENHUMA FAIXA CARREGADA</div>
+
+      <!-- Waveform / Visualizador -->
+      <div class="muz-waveform-wrap">
+        <canvas id="muz-waveform-canvas"></canvas>
+      </div>
 
       <!-- Barra de progresso (clicável) -->
       <div class="muz-prog-wrap" id="muz-prog-wrap"
@@ -4753,11 +5411,48 @@ function agendaLimparHistorico() {
         <span class="slider-val" id="muz-vol-val" style="color:var(--orange);">80%</span>
       </div>
 
+      <!-- Crossfade -->
+      <div class="muz-crossfade-row">
+        <span class="slider-lbl" style="color:var(--orange);min-width:80px;">⟿ CROSSFADE</span>
+        <input type="range" id="muz-slider-crossfade" min="0" max="6" value="0" step="1"
+               oninput="muzSetCrossfade(this.value)" style="background:rgba(255,140,0,.25); flex:1;">
+        <span class="slider-val" id="muz-crossfade-val" style="color:var(--orange);min-width:36px;">OFF</span>
+      </div>
+
       <!-- Shuffle + Repetir -->
-      <div style="display:flex;gap:10px;margin-top:12px;">
+      <div style="display:flex;gap:10px;margin-top:10px;">
         <button class="muz-toggle-btn" id="muz-btn-shuffle" onclick="muzToggleShuffle()">🔀 ALEATÓRIO</button>
         <button class="muz-toggle-btn" id="muz-btn-repeat" onclick="muzToggleRepetir()">🔁 REPETIR</button>
       </div>
+    </div>
+
+    <!-- PAINEL EQUALIZADOR -->
+    <div class="panel" style="border-color:var(--yellow);margin-bottom:14px;">
+      <div class="corner-tr" style="border-color:var(--yellow)"></div>
+      <div class="corner-bl" style="border-color:var(--yellow)"></div>
+      <div style="color:var(--yellow);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(252,238,12,.2);padding-bottom:6px;margin-bottom:12px;">🎚 EQUALIZADOR</div>
+
+      <div class="muz-eq-wrap" id="muz-eq-wrap">
+        <!-- gerado por JS -->
+      </div>
+      <button class="muz-eq-reset" onclick="muzEqReset()">↺ ZERAR EQ</button>
+    </div>
+
+    <!-- PAINEL RÁDIO ONLINE -->
+    <div class="panel" style="border-color:var(--cyan);margin-bottom:14px;">
+      <div class="corner-tr" style="border-color:var(--cyan)"></div>
+      <div class="corner-bl" style="border-color:var(--cyan)"></div>
+      <div style="color:var(--cyan);font-size:clamp(11px,3vw,13px);font-weight:bold;letter-spacing:1px;border-bottom:1px solid rgba(0,240,255,.2);padding-bottom:6px;margin-bottom:10px;">📻 RÁDIO ONLINE</div>
+
+      <div class="radio-estado">
+        <div class="radio-estado-dot" id="radio-dot"></div>
+        <span id="radio-status-txt">// Selecione uma estação</span>
+      </div>
+
+      <div class="radio-grid" id="radio-grid"><!-- gerado por JS --></div>
+
+      <button class="btn-sec" onclick="radioParar()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:4px;">⏹ PARAR RÁDIO</button>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:8px;letter-spacing:.3px;">// Duck de voz também funciona no rádio</div>
     </div>
 
     <!-- PAINEL INTEGRAÇÃO COM VOZ -->
