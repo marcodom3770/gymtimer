@@ -3564,7 +3564,7 @@ async function chamadaGemini(prompt, forcarJSON = false) {
 
   // Sem limite de tempo — permite raciocínio completo para treinos complexos
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${key}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -4982,33 +4982,24 @@ function muzIniciarCrossfadeWatch() {
 //  RÁDIO ONLINE
 // ══════════════════════════════════════════════════════════════════════
 const RADIO_ESTACOES = [
-  // ── INTERNACIONAIS
-  { nome: 'LO-FI HIP HOP',      tag: '// estudo & treino leve',    url: 'https://streams.ilovemusic.de/iloveradio17.mp3',  cat: 'intl' },
-  { nome: 'ELETRÔNICA',         tag: '// energia máxima',          url: 'https://streams.ilovemusic.de/iloveradio2.mp3',   cat: 'intl' },
-  { nome: 'ROCK CLÁSSICO',      tag: '// força & foco',            url: 'https://streams.ilovemusic.de/iloveradio14.mp3',  cat: 'intl' },
-  { nome: 'TRAP / HIP HOP',     tag: '// streets motivação',       url: 'https://streams.ilovemusic.de/iloveradio1.mp3',   cat: 'intl' },
-  { nome: 'REGGAETON',          tag: '// cardio & dança',          url: 'https://streams.ilovemusic.de/iloveradio15.mp3',  cat: 'intl' },
-  // ── FUNK BRASILEIRO
-  { nome: 'FUNK BRASIL',        tag: '// pancadão carioca',        url: 'https://stream.zeno.fm/to6ms2nkmhquv',            cat: 'funk' },
-  { nome: 'FUNK OSTENTAÇÃO',    tag: '// funk paulista',           url: 'https://stream.zeno.fm/0r0xa792kwzuv',            cat: 'funk' },
+  // ── INTERNACIONAIS — ilovemusic.de (CORS confirmado, sempre funcionam)
+  { nome: 'LO-FI HIP HOP',    tag: '// estudo & treino leve',      url: 'https://streams.ilovemusic.de/iloveradio17.mp3' },
+  { nome: 'ELETRÔNICA',       tag: '// energia máxima',            url: 'https://streams.ilovemusic.de/iloveradio2.mp3'  },
+  { nome: 'ROCK CLÁSSICO',    tag: '// força & foco',              url: 'https://streams.ilovemusic.de/iloveradio14.mp3' },
+  { nome: 'TRAP / HIP HOP',   tag: '// streets motivação',         url: 'https://streams.ilovemusic.de/iloveradio1.mp3'  },
+  { nome: 'REGGAETON',        tag: '// cardio & dança',            url: 'https://streams.ilovemusic.de/iloveradio15.mp3' },
+  { nome: 'LATIN POP',        tag: '// pop latino',                url: 'https://streams.ilovemusic.de/iloveradio8.mp3'  },
+  { nome: 'R&B / SOUL',       tag: '// groove & soul',             url: 'https://streams.ilovemusic.de/iloveradio4.mp3'  },
+  { nome: 'DANCE / EDM',      tag: '// alta energia',              url: 'https://streams.ilovemusic.de/iloveradio5.mp3'  },
+  // ── BRASILEIRAS — leanstream.co (CDN das maiores rádios do Brasil)
+  { nome: 'JOVEM PAN FM',     tag: '// a maior do Brasil',         url: 'https://jovempanfm.leanstream.co/JPFM-SC.aac'   },
+  { nome: 'MIX FM',           tag: '// pop e hits nacionais',      url: 'https://mixfm.leanstream.co/MXFM-SC.aac'        },
+  { nome: 'TRANSAMÉRICA',     tag: '// pop internacional',         url: 'https://transamerica.leanstream.co/TFAM-SC.aac' },
+  { nome: 'BAND FM',          tag: '// variedades BR',             url: 'https://bandfm.leanstream.co/BNDFM-SC.aac'      },
+  { nome: 'RÁDIO GLOBO',      tag: '// esporte & entretenimento',  url: 'https://radioglobo.leanstream.co/GLOBO-SC.aac'  },
   // ── SERTANEJO
-  { nome: 'SERTANEJO TOP',      tag: '// universitário e modão',   url: 'https://stream.zeno.fm/qfpnzc3yt3zuv',           cat: 'sertanejo' },
-  { nome: 'SERTANEJO RAIZ',     tag: '// sertanejo clássico',      url: 'https://stream.zeno.fm/yn65m9mnkw8uv',            cat: 'sertanejo' },
-  { nome: 'SERTANEJO HOJE',     tag: '// hits sertanejos',         url: 'https://stream.zeno.fm/mtj4nnhzphzuv',           cat: 'sertanejo' },
-  // ── PAGODE & SAMBA
-  { nome: 'PAGODE BRASIL',      tag: '// pagode & boteco',         url: 'https://stream.zeno.fm/n0n3g16qnq8uv',           cat: 'pagode' },
-  { nome: 'SAMBA DO BRASIL',    tag: '// samba tradicional',       url: 'https://stream.zeno.fm/j9yqxnuvs3zuv',           cat: 'samba' },
-  { nome: 'SAMBA & CHORO',      tag: '// raiz brasileira',         url: 'https://streams.ilovemusic.de/iloveradio20.mp3', cat: 'samba' },
-  // ── PISEIRO & FORRÓ
-  { nome: 'PISEIRO',            tag: '// vapo vapo',               url: 'https://stream.zeno.fm/kd3rnkwkfw8uv',           cat: 'piseiro' },
-  { nome: 'FORRÓ',              tag: '// forró pé-de-serra',       url: 'https://stream.zeno.fm/dkp2h0kpkuzuv',           cat: 'forro' },
-  // ── SERESTA & MPB
-  { nome: 'SERESTA',            tag: '// seresta romântica',       url: 'https://stream.zeno.fm/q0bv5n6aqnzuv',           cat: 'seresta' },
-  { nome: 'MPB',                tag: '// música popular brasileira', url: 'https://stream.zeno.fm/p8y3smyq1k8uv',         cat: 'mpb' },
-  // ── GOSPEL
-  { nome: 'GOSPEL',             tag: '// louvor & adoração',       url: 'https://stream.zeno.fm/kv3e8rrvfdzuv',           cat: 'gospel' },
-  // ── POP / HITS BRASIL
-  { nome: 'POP BRASIL',         tag: '// hits nacionais',          url: 'https://stream.zeno.fm/x9pvghktkw8uv',           cat: 'pop' },
+  { nome: 'SERTANEJO POP',    tag: '// universitário & modão',     url: 'https://streams.ilovemusic.de/iloveradio3.mp3'  },
+  // Rádios brasileiras por gênero são carregadas dinamicamente pelo RadioBrowser API
 ];
 
 let radioAudio     = null;
@@ -5027,6 +5018,83 @@ function radioRenderGrid() {
       </div>
     </div>
   `).join('');
+}
+
+// ── CARREGAMENTO DINÂMICO via RadioBrowser API (banco público de rádios verificadas) ──
+let radioBrasilCarregado = false;
+
+async function carregarRadiosBrasil() {
+  if (radioBrasilCarregado) return;
+  const grid = document.getElementById('radio-grid');
+  if (!grid) return;
+
+  // Indicador de carregamento nas últimas células
+  const loadDiv = document.createElement('div');
+  loadDiv.id = 'radio-loading-br';
+  loadDiv.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--dim);font-size:11px;font-weight:bold;padding:8px;letter-spacing:.5px;';
+  loadDiv.textContent = '⏳ Buscando rádios brasileiras...';
+  grid.appendChild(loadDiv);
+
+  // Gêneros brasileiros a buscar
+  const generos = [
+    { tag: 'sertanejo',  label: 'SERTANEJO',   emoji: '🤠' },
+    { tag: 'funk',       label: 'FUNK BR',      emoji: '🎤' },
+    { tag: 'pagode',     label: 'PAGODE',       emoji: '🍺' },
+    { tag: 'samba',      label: 'SAMBA',        emoji: '🥁' },
+    { tag: 'forró',      label: 'FORRÓ',        emoji: '🪗' },
+    { tag: 'piseiro',    label: 'PISEIRO',      emoji: '🔊' },
+    { tag: 'gospel',     label: 'GOSPEL',       emoji: '✝️' },
+    { tag: 'seresta',    label: 'SERESTA',      emoji: '🎸' },
+    { tag: 'axé',        label: 'AXÉ',          emoji: '🎉' },
+    { tag: 'mpb',        label: 'MPB',          emoji: '🎵' },
+  ];
+
+  // Usa espelho público da API RadioBrowser (https://www.radio-browser.info/)
+  const API = 'https://de1.api.radio-browser.info/json/stations/search';
+
+  let adicionadas = 0;
+  for (const g of generos) {
+    try {
+      const params = new URLSearchParams({
+        country: 'Brazil',
+        tag: g.tag,
+        limit: 2,
+        order: 'clickcount',
+        reverse: 'true',
+        hidebroken: 'true',
+        https_only: 'true'  // Só HTTPS para evitar bloqueio de mixed-content
+      });
+      const resp = await fetch(`${API}?${params}`, {
+        headers: { 'User-Agent': 'GymCyberPro/1.0' }
+      });
+      if (!resp.ok) continue;
+      const stations = await resp.json();
+      for (const st of stations) {
+        const urlFinal = (st.url_resolved || st.url || '').trim();
+        if (!urlFinal || !urlFinal.startsWith('https')) continue;
+        const nomeFormatado = (g.emoji + ' ' + (st.name || g.label)).toUpperCase().substring(0, 22);
+        RADIO_ESTACOES.push({
+          nome: nomeFormatado,
+          tag:  `// ${g.label.toLowerCase()} ao vivo`,
+          url:  urlFinal
+        });
+        adicionadas++;
+      }
+    } catch(e) { /* API indisponível para este gênero */ }
+  }
+
+  radioBrasilCarregado = true;
+  const ld = document.getElementById('radio-loading-br');
+  if (ld) ld.remove();
+
+  if (adicionadas > 0) {
+    radioRenderGrid();
+  } else {
+    const msg = document.createElement('div');
+    msg.style.cssText = 'grid-column:1/-1;text-align:center;color:var(--dim);font-size:10px;padding:6px;';
+    msg.textContent = '// Sem conexão para carregar rádios brasileiras';
+    grid.appendChild(msg);
+  }
 }
 
 // Navega rádios pelo mini-player
@@ -5256,6 +5324,8 @@ window.muzAbrirPlayer = function() {
   muzEqInit();
   muzEqRenderUI();
   radioRenderGrid();
+  // Carrega rádios brasileiras via RadioBrowser API (primeira vez)
+  setTimeout(carregarRadiosBrasil, 300);
   // Sync crossfade
   const slCf = document.getElementById('muz-slider-crossfade');
   const valCf = document.getElementById('muz-crossfade-val');
