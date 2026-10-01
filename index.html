@@ -5,14 +5,26 @@
   <title>MARCODOM_GYM // CYBER PRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- PWA -->
+  <!-- PWA / FULLSCREEN -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00f0ff">
+  <meta name="theme-color" content="#050510">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="GYM CYBER PRO">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- Forçar modo fullscreen / standalone no Android Chrome -->
+  <meta name="application-name" content="GYM CYBER PRO">
+  <meta name="screen-orientation" content="portrait">
+  <!-- Oculta barra de endereços em navegadores Android -->
+  <style>
+    @media (display-mode: standalone) {
+      body { background: #050510; }
+    }
+    @media (display-mode: fullscreen) {
+      body { background: #050510; }
+    }
+  </style>
 
   <script>
     window.RV_LOADED = false;
@@ -370,19 +382,20 @@
     ══════════════════════════════════════════ */
     #mini-player {
       display: none;
-      position: fixed; top: 0; left: 0; right: 0;
+      position: fixed; bottom: 0; left: 0; right: 0;
       z-index: 999;
       background: rgba(5,5,16,0.97);
-      border-bottom: 2px solid var(--orange);
-      box-shadow: 0 2px 16px rgba(255,140,0,.18);
-      padding: 6px 10px 5px;
+      border-top: 2px solid var(--orange);
+      box-shadow: 0 -2px 16px rgba(255,140,0,.18);
+      padding: 5px 10px calc(6px + env(safe-area-inset-bottom, 0px));
       flex-direction: column;
       gap: 3px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
     #mini-player.vis { display: flex; }
-    /* empurra telas para baixo quando mini-player está visível */
-    body.mini-player-on .screen { padding-top: 56px; }
-    body.mini-player-on .global-clock { top: 62px; }
+    #mini-player.radio-on { border-top-color: var(--green) !important; box-shadow: 0 -2px 16px rgba(0,255,64,.25) !important; }
+    /* empurra telas para cima quando mini-player está visível na base */
+    body.mini-player-on .screen { padding-bottom: 62px; }
 
     .mini-top-row {
       display: flex; align-items: center; gap: 8px;
@@ -481,6 +494,7 @@
     .radio-grid {
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 8px; margin: 10px 0;
+      max-height: 52vh; overflow-y: auto;
     }
     .radio-item {
       background: rgba(10,12,24,.95);
@@ -1089,8 +1103,11 @@
 <div class="overlay"></div>
 <div id="voz-indicator">▐ TRANSMITINDO ▌</div>
 
-<!-- MINI-PLAYER FLUTUANTE -->
+<!-- MINI-PLAYER FLUTUANTE (BASE) -->
 <div id="mini-player">
+  <div class="mini-prog-bar">
+    <div class="mini-prog-fill" id="mini-prog-fill"></div>
+  </div>
   <div class="mini-top-row">
     <div class="mini-eq-bars">
       <div class="mini-eq-bar"></div>
@@ -1101,14 +1118,11 @@
     </div>
     <div class="mini-nome" id="mini-nome">—</div>
     <div class="mini-btns">
-      <button class="mini-btn" onclick="muzAnterior()" title="Anterior">⏮</button>
-      <button class="mini-btn" id="mini-btn-play" onclick="muzPlayPause()">▶</button>
-      <button class="mini-btn" onclick="muzProxima()" title="Próxima">⏭</button>
-      <button class="mini-btn open-btn" onclick="muzAbrirPlayer()" title="Abrir player">▲</button>
+      <button class="mini-btn" onclick="miniPrev()" title="Anterior / Rádio anterior">⏮</button>
+      <button class="mini-btn" id="mini-btn-play" onclick="miniPlayPause()">▶</button>
+      <button class="mini-btn" onclick="miniNext()" title="Próxima / Próxima rádio">⏭</button>
+      <button class="mini-btn open-btn" onclick="miniAbrirPlayer()" title="Abrir player">🎵</button>
     </div>
-  </div>
-  <div class="mini-prog-bar">
-    <div class="mini-prog-fill" id="mini-prog-fill"></div>
   </div>
 </div>
 
@@ -2174,6 +2188,18 @@ let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
 function iniciarBoot() {
+  // Solicitar tela cheia ao iniciar (PWA / navegador)
+  try {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+    // Bloquear orientação em retrato (mobile)
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('portrait').catch(()=>{});
+    }
+  } catch(_) {}
+
   desbloquearAudio();
   // Lê o nome digitado na tela de boot e salva, se preenchido
   const nomeBootInput = document.getElementById('input-nome-boot');
@@ -3534,9 +3560,11 @@ async function chamadaGemini(prompt, forcarJSON = false) {
   if (!key) throw new Error('SEM_CHAVE');
   const genConfig = forcarJSON
     ? { temperature: 0.7, maxOutputTokens: 8192, responseMimeType: 'application/json' }
-    : { temperature: 0.7, maxOutputTokens: 2048 };
+    : { temperature: 0.7, maxOutputTokens: 4096 };
+
+  // Sem limite de tempo — permite raciocínio completo para treinos complexos
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3544,6 +3572,7 @@ async function chamadaGemini(prompt, forcarJSON = false) {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: genConfig
       })
+      // Sem AbortSignal — sem timeout, a IA pode raciocinar o tempo que precisar
     }
   );
   const data = await resp.json();
@@ -3713,11 +3742,27 @@ async function gerarTreinoIA() {
   }
 
   const nDias = ptDiasSelecionados.length;
-  const prompt = `Personal trainer expert. Gere plano de treino em JSON puro.
-Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, ${nDias} dia(s): ${ptDiasSelecionados.join(', ')}.${obs ? ' Obs: '+obs : ''}
-Regras: distribua grupos musculares por dia; ${nDias <= 3 ? '4-5' : '3-4'} exercícios/dia; séries e reps compatíveis com o nível; instrucao CURTA (máx 80 chars) em pt-BR; retorne SOMENTE JSON válido.
-Formato exato (sem markdown, sem texto fora do JSON):
-{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça a barra ao peito, empurre."}]}]}`;
+  const obsTexto = obs ? `\nRESTRIÇÕES/OBSERVAÇÕES IMPORTANTES (respeite rigorosamente): ${obs}` : '';
+  const prompt = `Você é um personal trainer expert certificado. Gere um plano de treino personalizado em JSON puro, sem markdown, sem texto fora do JSON.
+
+DADOS DO ALUNO:
+- Nome: ${nomeUsuario}
+- Peso: ${peso}kg | Altura: ${altura}cm | Idade: ${idade} anos | Sexo: ${sexo}
+- Biotipo: ${biotipo}
+- Objetivo: ${foco}
+- Nível: ${ptNivelSelecionado}
+- Dias de treino (${nDias} dias): ${ptDiasSelecionados.join(', ')}${obsTexto}
+
+REGRAS:
+1. Distribua grupos musculares estrategicamente pelos dias
+2. ${nDias <= 3 ? '4-5' : '3-4'} exercícios por dia
+3. Séries, reps e descanso compatíveis com o nível "${ptNivelSelecionado}"
+4. Se houver restrições/lesões/dores, EXCLUA completamente os exercícios que afetam a região e substitua por alternativas seguras
+5. instrucao deve ser curta e clara (máx 100 chars) em pt-BR
+6. Retorne SOMENTE o JSON válido abaixo, sem nenhum texto antes ou depois
+
+FORMATO OBRIGATÓRIO:
+{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito + Tríceps","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça a barra ao peito, empurre explosivamente."}]}]}`;
 
   try {
     const texto = await chamadaGemini(prompt, true);
@@ -4730,6 +4775,7 @@ function miniPlayerAtualizar() {
   const mostrar = temMusica && !naTelaMuz && !naTelaLoading;
 
   mp.classList.toggle('vis', mostrar);
+  mp.classList.toggle('radio-on', radioTocando); // verde quando rádio ativa
   document.body.classList.toggle('mini-player-on', mostrar);
 
   if (!mostrar) return;
@@ -4936,12 +4982,33 @@ function muzIniciarCrossfadeWatch() {
 //  RÁDIO ONLINE
 // ══════════════════════════════════════════════════════════════════════
 const RADIO_ESTACOES = [
-  { nome: 'LO-FI HIP HOP',  tag: '// estudo & treino leve',    url: 'https://streams.ilovemusic.de/iloveradio17.mp3' },
-  { nome: 'ELETRÔNICA',     tag: '// energia máxima',          url: 'https://streams.ilovemusic.de/iloveradio2.mp3'  },
-  { nome: 'ROCK CLÁSSICO',  tag: '// força & foco',            url: 'https://streams.ilovemusic.de/iloveradio14.mp3' },
-  { nome: 'FUNK BRASIL',    tag: '// hype brasileiro',         url: 'https://radio.playradio.com.br/6022/stream'     },
-  { nome: 'TRAP / HIP HOP', tag: '// streets motivação',       url: 'https://streams.ilovemusic.de/iloveradio1.mp3'  },
-  { nome: 'REGGAETON',      tag: '// cardio & dança',          url: 'https://streams.ilovemusic.de/iloveradio15.mp3' },
+  // ── INTERNACIONAIS
+  { nome: 'LO-FI HIP HOP',      tag: '// estudo & treino leve',    url: 'https://streams.ilovemusic.de/iloveradio17.mp3',  cat: 'intl' },
+  { nome: 'ELETRÔNICA',         tag: '// energia máxima',          url: 'https://streams.ilovemusic.de/iloveradio2.mp3',   cat: 'intl' },
+  { nome: 'ROCK CLÁSSICO',      tag: '// força & foco',            url: 'https://streams.ilovemusic.de/iloveradio14.mp3',  cat: 'intl' },
+  { nome: 'TRAP / HIP HOP',     tag: '// streets motivação',       url: 'https://streams.ilovemusic.de/iloveradio1.mp3',   cat: 'intl' },
+  { nome: 'REGGAETON',          tag: '// cardio & dança',          url: 'https://streams.ilovemusic.de/iloveradio15.mp3',  cat: 'intl' },
+  // ── FUNK BRASILEIRO
+  { nome: 'FUNK BRASIL',        tag: '// pancadão carioca',        url: 'https://stream.zeno.fm/to6ms2nkmhquv',            cat: 'funk' },
+  { nome: 'FUNK OSTENTAÇÃO',    tag: '// funk paulista',           url: 'https://stream.zeno.fm/0r0xa792kwzuv',            cat: 'funk' },
+  // ── SERTANEJO
+  { nome: 'SERTANEJO TOP',      tag: '// universitário e modão',   url: 'https://stream.zeno.fm/qfpnzc3yt3zuv',           cat: 'sertanejo' },
+  { nome: 'SERTANEJO RAIZ',     tag: '// sertanejo clássico',      url: 'https://stream.zeno.fm/yn65m9mnkw8uv',            cat: 'sertanejo' },
+  { nome: 'SERTANEJO HOJE',     tag: '// hits sertanejos',         url: 'https://stream.zeno.fm/mtj4nnhzphzuv',           cat: 'sertanejo' },
+  // ── PAGODE & SAMBA
+  { nome: 'PAGODE BRASIL',      tag: '// pagode & boteco',         url: 'https://stream.zeno.fm/n0n3g16qnq8uv',           cat: 'pagode' },
+  { nome: 'SAMBA DO BRASIL',    tag: '// samba tradicional',       url: 'https://stream.zeno.fm/j9yqxnuvs3zuv',           cat: 'samba' },
+  { nome: 'SAMBA & CHORO',      tag: '// raiz brasileira',         url: 'https://streams.ilovemusic.de/iloveradio20.mp3', cat: 'samba' },
+  // ── PISEIRO & FORRÓ
+  { nome: 'PISEIRO',            tag: '// vapo vapo',               url: 'https://stream.zeno.fm/kd3rnkwkfw8uv',           cat: 'piseiro' },
+  { nome: 'FORRÓ',              tag: '// forró pé-de-serra',       url: 'https://stream.zeno.fm/dkp2h0kpkuzuv',           cat: 'forro' },
+  // ── SERESTA & MPB
+  { nome: 'SERESTA',            tag: '// seresta romântica',       url: 'https://stream.zeno.fm/q0bv5n6aqnzuv',           cat: 'seresta' },
+  { nome: 'MPB',                tag: '// música popular brasileira', url: 'https://stream.zeno.fm/p8y3smyq1k8uv',         cat: 'mpb' },
+  // ── GOSPEL
+  { nome: 'GOSPEL',             tag: '// louvor & adoração',       url: 'https://stream.zeno.fm/kv3e8rrvfdzuv',           cat: 'gospel' },
+  // ── POP / HITS BRASIL
+  { nome: 'POP BRASIL',         tag: '// hits nacionais',          url: 'https://stream.zeno.fm/x9pvghktkw8uv',           cat: 'pop' },
 ];
 
 let radioAudio     = null;
@@ -4960,6 +5027,18 @@ function radioRenderGrid() {
       </div>
     </div>
   `).join('');
+}
+
+// Navega rádios pelo mini-player
+function radioAnterior() {
+  if (!radioTocando || RADIO_ESTACOES.length === 0) return;
+  const idx = (radioAtualIdx - 1 + RADIO_ESTACOES.length) % RADIO_ESTACOES.length;
+  radioTocar(idx);
+}
+function radioProxima() {
+  if (!radioTocando || RADIO_ESTACOES.length === 0) return;
+  const idx = (radioAtualIdx + 1) % RADIO_ESTACOES.length;
+  radioTocar(idx);
 }
 
 function radioTocar(idx) {
@@ -5186,12 +5265,53 @@ window.muzAbrirPlayer = function() {
   if (muzTocando) setTimeout(muzIniciarWaveform, 200);
 };
 
+// ── Lembrar tela anterior ao abrir música ────────────────────────────
+let musicPreviousScreen = 'screen-home';
+
 // Patch irPara para atualizar mini-player ao trocar de tela
 const _irParaOrig = irPara;
 window.irPara = function(id) {
+  // Registra tela de origem antes de ir para outra
+  const atual = document.querySelector('.screen.active');
+  if (atual && atual.id !== 'screen-music' && atual.id !== 'screen-loading') {
+    window._lastScreenBeforeMusic = atual.id;
+  }
   _irParaOrig(id);
   setTimeout(miniPlayerAtualizar, 80);
 };
+
+// Botão ⏮ do mini-player: navega rádio ou música anterior
+function miniPrev() {
+  if (radioTocando) radioAnterior();
+  else muzAnterior();
+}
+
+// Botão ⏭ do mini-player: navega rádio ou próxima música
+function miniNext() {
+  if (radioTocando) radioProxima();
+  else muzProxima();
+}
+
+// Play/Pause do mini-player: pausa rádio ou música
+function miniPlayPause() {
+  if (radioTocando) {
+    radioParar();
+  } else {
+    muzPlayPause();
+  }
+}
+
+// Botão 🎵 do mini-player: abre player lembrando a tela atual
+function miniAbrirPlayer() {
+  musicPreviousScreen = window._lastScreenBeforeMusic || 'screen-home';
+  muzAbrirPlayer();
+}
+
+// Voltar da tela de música para a tela anterior
+function musicVoltar() {
+  const dest = musicPreviousScreen || 'screen-home';
+  irPara(dest);
+}
 
 // Módulo: Agenda de Treinos
 // ══════════════════════════════════════════════════════════════════════
@@ -5365,7 +5485,7 @@ function agendaLimparHistorico() {
      TELA: PLAYER DE MÚSICAS
 ══════════════════════════════════════════════════════════ -->
 <div class="screen" id="screen-music">
-  <button class="btn-back" onclick="irPara('screen-home')" style="border-color:var(--orange);color:var(--orange)">&lt; Voltar</button>
+  <button class="btn-back" onclick="musicVoltar()" style="border-color:var(--orange);color:var(--orange)">&lt; Voltar</button>
   <div class="config-scroll" style="width:93%;max-width:448px;overflow-y:auto;max-height:92vh;padding-bottom:16px;position:relative;margin-top:28px;">
 
     <!-- PAINEL PLAYER PRINCIPAL -->
@@ -5452,7 +5572,7 @@ function agendaLimparHistorico() {
       <div class="radio-grid" id="radio-grid"><!-- gerado por JS --></div>
 
       <button class="btn-sec" onclick="radioParar()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:4px;">⏹ PARAR RÁDIO</button>
-      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:8px;letter-spacing:.3px;">// Duck de voz também funciona no rádio</div>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:8px;letter-spacing:.3px;">// Barra inferior fica <span style="color:var(--green);">verde</span> quando rádio está ativa · ⏮⏭ no mini-player trocam de estação</div>
     </div>
 
     <!-- PAINEL INTEGRAÇÃO COM VOZ -->
