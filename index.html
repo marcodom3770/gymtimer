@@ -519,6 +519,9 @@
     .radio-estado-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
     .radio-estado-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .radio-item.radio-falha { border-color: rgba(255,0,60,.35); opacity: .7; }
+    .radio-item.radio-falha .radio-item-nome { color: var(--pink); }
+    .radio-item.radio-falha .radio-item-tag { color: rgba(255,0,60,.6); }
 
     /* ── DRAG-TO-REORDER ── */
     .muz-item.dragging { opacity: .45; background: rgba(255,140,0,.12); }
@@ -2002,6 +2005,7 @@
       <!-- BOTÃO GERAR -->
       <div id="pt-loading" class="pt-loading">
         🤖 IA MONTANDO SEU TREINO<span class="pt-loading-dots">...</span>
+        <div id="pt-loading-txt" style="font-size:11px;margin-top:6px;color:var(--dim);letter-spacing:.5px;">⏳ Aguarde...</div>
       </div>
       <button class="btn-sec" id="pt-btn-gerar" onclick="gerarTreinoIA()" style="margin-top:8px;border-color:var(--pink);color:var(--pink);font-size:16px;padding:18px;">🤖 CRIAR MEU TREINO COM IA</button>
 
@@ -2574,7 +2578,8 @@ function renderizarTreinosDoDia() {
         <div class="treino-nome-lbl">${idx + 1}. ${treino.nome.toUpperCase()}</div>
         <div class="treino-series-lbl">${treino.series} SÉRIES</div>
       </div>
-      <div style="display:flex; gap:6px; flex-shrink:0;">
+      <div style="display:flex; gap:5px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="btn-enviar-treino" onclick="iniciarTreinoDaqui(${idx})" title="Iniciar treino a partir deste exercício" style="border-color:var(--green);color:var(--green);font-size:10px;padding:4px 6px;">▶ DAQUI</button>
         <button class="btn-enviar-treino" onclick="abrirModalTransferir(${idx})" title="Enviar para outro dia">➡</button>
         <button class="btn-edit-treino" onclick="abrirModalEditTreino(${idx})" title="Editar">✏</button>
         <button class="btn-del-treino"  onclick="removerTreino(${idx})"         title="Excluir">✕</button>
@@ -2727,6 +2732,31 @@ function iniciarTreinoDoDia() {
     `Ativando rotina de ${diaFala}. ${total} exercício${total>1?'s':''} no programa. Começando com ${listaTreinosDia[0].nome}. Vai com tudo, ${nomeUsuario}!`,
   ];
   falar(frasesIniciar[Math.floor(Math.random()*frasesIniciar.length)], "Iniciando treino.");
+  prepararTreinoAtual();
+  irPara('screen-timer');
+}
+
+// Inicia treino a partir de um exercício específico (sem reiniciar do zero)
+function iniciarTreinoDaqui(idx) {
+  clickBeep();
+  const treinos = planejamentoSemanal[diaSelecionado];
+  if (!treinos || treinos.length === 0) return;
+
+  modoPlanejadoAtivo = true;
+  listaTreinosDia    = treinos;
+  idxTreinoAtual     = idx;
+  modoTreino         = 'musculacao';
+  tempoAtual         = tempoRotina;
+
+  const total   = treinos.length;
+  const ex      = treinos[idx];
+  const nomesDiasFalaInit = { segunda:'segunda-feira', terca:'terça-feira', quarta:'quarta-feira', quinta:'quinta-feira', sexta:'sexta-feira', sabado:'sábado', domingo:'domingo' };
+  const diaFala = nomesDiasFalaInit[diaSelecionado] || diaSelecionado;
+
+  falar(
+    `Iniciando a partir do exercício ${idx+1} de ${total}: ${ex.nome}. ${ex.series} série${ex.series>1?'s':''}. Bora, ${nomeUsuario}!`,
+    `Do exercício ${idx+1}: ${ex.nome}`
+  );
   prepararTreinoAtual();
   irPara('screen-timer');
 }
@@ -3559,25 +3589,35 @@ async function chamadaGemini(prompt, forcarJSON = false) {
   const key = getGeminiKey();
   if (!key) throw new Error('SEM_CHAVE');
   const genConfig = forcarJSON
-    ? { temperature: 0.7, maxOutputTokens: 8192, responseMimeType: 'application/json' }
-    : { temperature: 0.7, maxOutputTokens: 4096 };
+    ? { temperature: 0.2, maxOutputTokens: 3072, responseMimeType: 'application/json' }
+    : { temperature: 0.7, maxOutputTokens: 2048 };
 
-  // Sem limite de tempo — permite raciocínio completo para treinos complexos
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${key}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: genConfig
-      })
-      // Sem AbortSignal — sem timeout, a IA pode raciocinar o tempo que precisar
-    }
-  );
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.candidates[0].content.parts[0].text;
+  // Timeout de 90 segundos (suficiente para a IA gerar o plano)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: genConfig
+        })
+      }
+    );
+    clearTimeout(timeoutId);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.candidates[0].content.parts[0].text;
+  } catch(e) {
+    clearTimeout(timeoutId);
+    if (e.name === 'AbortError') throw new Error('Tempo esgotado. Verifique sua conexão e tente novamente.');
+    throw e;
+  }
 }
 
 // Parser robusto: extrai JSON válido mesmo com markdown, texto antes/depois, ou espaços
@@ -3716,12 +3756,25 @@ async function gerarTreinoIA() {
   const btnGerar = document.getElementById('pt-btn-gerar');
   loading.style.display  = 'block';
   btnGerar.style.display = 'none';
-  falar('Enviando seus dados para a Inteligência Artificial. Montando plano personalizado, ' + nomeUsuario + '!', 'Gerando com IA...');
+  falar('Enviando seus dados para a Inteligência Artificial. Aguarde enquanto monto seu plano personalizado, ' + nomeUsuario + '!', 'Gerando com IA...');
+
+  // Contador de tempo visível para o usuário não achar que travou
+  let _iaSegundos = 0;
+  const _iaTimer = setInterval(() => {
+    _iaSegundos++;
+    if (loading.style.display !== 'none') {
+      const el = document.getElementById('pt-loading-txt');
+      if (el) el.textContent = '⏳ IA trabalhando... ' + _iaSegundos + 's';
+    } else {
+      clearInterval(_iaTimer);
+    }
+  }, 1000);
 
   const key = getGeminiKey();
 
   if (!key) {
     // Sem chave → fallback local com aviso
+    clearInterval(_iaTimer);
     falar('Usando modo local. Configure a chave Gemini nas configurações para IA real!', 'Modo local...');
     setTimeout(() => {
       try {
@@ -3742,30 +3795,17 @@ async function gerarTreinoIA() {
   }
 
   const nDias = ptDiasSelecionados.length;
-  const obsTexto = obs ? `\nRESTRIÇÕES/OBSERVAÇÕES IMPORTANTES (respeite rigorosamente): ${obs}` : '';
-  const prompt = `Você é um personal trainer expert certificado. Gere um plano de treino personalizado em JSON puro, sem markdown, sem texto fora do JSON.
-
-DADOS DO ALUNO:
-- Nome: ${nomeUsuario}
-- Peso: ${peso}kg | Altura: ${altura}cm | Idade: ${idade} anos | Sexo: ${sexo}
-- Biotipo: ${biotipo}
-- Objetivo: ${foco}
-- Nível: ${ptNivelSelecionado}
-- Dias de treino (${nDias} dias): ${ptDiasSelecionados.join(', ')}${obsTexto}
-
-REGRAS:
-1. Distribua grupos musculares estrategicamente pelos dias
-2. ${nDias <= 3 ? '4-5' : '3-4'} exercícios por dia
-3. Séries, reps e descanso compatíveis com o nível "${ptNivelSelecionado}"
-4. Se houver restrições/lesões/dores, EXCLUA completamente os exercícios que afetam a região e substitua por alternativas seguras
-5. instrucao deve ser curta e clara (máx 100 chars) em pt-BR
-6. Retorne SOMENTE o JSON válido abaixo, sem nenhum texto antes ou depois
-
-FORMATO OBRIGATÓRIO:
-{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito + Tríceps","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça a barra ao peito, empurre explosivamente."}]}]}`;
+  const obsTexto = obs ? ` Restrições: ${obs}.` : '';
+  const exPorDia = nDias <= 3 ? 5 : 4;
+  const prompt = `Personal trainer expert. Gere plano de treino em JSON puro (sem markdown).
+Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, dias: ${ptDiasSelecionados.join(',')}${obsTexto}
+Regras: ${exPorDia} exercícios/dia, grupos musculares variados, séries/reps/descanso compatíveis com o nível, instrucao máx 80 chars em pt-BR${obs ? ', RESPEITE as restrições' : ''}.
+Retorne APENAS JSON válido neste formato exato:
+{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça ao peito, empurre explosivo."}]}]}`;
 
   try {
     const texto = await chamadaGemini(prompt, true);
+    clearInterval(_iaTimer);
     ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
@@ -3775,11 +3815,12 @@ FORMATO OBRIGATÓRIO:
     renderizarPlano(); irPara('screen-pt-plano');
     falar('Plano criado com Inteligência Artificial, ' + nomeUsuario + '! Gemini montou seu treino personalizado. Hora de arrasar!', 'Plano IA criado!');
   } catch(err) {
+    clearInterval(_iaTimer);
     loading.style.display = 'none'; btnGerar.style.display = 'block';
     if (err.message.includes('API_KEY_INVALID') || err.message.includes('PERMISSION_DENIED')) {
       alert('❌ Chave API inválida!\n\nVá em Configurações → 🤖 IA e adicione uma chave válida do Google AI Studio.');
     } else {
-      alert('⚠️ Erro na IA (' + err.message + ')\n\nUsando plano local como fallback...');
+      alert('⚠️ Erro na IA:\n' + err.message + '\n\nUsando plano local como fallback...');
       try {
         ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0 });
         localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
@@ -4982,7 +5023,7 @@ function muzIniciarCrossfadeWatch() {
 //  RÁDIO ONLINE
 // ══════════════════════════════════════════════════════════════════════
 const RADIO_ESTACOES = [
-  // ── INTERNACIONAIS — ilovemusic.de (CORS confirmado, sempre funcionam)
+  // ── INTERNACIONAIS — ilovemusic.de (CORS confirmado)
   { nome: 'LO-FI HIP HOP',    tag: '// estudo & treino leve',      url: 'https://streams.ilovemusic.de/iloveradio17.mp3' },
   { nome: 'ELETRÔNICA',       tag: '// energia máxima',            url: 'https://streams.ilovemusic.de/iloveradio2.mp3'  },
   { nome: 'ROCK CLÁSSICO',    tag: '// força & foco',              url: 'https://streams.ilovemusic.de/iloveradio14.mp3' },
@@ -4991,16 +5032,19 @@ const RADIO_ESTACOES = [
   { nome: 'LATIN POP',        tag: '// pop latino',                url: 'https://streams.ilovemusic.de/iloveradio8.mp3'  },
   { nome: 'R&B / SOUL',       tag: '// groove & soul',             url: 'https://streams.ilovemusic.de/iloveradio4.mp3'  },
   { nome: 'DANCE / EDM',      tag: '// alta energia',              url: 'https://streams.ilovemusic.de/iloveradio5.mp3'  },
-  // ── BRASILEIRAS — leanstream.co (CDN das maiores rádios do Brasil)
-  { nome: 'JOVEM PAN FM',     tag: '// a maior do Brasil',         url: 'https://jovempanfm.leanstream.co/JPFM-SC.aac'   },
-  { nome: 'MIX FM',           tag: '// pop e hits nacionais',      url: 'https://mixfm.leanstream.co/MXFM-SC.aac'        },
-  { nome: 'TRANSAMÉRICA',     tag: '// pop internacional',         url: 'https://transamerica.leanstream.co/TFAM-SC.aac' },
-  { nome: 'BAND FM',          tag: '// variedades BR',             url: 'https://bandfm.leanstream.co/BNDFM-SC.aac'      },
-  { nome: 'RÁDIO GLOBO',      tag: '// esporte & entretenimento',  url: 'https://radioglobo.leanstream.co/GLOBO-SC.aac'  },
-  // ── SERTANEJO
   { nome: 'SERTANEJO POP',    tag: '// universitário & modão',     url: 'https://streams.ilovemusic.de/iloveradio3.mp3'  },
+  { nome: 'METAL / HARD',     tag: '// treino pesado',             url: 'https://streams.ilovemusic.de/iloveradio6.mp3'  },
+  // ── BRASILEIRAS — streams diretos via RadioBrowser (CORS aberto)
+  { nome: 'JOVEM PAN FM',     tag: '// a maior do Brasil',         url: 'https://stream.zeno.fm/y0bzy0yn97zuv'           },
+  { nome: 'MIX FM SP',        tag: '// pop e hits nacionais',      url: 'https://stream.zeno.fm/f3wvbbqmdg8uv'           },
+  { nome: 'BAND FM SP',       tag: '// variedades BR',             url: 'https://stream.zeno.fm/4ywvkwgt7k8uv'           },
+  { nome: 'RÁDIO TRANSAMÉRICA', tag: '// pop internacional',       url: 'https://stream.zeno.fm/0r0xa792kwzuv'           },
+  { nome: 'ENERGIA 97 FM',    tag: '// hits e eletrônica SP',      url: 'https://stream.zeno.fm/2r0xa792kwzuv'           },
   // Rádios brasileiras por gênero são carregadas dinamicamente pelo RadioBrowser API
 ];
+
+// Mapa de índices com falha na sessão atual (para feedback visual)
+const radioFalhas = new Set();
 
 let radioAudio     = null;
 let radioTocando   = false;
@@ -5009,15 +5053,18 @@ let radioAtualIdx  = -1;
 function radioRenderGrid() {
   const grid = document.getElementById('radio-grid');
   if (!grid) return;
-  grid.innerHTML = RADIO_ESTACOES.map((e, i) => `
-    <div class="radio-item ${i === radioAtualIdx ? 'ativo' : ''}" onclick="radioTocar(${i})">
-      <div class="radio-item-nome">${e.nome}</div>
-      <div class="radio-item-tag">${e.tag}</div>
+  grid.innerHTML = RADIO_ESTACOES.map((e, i) => {
+    const falhou = radioFalhas.has(i);
+    const ativo  = i === radioAtualIdx;
+    return `
+    <div class="radio-item ${ativo ? 'ativo' : ''} ${falhou ? 'radio-falha' : ''}" onclick="radioTocar(${i})">
+      <div class="radio-item-nome">${e.nome}${falhou ? ' ⚠' : ''}</div>
+      <div class="radio-item-tag">${falhou ? '// falha – toque para tentar' : e.tag}</div>
       <div class="radio-item-eq">
         <span></span><span></span><span></span><span></span>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── CARREGAMENTO DINÂMICO via RadioBrowser API (banco público de rádios verificadas) ──
@@ -5109,6 +5156,8 @@ function radioProxima() {
   radioTocar(idx);
 }
 
+let _radioConectandoTimer = null;
+
 function radioTocar(idx) {
   clickBeep();
   desbloquearAudio();
@@ -5122,25 +5171,64 @@ function radioTocar(idx) {
   // Mesmo índice = toggle pause/play
   if (radioAtualIdx === idx && radioTocando) { radioParar(); return; }
 
-  radioAtualIdx = idx;
+  // Limpa timer anterior se houver
+  if (_radioConectandoTimer) { clearTimeout(_radioConectandoTimer); _radioConectandoTimer = null; }
 
-  if (!radioAudio) radioAudio = new Audio();
+  radioAtualIdx = idx;
+  const estacao = RADIO_ESTACOES[idx];
+
+  if (!radioAudio) { radioAudio = new Audio(); }
   radioAudio.pause();
-  radioAudio.src = RADIO_ESTACOES[idx].url;
+
+  // Limpa handlers anteriores
+  radioAudio.onerror = null;
+  radioAudio.onplaying = null;
+
+  radioAudio.src = estacao.url;
   radioAudio.volume = muzVolume / 100;
+  radioAtualizarStatus('⏳ Conectando: ' + estacao.nome + '...', false);
+
+  // Handler de erro do stream
+  radioAudio.onerror = function() {
+    if (_radioConectandoTimer) { clearTimeout(_radioConectandoTimer); _radioConectandoTimer = null; }
+    radioFalhas.add(idx);
+    radioTocando = false; radioAtualIdx = -1;
+    radioAtualizarStatus('⚠ Stream indisponível. Tente outra estação.', false);
+    radioRenderGrid();
+    miniPlayerAtualizar();
+  };
+
+  // Confirmação de que está tocando de verdade
+  radioAudio.onplaying = function() {
+    if (_radioConectandoTimer) { clearTimeout(_radioConectandoTimer); _radioConectandoTimer = null; }
+    radioFalhas.delete(idx); // limpa falha anterior se agora funciona
+    radioRenderGrid();
+  };
+
   radioAudio.play()
     .then(() => {
       radioTocando = true;
-      radioAtualizarStatus('🟢 AO VIVO — ' + RADIO_ESTACOES[idx].nome, true);
+      radioAtualizarStatus('🟢 AO VIVO — ' + estacao.nome, true);
       radioRenderGrid();
       miniPlayerAtualizar();
+      // Timeout de segurança: se após 12s o áudio não avançou, marca como falha
+      _radioConectandoTimer = setTimeout(() => {
+        if (radioAudio && radioTocando && radioAtualIdx === idx) {
+          if (radioAudio.currentTime === 0) {
+            radioFalhas.add(idx);
+            radioTocando = false; radioAtualIdx = -1;
+            radioAtualizarStatus('⚠ Sem sinal. Tente outra estação.', false);
+            radioRenderGrid(); miniPlayerAtualizar();
+          }
+        }
+      }, 12000);
     })
-    .catch(e => {
+    .catch(() => {
+      radioFalhas.add(idx);
       radioTocando = false; radioAtualIdx = -1;
-      radioAtualizarStatus('⚠ Falha na conexão. Tente outra estação.', false);
+      radioAtualizarStatus('⚠ Falha ao conectar. Tente outra estação.', false);
+      radioRenderGrid(); miniPlayerAtualizar();
     });
-
-  radioAtualizarStatus('⏳ Conectando...', false);
 }
 
 function radioParar() {
@@ -5320,6 +5408,13 @@ window.muzCarregarFaixa = function(idx, autoplay) {
 // Patch muzAbrirPlayer para render EQ e rádio
 const _muzAbrirPlayerOrig = muzAbrirPlayer;
 window.muzAbrirPlayer = function() {
+  // Captura a tela atual ANTES de trocar, para o botão Voltar funcionar
+  // (cobre tanto abertura pelo botão do home quanto pelo mini-player durante treino)
+  const _telaAtual = document.querySelector('.screen.active');
+  if (_telaAtual && _telaAtual.id !== 'screen-music' && _telaAtual.id !== 'screen-loading') {
+    musicPreviousScreen = _telaAtual.id;
+    window._lastScreenBeforeMusic = _telaAtual.id;
+  }
   _muzAbrirPlayerOrig();
   muzEqInit();
   muzEqRenderUI();
