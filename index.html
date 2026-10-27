@@ -71,6 +71,18 @@
       border: 1px solid rgba(0, 240, 255, 0.3);
       border-radius: 4px;
     }
+    /* BOTÃO AMPLIAR ao lado do relógio */
+    #btn-fullscreen-clock {
+      position: fixed; top: 12px; right: calc(15px + clamp(88px,22vw,110px));
+      background: rgba(5,5,16,0.7); border: 1px solid rgba(0,240,255,0.3);
+      border-radius: 4px; color: var(--cyan);
+      font-size: clamp(11px,3vw,14px); z-index: 1000;
+      width: clamp(26px,7vw,32px); height: clamp(22px,6vw,26px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background .2s;
+    }
+    #btn-fullscreen-clock:active { background: rgba(0,240,255,0.2); }
 
     .screen {
       display: none; position: fixed;
@@ -1129,7 +1141,8 @@
   </div>
 </div>
 
-<!-- RELÓGIO GLOBAL -->
+<!-- RELÓGIO GLOBAL + BOTÃO FULLSCREEN -->
+<button id="btn-fullscreen-clock" onclick="toggleFullscreen()" title="Ampliar / tela cheia">⛶</button>
 <div id="global-clock" class="global-clock">00:00</div>
 
 <!-- TELA: LOADING BOOT -->
@@ -1977,6 +1990,41 @@
         <option value="Saúde">❤️ Saúde e qualidade de vida</option>
       </select>
 
+      <!-- MODELO DE TREINO -->
+      <span class="pt-label">📋 MODELO DE TREINO</span>
+      <select class="pt-select" id="pt-modelo">
+        <option value="auto">🤖 Automático (IA escolhe o melhor)</option>
+        <option value="fullbody">🏋️ Full Body (corpo todo por sessão)</option>
+        <option value="ABC">📐 ABC (3 grupos por treino)</option>
+        <option value="ABCD">📐 ABCD (divisão clássica)</option>
+        <option value="push_pull">💪 Push / Pull / Pernas</option>
+        <option value="hiit">⚡ HIIT / Funcional</option>
+        <option value="cardio_muscu">🏃 Cardio + Musculação</option>
+      </select>
+
+      <!-- LOCAL DO TREINO -->
+      <span class="pt-label">🏢 LOCAL DO TREINO</span>
+      <div style="display:flex;gap:8px;margin-bottom:12px;" id="pt-local-row">
+        <button class="pt-nivel-btn ativo" data-local="Academia" onclick="ptSelecionarLocal(this)" style="font-size:clamp(10px,2.8vw,13px);">🏋️ ACADEMIA</button>
+        <button class="pt-nivel-btn" data-local="Casa" onclick="ptSelecionarLocal(this)" style="font-size:clamp(10px,2.8vw,13px);">🏠 EM CASA</button>
+        <button class="pt-nivel-btn" data-local="Ar livre" onclick="ptSelecionarLocal(this)" style="font-size:clamp(10px,2.8vw,13px);">🌳 AR LIVRE</button>
+      </div>
+
+      <!-- EQUIPAMENTOS (aparece ao escolher Casa ou Ar livre) -->
+      <div id="pt-equip-block" style="display:none;">
+        <span class="pt-label">🔧 EQUIPAMENTOS DISPONÍVEIS</span>
+        <div id="pt-equip-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <button class="pt-nivel-btn" data-eq="Halteres" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🏋 Halteres</button>
+          <button class="pt-nivel-btn" data-eq="Barra" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🪛 Barra</button>
+          <button class="pt-nivel-btn" data-eq="Anilhas" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">⭕ Anilhas</button>
+          <button class="pt-nivel-btn" data-eq="Elástico" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🔴 Elástico</button>
+          <button class="pt-nivel-btn" data-eq="Banco" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🪑 Banco</button>
+          <button class="pt-nivel-btn" data-eq="Kettlebell" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🏋 Kettlebell</button>
+          <button class="pt-nivel-btn" data-eq="Barra fixa" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🔩 Barra fixa</button>
+          <button class="pt-nivel-btn ativo" data-eq="Peso do corpo" onclick="ptToggleEquip(this)" style="font-size:clamp(9px,2.5vw,11px);flex:none;padding:8px 10px;">🧍 Peso corporal</button>
+        </div>
+      </div>
+
       <!-- DIAS DA SEMANA -->
       <span class="pt-label">📅 DIAS QUE CONSEGUE TREINAR</span>
       <div class="pt-dias-row" id="pt-dias-row">
@@ -2191,18 +2239,32 @@ let uriVozEscolhida = localStorage.getItem('gym_voz_uri')    || '';
 let nivelVozPref    = localStorage.getItem('gym_voz_nivel')  || 'full';
 let vozesNativasGlobais = [];
 
-function iniciarBoot() {
-  // Solicitar tela cheia ao iniciar (PWA / navegador)
+function toggleFullscreen() {
   try {
     const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
-    // Bloquear orientação em retrato (mobile)
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('portrait').catch(()=>{});
+    const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+    const btn = document.getElementById('btn-fullscreen-clock');
+    if (!fsEl) {
+      if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+      if (btn) btn.textContent = '⮌';
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(()=>{});
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      if (btn) btn.textContent = '⛶';
     }
   } catch(_) {}
+}
+// Atualiza ícone quando fullscreen muda por outra razão (ex: botão voltar)
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('btn-fullscreen-clock');
+  if (!btn) return;
+  btn.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? '⮌' : '⛶';
+});
+
+function iniciarBoot() {
 
   desbloquearAudio();
   // Lê o nome digitado na tela de boot e salva, se preenchido
@@ -3545,6 +3607,36 @@ function voltarPlanoIA() {
   irPara('screen-pt-plano');
 }
 
+// --- SELEÇÃO DE LOCAL E EQUIPAMENTOS ---
+let ptLocalSelecionado   = 'Academia';
+let ptEquipSelecionados  = ['Peso do corpo'];
+
+function ptSelecionarLocal(btn) {
+  clickBeep();
+  document.querySelectorAll('#pt-local-row .pt-nivel-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  ptLocalSelecionado = btn.getAttribute('data-local');
+  const bloco = document.getElementById('pt-equip-block');
+  if (ptLocalSelecionado === 'Academia') {
+    bloco.style.display = 'none';
+  } else {
+    bloco.style.display = 'block';
+  }
+}
+
+function ptToggleEquip(btn) {
+  clickBeep();
+  const eq = btn.getAttribute('data-eq');
+  if (btn.classList.contains('ativo')) {
+    if (ptEquipSelecionados.length <= 1) return; // mínimo 1
+    btn.classList.remove('ativo');
+    ptEquipSelecionados = ptEquipSelecionados.filter(e => e !== eq);
+  } else {
+    btn.classList.add('ativo');
+    ptEquipSelecionados.push(eq);
+  }
+}
+
 // --- SELEÇÃO DE DIAS E NÍVEL ---
 function ptToggleDia(btn) {
   clickBeep();
@@ -3740,6 +3832,9 @@ async function gerarTreinoIA() {
   const biotipo= document.getElementById('pt-biotipo').value;
   const foco   = document.getElementById('pt-foco').value;
   const obs    = document.getElementById('pt-obs').value.trim();
+  const modelo = document.getElementById('pt-modelo') ? document.getElementById('pt-modelo').value : 'auto';
+  const local  = ptLocalSelecionado;
+  const equips = ptLocalSelecionado === 'Academia' ? [] : ptEquipSelecionados.slice();
 
   if (!peso || !altura || !idade) {
     falar('Preencha peso, altura e idade para continuar, ' + nomeUsuario + '.', 'Dados incompletos!');
@@ -3778,10 +3873,10 @@ async function gerarTreinoIA() {
     falar('Usando modo local. Configure a chave Gemini nas configurações para IA real!', 'Modo local...');
     setTimeout(() => {
       try {
-        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0 });
+        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0, modelo, local, equips });
         localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
         localStorage.setItem(PT_SEMANAS_KEY, '0');
-        localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
+        localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado,modelo,local,equips}));
         ptSemanasConcluidas = 0;
         loading.style.display = 'none'; btnGerar.style.display = 'block';
         renderizarPlano(); irPara('screen-pt-plano');
@@ -3797,11 +3892,13 @@ async function gerarTreinoIA() {
   const nDias = ptDiasSelecionados.length;
   const obsTexto = obs ? ` Restrições: ${obs}.` : '';
   const exPorDia = nDias <= 3 ? 5 : 4;
+  const localTexto = local !== 'Academia' ? ` Local: ${local}. Equipamentos disponíveis: ${equips.join(', ')}.` : ' Local: Academia (todos os equipamentos disponíveis).';
+  const modeloTexto = modelo !== 'auto' ? ` Modelo de treino: ${modelo}.` : '';
   const prompt = `Personal trainer expert. Gere plano de treino em JSON puro (sem markdown).
-Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, dias: ${ptDiasSelecionados.join(',')}${obsTexto}
-Regras: ${exPorDia} exercícios/dia, grupos musculares variados, séries/reps/descanso compatíveis com o nível, instrucao máx 80 chars em pt-BR${obs ? ', RESPEITE as restrições' : ''}.
+Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, dias: ${ptDiasSelecionados.join(',')}${obsTexto}${localTexto}${modeloTexto}
+Regras: ${exPorDia} exercícios/dia, grupos musculares variados, séries/reps/descanso compatíveis com o nível, instrucao máx 80 chars em pt-BR. RESPEITE o local e equipamentos. ${modelo === 'fullbody' ? 'OBRIGATÓRIO: cada dia deve treinar o corpo inteiro (Full Body).' : ''}${obs ? ' RESPEITE as restrições.' : ''}
 Retorne APENAS JSON válido neste formato exato:
-{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça ao peito, empurre explosivo."}]}]}`;
+{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Full Body","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça ao peito, empurre explosivo."}]}]}`;
 
   try {
     const texto = await chamadaGemini(prompt, true);
@@ -3809,7 +3906,7 @@ Retorne APENAS JSON válido neste formato exato:
     ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
-    localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado}));
+    localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado,modelo,local,equips}));
     ptSemanasConcluidas = 0;
     loading.style.display = 'none'; btnGerar.style.display = 'block';
     renderizarPlano(); irPara('screen-pt-plano');
@@ -3822,7 +3919,7 @@ Retorne APENAS JSON válido neste formato exato:
     } else {
       alert('⚠️ Erro na IA:\n' + err.message + '\n\nUsando plano local como fallback...');
       try {
-        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0 });
+        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0, modelo, local, equips });
         localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
         localStorage.setItem(PT_SEMANAS_KEY, '0'); ptSemanasConcluidas = 0;
         renderizarPlano(); irPara('screen-pt-plano');
@@ -3832,8 +3929,11 @@ Retorne APENAS JSON válido neste formato exato:
 }
 
 // ── ENGINE LOCAL DE GERAÇÃO DE TREINOS ──────────────────────────────────
-function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, nivel, evolucao }) {
+function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, nivel, evolucao, modelo, local, equips }) {
   evolucao = evolucao || 0;
+  modelo   = modelo   || 'auto';
+  local    = local    || 'Academia';
+  equips   = equips   || [];
 
   // Multiplicadores por nível + evolução
   const lvl = { 'Iniciante':0, 'Intermediário':1, 'Avançado':2, 'Pro':3 }[nivel] || 0;
@@ -3912,13 +4012,50 @@ function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, niv
     ]
   };
 
+  // ── FILTRO POR LOCAL/EQUIPAMENTOS ─────────────────────────────────────
+  // Para casa/ar livre, filtra exercícios que não precisam de máquinas
+  const isCasa = local !== 'Academia';
+  const temHalteres   = !isCasa || equips.includes('Halteres');
+  const temBarra      = !isCasa || equips.includes('Barra') || equips.includes('Anilhas');
+  const temElastico   = equips.includes('Elástico');
+  const temBancoFisico= !isCasa || equips.includes('Banco');
+  const temKettlebell = equips.includes('Kettlebell');
+  const temBarraFixa  = equips.includes('Barra fixa');
+
+  // Filtra os bancos de exercícios conforme equipamentos disponíveis
+  function filtrarExercicios(pool) {
+    if (!isCasa) return pool; // academia = tudo disponível
+    return pool.filter(ex => {
+      const n = ex.nome.toLowerCase();
+      const maquinas = ['máquina','polia','pulley','leg press','cadeira ext','cadeira flex','crossover','remada sentado na pol','puxada','pulldown'];
+      if (maquinas.some(m => n.includes(m))) return false;
+      if ((n.includes('barra') || n.includes('supino') || n.includes('terra') || n.includes('rosca direta')) && !temBarra) return false;
+      if ((n.includes('halter') || n.includes('rosca altern') || n.includes('desenvolvimento')) && !temHalteres) return false;
+      if (n.includes('banco') && !temBancoFisico) return false;
+      if (n.includes('kettlebell') && !temKettlebell) return false;
+      if (n.includes('barra fixa') || n.includes('pullup') || n.includes('barra fix')) return !temBarraFixa ? false : true;
+      return true;
+    });
+  }
+
   // ── ESTRUTURAS DE TREINO POR DIAS/SEMANA ──────────────────────────────
   const isCardio   = foco === 'Condicionamento' || foco === 'Emagrecimento';
   const isGluteo   = foco === 'Hipertrofia' && sexo === 'Feminino';
   const isForca    = foco === 'Força';
 
+  const nDias = Math.min(dias.length, 7);
+
+  // Decide modelo final
+  let modeloFinal = modelo;
+  if (modeloFinal === 'auto') {
+    if (isCasa) modeloFinal = nDias <= 3 ? 'fullbody' : 'ABC';
+    else if (nDias <= 2) modeloFinal = 'fullbody';
+    else if (isCardio) modeloFinal = 'cardio_muscu';
+    else modeloFinal = nDias <= 3 ? 'ABC' : 'ABCD';
+  }
+
   // Divisões possíveis por número de dias
-  const divisoes = {
+  const divisoesPadrao = {
     1: [['peito','costas','pernas','ombro','biceps','triceps','abdomen']],
     2: [['peito','costas','biceps','triceps'],['pernas','ombro','gluteo','abdomen']],
     3: [['peito','triceps','ombro'],['costas','biceps','abdomen'],['pernas','gluteo']],
@@ -3928,8 +4065,32 @@ function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, niv
     7: [['peito','triceps'],['costas','biceps'],['pernas'],['ombro'],['gluteo'],['abdomen','cardio'],['cardio']],
   };
 
-  const nDias = Math.min(dias.length, 7);
-  const divisao = divisoes[nDias] || divisoes[3];
+  // Full Body: todos os dias treinam o corpo inteiro
+  const fullBodyGrupos = isGluteo
+    ? ['peito','costas','gluteo','pernas','ombro','abdomen']
+    : ['peito','costas','pernas','ombro','biceps','triceps','abdomen'];
+
+  // Push/Pull/Legs
+  const pushPullLegs = [['peito','ombro','triceps'],['costas','biceps'],['pernas','gluteo']];
+
+  // Cardio + Musculação
+  const cardioMuscu = [['cardio','abdomen'],['costas','biceps'],['pernas','gluteo'],['cardio','abdomen'],['peito','ombro','triceps']];
+
+  // HIIT funcional
+  const hiitGrupos = [['cardio','abdomen','pernas']];
+
+  let divisao;
+  if (modeloFinal === 'fullbody') {
+    divisao = Array(nDias).fill(fullBodyGrupos);
+  } else if (modeloFinal === 'push_pull') {
+    divisao = pushPullLegs;
+  } else if (modeloFinal === 'cardio_muscu') {
+    divisao = cardioMuscu;
+  } else if (modeloFinal === 'hiit') {
+    divisao = hiitGrupos;
+  } else {
+    divisao = divisoesPadrao[nDias] || divisoesPadrao[3];
+  }
 
   const grupos_labels = {
     peito:'Peito', costas:'Costas', pernas:'Pernas', ombro:'Ombros',
@@ -3944,8 +4105,9 @@ function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, niv
     // Escolhe exercícios de cada grupo (3 por grupo se múltiplos, 5 se único)
     let exercicios = [];
     gruposDia.forEach(grupo => {
-      const pool = BANCO[grupo] || [];
-      const qtd  = gruposDia.length === 1 ? Math.min(5, pool.length) : Math.min(3, pool.length);
+      const pool = filtrarExercicios(BANCO[grupo] || []);
+      const minPool = Math.max(pool.length, 1);
+      const qtd  = gruposDia.length === 1 ? Math.min(5, minPool) : Math.min(3, minPool);
       // Shuffle determinístico baseado no índice do dia + evo
       const seed = i + evo * 7;
       const shuffled = pool.slice().sort((a,b) => {
@@ -3972,7 +4134,9 @@ function ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, dias, niv
     return { diaNome, grupoMuscular: grupoLabel, exercicios };
   });
 
-  const subtitulo = `Plano de ${foco} · ${nivel}${evo > 0 ? ' · Ciclo +'+ evo : ''} · ${nDias}x por semana`;
+  const modeloLabel = {'fullbody':'Full Body','ABC':'ABC','ABCD':'ABCD','push_pull':'Push/Pull/Legs','hiit':'HIIT','cardio_muscu':'Cardio+Muscu','auto':''}[modeloFinal] || modeloFinal;
+  const localLabel = local !== 'Academia' ? ` · ${local}` : '';
+  const subtitulo = `Plano de ${foco} · ${nivel} · ${modeloLabel}${localLabel}${evo > 0 ? ' · Ciclo +'+evo : ''} · ${nDias}x/sem`;
   return { subtitulo, dias: diasMontados };
 }
 
@@ -4776,6 +4940,11 @@ function muzAbrirPlayer() {
   const valDuck    = document.getElementById('muz-duck-val');
   if (sliderDuck) sliderDuck.value = muzVolDucked;
   if (valDuck)    valDuck.textContent = muzVolDucked + '%';
+  // Sync volume do rádio
+  const sliderRadioVol = document.getElementById('radio-slider-vol');
+  const valRadioVol    = document.getElementById('radio-vol-val');
+  if (sliderRadioVol) sliderRadioVol.value = radioVolume;
+  if (valRadioVol)    valRadioVol.textContent = radioVolume + '%';
   const togInteg = document.getElementById('muz-toggle-integ');
   if (togInteg) togInteg.classList.toggle('on', muzIntegracao);
   muzAtualizarVisibilidadeVolDuck();
@@ -5047,6 +5216,7 @@ const RADIO_ESTACOES = [
 const radioFalhas = new Set();
 
 let radioAudio     = null;
+let radioVolume    = parseInt(localStorage.getItem('gym_radio_vol') || '80'); // volume independente do rádio
 let radioTocando   = false;
 let radioAtualIdx  = -1;
 
@@ -5185,7 +5355,7 @@ function radioTocar(idx) {
   radioAudio.onplaying = null;
 
   radioAudio.src = estacao.url;
-  radioAudio.volume = muzVolume / 100;
+  radioAudio.volume = radioVolume / 100;
   radioAtualizarStatus('⏳ Conectando: ' + estacao.nome + '...', false);
 
   // Handler de erro do stream
@@ -5239,6 +5409,15 @@ function radioParar() {
   miniPlayerAtualizar();
 }
 
+// ── Volume independente do rádio ────────────────────────────────────────
+function radioSetVolume(v) {
+  radioVolume = parseInt(v);
+  if (radioAudio && radioTocando) radioAudio.volume = radioVolume / 100;
+  const el = document.getElementById('radio-vol-val');
+  if (el) el.textContent = radioVolume + '%';
+  localStorage.setItem('gym_radio_vol', radioVolume);
+}
+
 function radioAtualizarStatus(txt, on) {
   const el  = document.getElementById('radio-status-txt');
   const dot = document.getElementById('radio-dot');
@@ -5258,7 +5437,7 @@ function radioRestore() {
   if (!muzEraDucked || !radioAudio) return;
   muzEraDucked = false;
   if (muzComportVoz === 'pausar') { radioAudio.play().catch(()=>{}); }
-  else { radioAudio.volume = muzVolume / 100; }
+  else { radioAudio.volume = radioVolume / 100; }
   muzEraPlaying = false;
 }
 
@@ -5736,7 +5915,17 @@ function agendaLimparHistorico() {
 
       <div class="radio-grid" id="radio-grid"><!-- gerado por JS --></div>
 
-      <button class="btn-sec" onclick="radioParar()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:4px;">⏹ PARAR RÁDIO</button>
+      <!-- Volume do rádio independente -->
+      <div class="slider-row" style="margin-top:10px;">
+        <span class="slider-lbl" style="color:var(--cyan);">📻 VOL</span>
+        <input type="range" id="radio-slider-vol" min="0" max="100" value="80"
+               oninput="radioSetVolume(this.value)"
+               style="background:rgba(0,240,255,.25); flex:1;">
+        <span class="slider-val" id="radio-vol-val" style="color:var(--cyan);">80%</span>
+      </div>
+      <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:2px;letter-spacing:.3px;">// Somente o volume do rádio — a voz continua no volume normal</div>
+
+      <button class="btn-sec" onclick="radioParar()" style="border-color:var(--pink);color:var(--pink);font-size:11px;padding:9px;margin-top:8px;">⏹ PARAR RÁDIO</button>
       <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);font-weight:bold;margin-top:8px;letter-spacing:.3px;">// Barra inferior fica <span style="color:var(--green);">verde</span> quando rádio está ativa · ⏮⏭ no mini-player trocam de estação</div>
     </div>
 
