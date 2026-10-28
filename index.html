@@ -107,6 +107,7 @@
     .glitch { position:relative; font-weight:bold; text-align:center; }
     .glitch::before { content:attr(data-text); position:absolute; left:0; width:100%; text-align:center; color:var(--pink); opacity:.55; transform:translate(3px,2px); }
     .glitch::after  { content:attr(data-text); position:absolute; left:0; width:100%; text-align:center; color:var(--yellow); opacity:.40; transform:translate(-3px,-2px); }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
     
     .neon-line { height:1.5px; background:var(--yellow); opacity:.45; margin:4px auto 10px; width:55%; }
     .title-main { font-size:clamp(30px,8.5vw,50px); color:var(--yellow); margin:6px 0 4px; letter-spacing:2px; }
@@ -1487,15 +1488,17 @@
 
       <!-- SEÇÃO IA -->
       <div class="cfg-section" id="sec-ia">
-        <div class="cfg-section-title" style="color:var(--pink); border-color:var(--pink)">🤖 INTELIGÊNCIA ARTIFICIAL — GEMINI</div>
-        <div style="color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.5px;line-height:1.6;margin-bottom:4px;">
-          Cole sua chave gratuita do Google Gemini para ativar o Personal Trainer com IA real.<br>
-          <span style="color:rgba(0,240,255,.6)">// 1500 requisições grátis por dia</span>
+        <div class="cfg-section-title" style="color:var(--pink); border-color:var(--pink)">🤖 INTELIGÊNCIA ARTIFICIAL — CYBER PERSONAL</div>
+        <div style="color:var(--dim);font-size:clamp(9px,2.5vw,11px);font-weight:bold;letter-spacing:.5px;line-height:1.6;margin-bottom:10px;">
+          IA avançada integrada — <span style="color:var(--green)">sem necessidade de API key</span>.<br>
+          <span style="color:rgba(0,240,255,.6)">// Powered by Pollinations AI · Modelo GPT-4o · Totalmente gratuito</span>
         </div>
-        <input class="ia-key-input" type="password" id="cfg-gemini-key" placeholder="AIzaSy...">
-        <div style="display:flex;gap:8px;">
-          <button class="btn-sec pink" style="flex:1;font-size:clamp(11px,3vw,13px);padding:11px 6px;" onclick="salvarApiKey()">✔ SALVAR CHAVE</button>
-          <button class="btn-sec" onclick="window.open('https://aistudio.google.com/app/apikey','_blank')" style="flex:1;font-size:clamp(10px,2.7vw,12px);padding:11px 4px;border-color:var(--yellow);color:var(--yellow);">🔑 PEGAR CHAVE GRÁTIS</button>
+        <div id="cfg-ia-status-box" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,255,64,.3);background:rgba(0,255,64,.06);margin-bottom:10px;">
+          <div id="cfg-ia-dot" style="width:10px;height:10px;background:var(--green);border-radius:50%;flex-shrink:0;box-shadow:0 0 8px rgba(0,255,64,.8);animation:pulseDot 2s infinite;"></div>
+          <div>
+            <div style="color:var(--green);font-size:clamp(10px,2.8vw,12px);font-weight:bold;letter-spacing:.5px;">✔ IA ATIVA — PRONTA PARA USAR</div>
+            <div style="color:var(--dim);font-size:clamp(9px,2.4vw,10px);margin-top:2px;">Não é necessário nenhuma configuração</div>
+          </div>
         </div>
         <div class="ia-key-status" id="cfg-ia-status"></div>
       </div>
@@ -3658,59 +3661,69 @@ function ptSelecionarNivel(btn) {
 }
 
 // --- GERAÇÃO DO PLANO VIA IA ---
-// ── GEMINI API — FUNÇÕES DE ACESSO ─────────────────────────────────────
-function getGeminiKey() {
-  return localStorage.getItem('gym_gemini_key') || '';
-}
-
-function salvarApiKey() {
-  const key = document.getElementById('cfg-gemini-key').value.trim();
-  const statusEl = document.getElementById('cfg-ia-status');
-  if (!key || key.length < 20) {
-    statusEl.textContent = '❌ Chave muito curta ou vazia.';
-    statusEl.style.color = 'var(--pink)';
-    return;
-  }
-  localStorage.setItem('gym_gemini_key', key);
-  statusEl.textContent = '✔ CHAVE SALVA! IA ATIVADA.';
-  statusEl.style.color = 'var(--green)';
-  setTimeout(() => { statusEl.textContent = ''; }, 4000);
-}
-
-async function chamadaGemini(prompt, forcarJSON = false) {
-  const key = getGeminiKey();
-  if (!key) throw new Error('SEM_CHAVE');
-  const genConfig = forcarJSON
-    ? { temperature: 0.2, maxOutputTokens: 3072, responseMimeType: 'application/json' }
-    : { temperature: 0.7, maxOutputTokens: 2048 };
-
-  // Timeout de 90 segundos (suficiente para a IA gerar o plano)
+// ── POLLINATIONS AI — FUNÇÕES DE ACESSO (SEM API KEY) ───────────────────
+// Usa Pollinations.ai: gratuito, sem autenticação, modelo GPT-4o
+async function chamadaIA(prompt, forcarJSON = false) {
+  // Timeout de 90 segundos
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 90000);
 
+  const systemPrompt = forcarJSON
+    ? 'Você é um personal trainer expert. Responda APENAS com JSON válido, sem markdown, sem texto extra, sem explicações. Apenas o objeto JSON puro.'
+    : 'Você é um personal trainer expert e nutricionista esportivo chamado CYBER PERSONAL. Responda de forma direta, prática e motivadora em português brasileiro. Seja conciso e útil.';
+
   try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: genConfig
-        })
-      }
-    );
+    // Pollinations Text API — gratuita, sem API key, usa GPT-4o
+    const resp = await fetch('https://text.pollinations.ai/openai', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'openai',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user',   content: prompt }
+        ],
+        temperature: forcarJSON ? 0.1 : 0.7,
+        max_tokens: forcarJSON ? 4000 : 2048,
+        private: true
+      })
+    });
     clearTimeout(timeoutId);
+    if (!resp.ok) {
+      // Tenta fallback no modelo alternativo
+      throw new Error('HTTP ' + resp.status);
+    }
     const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.candidates[0].content.parts[0].text;
+    const texto = data.choices?.[0]?.message?.content || '';
+    if (!texto) throw new Error('Resposta vazia da IA');
+    return texto;
   } catch(e) {
     clearTimeout(timeoutId);
     if (e.name === 'AbortError') throw new Error('Tempo esgotado. Verifique sua conexão e tente novamente.');
-    throw e;
+    // Tenta endpoint alternativo do Pollinations
+    try {
+      const controller2 = new AbortController();
+      const timeout2 = setTimeout(() => controller2.abort(), 60000);
+      const resp2 = await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai&system=${encodeURIComponent(systemPrompt)}&private=true`, {
+        signal: controller2.signal
+      });
+      clearTimeout(timeout2);
+      const texto2 = await resp2.text();
+      if (!texto2) throw new Error('Resposta vazia');
+      return texto2;
+    } catch(e2) {
+      throw new Error('Serviço IA temporariamente indisponível. Usando plano local como alternativa.');
+    }
   }
 }
+
+// Alias para compatibilidade com código existente
+async function chamadaGemini(prompt, forcarJSON = false) {
+  return chamadaIA(prompt, forcarJSON);
+}
+
+function salvarApiKey() { /* não necessário com Pollinations */ }
 
 // Parser robusto: extrai JSON válido mesmo com markdown, texto antes/depois, ou espaços
 function extrairJSON(texto) {
@@ -3737,11 +3750,6 @@ let chatHistorico = [];
 
 function abrirChatPersonal() {
   clickBeep();
-  const key = getGeminiKey();
-  if (!key) {
-    alert('⚠️ Configure sua chave Gemini em:\nMENU → ⚙️ CONFIGURAÇÕES → 🤖 INTELIGÊNCIA ARTIFICIAL\n\nÉ gratuita no Google AI Studio!');
-    return;
-  }
   document.getElementById('modal-chat-personal').classList.add('active');
   document.getElementById('chat-input-msg').focus();
 }
@@ -3789,17 +3797,13 @@ Aluno pergunta: ${msg}
 Responda em no máximo 3 parágrafos curtos. Seja direto e útil.`;
 
   try {
-    const resposta = await chamadaGemini(prompt);
+    const resposta = await chamadaIA(prompt);
     typing.remove();
     adicionarMsgChat(resposta, 'ia');
     chatHistorico.push({ role: 'ia', text: resposta });
   } catch(e) {
     typing.remove();
-    if (e.message === 'SEM_CHAVE') {
-      adicionarMsgChat('⚠️ Configure a chave Gemini em Configurações → IA.', 'erro');
-    } else {
-      adicionarMsgChat('❌ Erro: ' + e.message, 'erro');
-    }
+    adicionarMsgChat('❌ Erro: ' + e.message, 'erro');
   }
   input.disabled = false;
   input.focus();
@@ -3812,14 +3816,6 @@ document.addEventListener('DOMContentLoaded', () => {
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMsgPersonal(); }
     });
-  }
-  // Carrega chave salva na config
-  const savedKey = getGeminiKey();
-  if (savedKey) {
-    const el = document.getElementById('cfg-gemini-key');
-    if (el) el.value = savedKey;
-    const st = document.getElementById('cfg-ia-status');
-    if (st) { st.textContent = '✔ IA ATIVADA'; st.style.color = 'var(--green)'; }
   }
 });
 
@@ -3865,43 +3861,52 @@ async function gerarTreinoIA() {
     }
   }, 1000);
 
-  const key = getGeminiKey();
+  const nDias = ptDiasSelecionados.length;
+  const obsTexto = obs ? `\nRestrições importantes a respeitar: ${obs}.` : '';
+  const exPorDia = nDias <= 3 ? 6 : 5;
+  const localTexto = local !== 'Academia'
+    ? `\nLocal de treino: ${local}. Equipamentos disponíveis: ${equips.length > 0 ? equips.join(', ') : 'apenas peso corporal'}. Crie exercícios SOMENTE com esses equipamentos.`
+    : '\nLocal de treino: Academia completa (todos os equipamentos disponíveis).';
 
-  if (!key) {
-    // Sem chave → fallback local com aviso
-    clearInterval(_iaTimer);
-    falar('Usando modo local. Configure a chave Gemini nas configurações para IA real!', 'Modo local...');
-    setTimeout(() => {
-      try {
-        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0, modelo, local, equips });
-        localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
-        localStorage.setItem(PT_SEMANAS_KEY, '0');
-        localStorage.setItem('pt_params', JSON.stringify({peso,altura,idade,sexo,biotipo,foco,obs,dias:ptDiasSelecionados,nivel:ptNivelSelecionado,modelo,local,equips}));
-        ptSemanasConcluidas = 0;
-        loading.style.display = 'none'; btnGerar.style.display = 'block';
-        renderizarPlano(); irPara('screen-pt-plano');
-        falar('Plano local gerado! Para IA real, configure a chave Gemini nas configurações.', 'Plano criado!');
-      } catch(err) {
-        loading.style.display = 'none'; btnGerar.style.display = 'block';
-        alert('Erro: ' + err.message);
-      }
-    }, 1200);
-    return;
+  let modeloInstrucao = '';
+  if (modelo === 'fullbody' || modelo === 'auto' && nDias <= 3) {
+    modeloInstrucao = '\nMODELO OBRIGATÓRIO: FULL BODY — cada dia deve treinar o corpo inteiro (peito, costas, ombros, bíceps, tríceps, pernas, glúteos, abdômen). Distribua os grupos musculares de forma equilibrada em cada sessão.';
+  } else if (modelo === 'ABC') {
+    modeloInstrucao = '\nMODELO: ABC — Dia A: Peito+Tríceps+Ombro, Dia B: Costas+Bíceps, Dia C: Pernas+Glúteos+Abdômen. Repita o ciclo nos dias selecionados.';
+  } else if (modelo === 'ABCD') {
+    modeloInstrucao = '\nMODELO: ABCD — Dia A: Peito+Tríceps, Dia B: Costas+Bíceps, Dia C: Ombros+Abdômen, Dia D: Pernas+Glúteos. Repita o ciclo.';
+  } else if (modelo === 'push_pull') {
+    modeloInstrucao = '\nMODELO: Push/Pull/Legs — Dia Push: Peito+Ombro+Tríceps, Dia Pull: Costas+Bíceps, Dia Legs: Pernas+Glúteos+Abdômen. Repita o ciclo.';
+  } else if (modelo === 'hiit') {
+    modeloInstrucao = '\nMODELO: HIIT/Funcional — Use circuitos de alta intensidade, exercícios funcionais, pouco descanso (20-40s), exercícios compostos que elevam o cardio.';
+  } else if (modelo === 'cardio_muscu') {
+    modeloInstrucao = '\nMODELO: Cardio + Musculação — Combine exercícios aeróbicos (corrida, bicicleta, corda) com musculação. 2-3 exercícios cardio + 3-4 musculação por sessão.';
   }
 
-  const nDias = ptDiasSelecionados.length;
-  const obsTexto = obs ? ` Restrições: ${obs}.` : '';
-  const exPorDia = nDias <= 3 ? 5 : 4;
-  const localTexto = local !== 'Academia' ? ` Local: ${local}. Equipamentos disponíveis: ${equips.join(', ')}.` : ' Local: Academia (todos os equipamentos disponíveis).';
-  const modeloTexto = modelo !== 'auto' ? ` Modelo de treino: ${modelo}.` : '';
-  const prompt = `Personal trainer expert. Gere plano de treino em JSON puro (sem markdown).
-Aluno: ${nomeUsuario}, ${peso}kg, ${altura}cm, ${idade}a, ${sexo}, biotipo ${biotipo}, objetivo ${foco}, nível ${ptNivelSelecionado}, dias: ${ptDiasSelecionados.join(',')}${obsTexto}${localTexto}${modeloTexto}
-Regras: ${exPorDia} exercícios/dia, grupos musculares variados, séries/reps/descanso compatíveis com o nível, instrucao máx 80 chars em pt-BR. RESPEITE o local e equipamentos. ${modelo === 'fullbody' ? 'OBRIGATÓRIO: cada dia deve treinar o corpo inteiro (Full Body).' : ''}${obs ? ' RESPEITE as restrições.' : ''}
-Retorne APENAS JSON válido neste formato exato:
-{"subtitulo":"Plano ${foco} - ${ptNivelSelecionado}","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Full Body","exercicios":[{"nome":"Supino Reto","series":3,"reps":"12","descanso":"60s","instrucao":"Deite, desça ao peito, empurre explosivo."}]}]}`;
+  const prompt = `Você é um personal trainer expert de alto nível. Crie um plano de treino COMPLETO E PROFISSIONAL para o seguinte aluno:
+
+DADOS DO ALUNO:
+- Nome: ${nomeUsuario}
+- Peso: ${peso}kg | Altura: ${altura}cm | Idade: ${idade} anos | Sexo: ${sexo}
+- Biotipo: ${biotipo}
+- Objetivo principal: ${foco}
+- Nível de experiência: ${ptNivelSelecionado}
+- Dias de treino: ${ptDiasSelecionados.join(', ')} (${nDias} dias/semana)${obsTexto}${localTexto}${modeloInstrucao}
+
+REGRAS OBRIGATÓRIAS:
+1. Exatamente ${exPorDia} exercícios por dia de treino
+2. Para cada exercício: séries (número inteiro), reps (string como "12" ou "30s"), descanso (string como "60s"), instrução técnica detalhada de execução (máximo 100 caracteres em pt-BR)
+3. Séries/reps/descanso compatíveis com nível ${ptNivelSelecionado}
+4. Nomes dos dias em MAIÚSCULAS (ex: "SEGUNDA", "TERÇA")
+5. Grupo muscular do dia em português
+6. Varie os exercícios — não repita o mesmo exercício em dias diferentes
+7. Instrução deve ser técnica e útil para execução correta
+
+Retorne APENAS o JSON puro abaixo, sem markdown, sem texto antes ou depois:
+{"subtitulo":"Plano ${foco} — ${ptNivelSelecionado} — ${nDias}x/semana","dias":[{"diaNome":"SEGUNDA","grupoMuscular":"Peito e Tríceps","exercicios":[{"nome":"Supino Reto com Barra","series":4,"reps":"10","descanso":"75s","instrucao":"Agarre a barra, desça ao peito e empurre explosivamente. Costas levemente arqueadas."}]}]}`;
 
   try {
-    const texto = await chamadaGemini(prompt, true);
+    const texto = await chamadaIA(prompt, true);
     clearInterval(_iaTimer);
     ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
@@ -3910,21 +3915,18 @@ Retorne APENAS JSON válido neste formato exato:
     ptSemanasConcluidas = 0;
     loading.style.display = 'none'; btnGerar.style.display = 'block';
     renderizarPlano(); irPara('screen-pt-plano');
-    falar('Plano criado com Inteligência Artificial, ' + nomeUsuario + '! Gemini montou seu treino personalizado. Hora de arrasar!', 'Plano IA criado!');
+    falar('Plano criado com Inteligência Artificial, ' + nomeUsuario + '! Seu treino personalizado está pronto. Hora de arrasar!', 'Plano IA criado!');
   } catch(err) {
     clearInterval(_iaTimer);
     loading.style.display = 'none'; btnGerar.style.display = 'block';
-    if (err.message.includes('API_KEY_INVALID') || err.message.includes('PERMISSION_DENIED')) {
-      alert('❌ Chave API inválida!\n\nVá em Configurações → 🤖 IA e adicione uma chave válida do Google AI Studio.');
-    } else {
-      alert('⚠️ Erro na IA:\n' + err.message + '\n\nUsando plano local como fallback...');
-      try {
-        ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0, modelo, local, equips });
-        localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
-        localStorage.setItem(PT_SEMANAS_KEY, '0'); ptSemanasConcluidas = 0;
-        renderizarPlano(); irPara('screen-pt-plano');
-      } catch(e2) { alert('Erro no fallback: ' + e2.message); }
-    }
+    // Fallback automático para plano local
+    try {
+      ptPlanoAtual = ptGerarPlanoLocal({ peso, altura, idade, sexo, biotipo, foco, obs, dias: ptDiasSelecionados, nivel: ptNivelSelecionado, evolucao: 0, modelo, local, equips });
+      localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
+      localStorage.setItem(PT_SEMANAS_KEY, '0'); ptSemanasConcluidas = 0;
+      renderizarPlano(); irPara('screen-pt-plano');
+      falar('Plano gerado com sucesso, ' + nomeUsuario + '! Treino pronto para começar!', 'Plano criado!');
+    } catch(e2) { alert('Erro ao gerar plano: ' + e2.message); }
   }
 }
 
@@ -4356,7 +4358,7 @@ Responda SOMENTE com JSON válido, mesmo formato de antes:
 }`;
 
   try {
-    const texto = await chamadaGemini(prompt, true);
+    const texto = await chamadaIA(prompt, true);
     ptPlanoAtual = extrairJSON(texto);
     localStorage.setItem(PT_PLANO_KEY, JSON.stringify(ptPlanoAtual));
     localStorage.setItem(PT_SEMANAS_KEY, '0');
@@ -4365,11 +4367,7 @@ Responda SOMENTE com JSON válido, mesmo formato de antes:
     renderizarPlano();
     falar('Plano evoluído com Inteligência Artificial! Seus novos treinos estão ainda mais intensos. Bora superar seus limites, ' + nomeUsuario + '!', 'Plano evoluído!');
   } catch(e) {
-    if (e.message === 'SEM_CHAVE') {
-      alert('⚠️ Configure a chave Gemini em Configurações → 🤖 IA para evoluir o plano com IA real.');
-    } else {
-      alert('Erro ao evoluir plano: ' + e.message);
-    }
+    alert('Erro ao evoluir plano: ' + e.message);
   }
 }
 
@@ -6025,12 +6023,12 @@ function agendaLimparHistorico() {
     <div class="chat-header">
       <div>
         <div class="chat-title">💬 PERSONAL TRAINER IA</div>
-        <div style="color:var(--dim);font-size:10px;font-weight:bold;letter-spacing:.5px;margin-top:2px;">// Powered by Google Gemini</div>
+        <div style="color:var(--dim);font-size:10px;font-weight:bold;letter-spacing:.5px;margin-top:2px;">// Powered by Pollinations AI · GPT-4o</div>
       </div>
       <button class="chat-close" onclick="fecharChatPersonal()">✕</button>
     </div>
     <div class="chat-msgs" id="chat-msgs-list">
-      <div class="chat-msg ia">Olá! Sou seu Personal Trainer com IA real. Pode me perguntar sobre exercícios, técnicas, nutrição, recuperação ou dúvidas sobre seu plano de treino.</div>
+      <div class="chat-msg ia">Olá! Sou o <strong>CYBER PERSONAL</strong> 🤖 — seu personal trainer com IA. Pode me perguntar sobre exercícios, técnicas de execução, nutrição, recuperação muscular ou qualquer dúvida sobre seu treino. Estou aqui para te ajudar!</div>
     </div>
     <div class="chat-input-row">
       <textarea class="chat-input" id="chat-input-msg" rows="2" placeholder="Pergunte algo ao seu personal..."></textarea>
